@@ -3,7 +3,6 @@ import json
 import argparse
 from collections import Counter
 import os
-import pickle
 import signal
 import sys
 import requests
@@ -65,7 +64,7 @@ class GachaSystem:
                 'pulls_since_last_5star': self.pulls_since_last_5star
             }
             
-            # 创建包含注释的YAML字符串
+            # Yaml注释
             yaml_str = "# 抽卡模拟器数据文件\n"
             yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n\n"
             
@@ -135,7 +134,8 @@ class GachaSystem:
             self.current_banner = banner_name
             if banner_name not in self.banner_pulls:
                 self.banner_pulls[banner_name] = 0
-            print(f"切换到卡池: {self.pools['banners'][banner_name]['name']}")
+            pool_type = "角色" if "character_up_5_star" in self.pools['banners'][banner_name] else "光锥"
+            print(f"切换到{pool_type}卡池: {self.pools['banners'][banner_name]['name']}")
             self.save_state()
         else:
             print(f"错误: 卡池 '{banner_name}' 不存在")
@@ -182,9 +182,13 @@ class GachaSystem:
         print(f"\n使用 set <卡池ID> 来切换卡池{RESET}")
 
     def do_pull(self, times):
+        
         if not self.current_banner:
             print("错误: 未选择卡池")
             return
+        
+        # 判断卡池类型
+        pool_type = "character" if "character_up_5_star" in self.pools['banners'][self.current_banner] else "weapon"
 
         print(f"开始抽卡，当前卡池: {CYAN}{self.pools['banners'][self.current_banner]['name']}{RESET}")
 
@@ -240,13 +244,14 @@ class GachaSystem:
         self.print_summary(summary)
 
         for pulls, name, is_up in five_star_results:
+            item_type = "角色" if pool_type == "character" else "光锥"
             if self.current_banner != 'standard':
                 if is_up:
-                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！恭喜没歪！{RESET}")
+                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！恭喜没歪！{RESET}")
                 else:
-                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！可惜歪了！{RESET}")
+                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！可惜歪了！{RESET}")
             else:
-                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！{RESET}")
+                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！{RESET}")
 
         print(f"结束抽卡，当前卡池: {CYAN}{self.pools['banners'][self.current_banner]['name']}{RESET}")
         self.print_pity_info()
