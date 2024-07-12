@@ -225,11 +225,11 @@ class GachaSystem:
         for pulls, name, is_up in five_star_results:
             if self.current_banner != 'standard':
                 if is_up:
-                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星角色{name}！恭喜没歪！{RESET}")
+                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！恭喜没歪！{RESET}")
                 else:
-                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星角色{name}！可惜歪了！{RESET}")
+                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！可惜歪了！{RESET}")
             else:
-                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星角色/武器{name}！{RESET}")
+                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星角色/光锥{name}！{RESET}")
 
         print(f"结束抽卡，当前卡池: {CYAN}{self.pools['banners'][self.current_banner]['name']}{RESET}")
         self.print_pity_info()

@@ -30,11 +30,9 @@ jobs:
     - name: Create ZIP file
       run: |
         cp banners.json dist
-        cd dist
-        7z a ../gacha.zip gacha.exe banners.json
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: gacha
-        path: gacha.zip
+        path: dist/
