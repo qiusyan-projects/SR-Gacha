@@ -6,13 +6,14 @@ import os
 import pickle
 import signal
 import sys
+import requests
 
 os.system("title 抽卡模拟器")
 
-if not os.path.exists('banners.json'):
-    print("错误: 'banners.json' 文件不存在。请确保文件与脚本在同一目录中。")
-    input("按任意键退出...")  
-    sys.exit(1)  
+# if not os.path.exists('banners.json'):
+#     print("错误: 'banners.json' 文件不存在。请确保文件与脚本在同一目录中。")
+#     input("按任意键退出...")  
+#     sys.exit(1)  
 
 # 颜色定义
 PURPLE = '\033[95m'
@@ -23,10 +24,16 @@ RESET = '\033[0m'
 CYAN = '\033[36m'
 YELLOW = '\033[33m'
 BLUE = '\033[34m'
+# 变量
+BANNER_FILE = 'banners.json'
+GITHUB_PROXY = 'https://mirror.ghproxy.com'
+BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.json"
+
 
 class GachaSystem:
     def __init__(self, pool_file):
         self.pool_file = pool_file
+        self.ensure_pool_file_exists()
         self.load_pools(pool_file)
         self.current_banner = None
         self.pity_5 = 0
@@ -63,7 +70,6 @@ class GachaSystem:
                     'successful_featured_5star': self.successful_featured_5star,
                     'pulls_since_last_5star': self.pulls_since_last_5star
                 }, f)
-            # print("状态已保存到 'data.dat'.")
         except Exception as e:
             print(f"无法保存数据: {e}")
 
@@ -86,7 +92,26 @@ class GachaSystem:
         except FileNotFoundError:
             print("没有找到 'data.dat' 文件，使用初始数据.")
         except Exception as e:
-            print(f"无法加载状态: {e}")
+            print(f"无法加载数据: {e}")
+
+    def ensure_pool_file_exists(self):
+        if not os.path.exists(self.pool_file):
+            print(f"错误: '{self.pool_file}' 文件不存在。")
+            download = input("是否从GitHub下载最新的banners.json? (y/n): ").lower().strip()
+            if download == 'y':
+                try:
+                    proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
+                    response = requests.get(proxy_url)
+                    response.raise_for_status()
+                    with open(self.pool_file, 'wb') as f:
+                        f.write(response.content)
+                    print(f"{GREEN}成功下载 '{self.pool_file}'！{RESET}")
+                except requests.RequestException as e:
+                    print(f"{RED}下载失败: {e}{RESET}")
+                    sys.exit(1)
+            else:
+                print("你选择了不从Github下载数据文件，请手动将banners.json文件放置于程序目录")
+                sys.exit(1)
 
     def set_banner(self, banner_name):
         if banner_name in self.pools['banners']:
@@ -277,30 +302,37 @@ class GachaSystem:
 
     def print_results(self, results):
         print("\n抽卡结果:")
-        for i, result in enumerate(results, 1):
-            name = result['name']
-            is_up = result['is_up']
-            rarity = result['rarity']
-            
-            if rarity == '5星':
-                color = GOLD
-            elif rarity == '4星':
-                color = PURPLE
-            else:
-                color = RESET
-            
-            if rarity == '3星':
+        half = len(results) // 2
+        for i in range(max(half, len(results) - half)):
+            left = self.format_result(results[i], i + 1) if i < len(results) else ""
+            right = self.format_result(results[i + half], i + half + 1) if i + half < len(results) else ""
+            print(f"{left:<50} {right}")
+
+    def format_result(self, result, index):
+        if not result:
+            return ""
+        name = result['name']
+        is_up = result['is_up']
+        rarity = result['rarity']
+        
+        if rarity == '5星':
+            color = GOLD
+        elif rarity == '4星':
+            color = PURPLE
+        else:
+            color = RESET
+        
+        if rarity == '3星':
+            result_text = f"{color}{name}{RESET}"
+        else:
+            if self.current_banner == 'standard':
                 result_text = f"{color}{name}{RESET}"
+            elif is_up:
+                result_text = f"{color}{name} {GREEN}(UP){RESET}"
             else:
-                if self.current_banner == 'standard':
-                    result_text = f"{color}{name}{RESET}"
-                elif is_up:
-                    result_text = f"{color}{name} {GREEN}(UP){RESET}"
-                else:
-                    result_text = f"{color}{name} {RED}(Non-UP){RESET}"
-            
-            print(f"第{i}抽: {result_text}")
-            
+                result_text = f"{color}{name} {RED}(Non-UP){RESET}"
+        
+        return f"第{index:2d}抽: {result_text}"
 
 
     def print_summary(self, summary):
@@ -392,7 +424,7 @@ class GachaSystem:
         print("pull <次数> - 进行抽卡")
         print("info - 查看抽卡统计信息")
         print("version - 查看版本信息和指令列表")
-        print("stop - 退出程序")
+        print("exit - 退出程序")
 
     def show_current_banner(self):
         if not self.current_banner:
@@ -463,7 +495,11 @@ def main():
     print("exit - 退出程序")
     print()
 
-    gacha = GachaSystem('banners.json')
+    try:
+        gacha = GachaSystem(BANNER_FILE)
+    except SystemExit:
+        input("按任意键退出...")
+        return
 
     try:
         while True:
