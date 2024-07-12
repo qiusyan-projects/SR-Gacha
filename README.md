@@ -54,6 +54,8 @@ reload - 重新加载卡池配置文件
 >
 > 可以通过修改卡池文件 (banners.json) 来实现 **原神 / 绝区零** 抽卡的效果
 
+## 友情链接
+全新异世探险百合类GalGame正在制作中！本体完全免费，点击链接快速前往仓库：https://github.com/MewBaka/OtherSideProject
 
 **点个Star叭 💕**
 
