@@ -85,7 +85,6 @@ class GachaSystem:
             
             with open('gacha_data.yaml', 'w', encoding='utf-8') as f:
                 f.write(yaml_str)
-            print("数据已保存到 'gacha_data.yaml'")
         except Exception as e:
             print(f"无法保存数据: {e}")
 
