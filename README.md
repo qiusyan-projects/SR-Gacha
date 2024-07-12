@@ -1,4 +1,3 @@
-# SR-Gacha
 <div align=center>
 
 ![SR-Gacha](https://socialify.git.ci/qiusyan-projects/SR-Gacha/image?description=1&font=Jost&forks=1&issues=1&language=1&logo=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F175322378%3Fv%3D4&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
