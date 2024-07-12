@@ -12,6 +12,8 @@ _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/qiusyan-projects/SR-Gacha)
 ![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml)
+![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha)
+
 
 </div>
 
@@ -21,9 +23,9 @@ _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 
 **如果你是 `Windows` 用户，那么可以使用我打包好的exe文件一键启动**
 
-Actions: [Nightly.link](https://nightly.link/qiusyan-projects/SR-Gacha/workflows/main/main/gacha.zip) **（推荐使用）**
+Actions:  [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml)](https://nightly.link/qiusyan-projects/SR-Gacha/workflows/main/main/gacha.zip) **（推荐使用）**
 
-Release: [Releases](https://github.com/qiusyan-projects/SR-Gacha/releases)  
+Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha)](https://github.com/qiusyan-projects/SR-Gacha/releases)  
 
 ## 通过Python启动
 
