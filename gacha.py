@@ -7,13 +7,9 @@ import pickle
 import signal
 import sys
 import requests
+import yaml
 
 os.system("title 抽卡模拟器")
-
-# if not os.path.exists('banners.json'):
-#     print("错误: 'banners.json' 文件不存在。请确保文件与脚本在同一目录中。")
-#     input("按任意键退出...")  
-#     sys.exit(1)  
 
 # 颜色定义
 PURPLE = '\033[95m'
@@ -41,11 +37,10 @@ class GachaSystem:
         self.failed_featured_pulls = 0
         self.total_pulls = 0
         self.banner_pulls = {}
-        # 新增统计属性
-        self.gold_records = []  # 记录每次出金的抽数
-        self.purple_records = []  # 记录每次出紫的抽数
-        self.failed_featured_5star = 0  # 歪掉的次数
-        self.successful_featured_5star = 0  # 不歪的次数
+        self.gold_records = []
+        self.purple_records = []
+        self.failed_featured_5star = 0 
+        self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
         self.load_state()
 
@@ -56,27 +51,49 @@ class GachaSystem:
 
     def save_state(self):
         try:
-            with open('data.dat', 'wb') as f:
-                pickle.dump({
-                    'current_banner': self.current_banner,
-                    'pity_5': self.pity_5,
-                    'pity_4': self.pity_4,
-                    'failed_featured_pulls': self.failed_featured_pulls,
-                    'total_pulls': self.total_pulls,
-                    'banner_pulls': self.banner_pulls,
-                    'gold_records': self.gold_records,
-                    'purple_records': self.purple_records,
-                    'failed_featured_5star': self.failed_featured_5star,
-                    'successful_featured_5star': self.successful_featured_5star,
-                    'pulls_since_last_5star': self.pulls_since_last_5star
-                }, f)
+            state = {
+                'current_banner': self.current_banner,
+                'pity_5': self.pity_5,
+                'pity_4': self.pity_4,
+                'failed_featured_pulls': self.failed_featured_pulls,
+                'total_pulls': self.total_pulls,
+                'banner_pulls': self.banner_pulls,
+                'gold_records': self.gold_records,
+                'purple_records': self.purple_records,
+                'failed_featured_5star': self.failed_featured_5star,
+                'successful_featured_5star': self.successful_featured_5star,
+                'pulls_since_last_5star': self.pulls_since_last_5star
+            }
+            
+            # 创建包含注释的YAML字符串
+            yaml_str = "# 抽卡模拟器数据文件\n"
+            yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n\n"
+            
+            yaml_str += yaml.dump(state, allow_unicode=True, sort_keys=False)
+            
+            # 为每个键添加注释
+            yaml_str = yaml_str.replace('current_banner:', '# 当前选择的卡池\ncurrent_banner:')
+            yaml_str = yaml_str.replace('pity_5:', '# 距离保底5星的抽数\npity_5:')
+            yaml_str = yaml_str.replace('pity_4:', '# 距离保底4星的抽数\npity_4:')
+            yaml_str = yaml_str.replace('failed_featured_pulls:', '# 未抽中UP角色/光锥的次数\nfailed_featured_pulls:')
+            yaml_str = yaml_str.replace('total_pulls:', '# 总抽卡次数\ntotal_pulls:')
+            yaml_str = yaml_str.replace('banner_pulls:', '# 每个卡池的抽卡次数\nbanner_pulls:')
+            yaml_str = yaml_str.replace('gold_records:', '# 获得5星的抽数记录\ngold_records:')
+            yaml_str = yaml_str.replace('purple_records:', '# 获得4星的抽数记录\npurple_records:')
+            yaml_str = yaml_str.replace('failed_featured_5star:', '# 歪掉的5星次数\nfailed_featured_5star:')
+            yaml_str = yaml_str.replace('successful_featured_5star:', '# 抽中UP的5星次数\nsuccessful_featured_5star:')
+            yaml_str = yaml_str.replace('pulls_since_last_5star:', '# 距离上次5星的抽数\npulls_since_last_5star:')
+            
+            with open('gacha_data.yaml', 'w', encoding='utf-8') as f:
+                f.write(yaml_str)
+            print("数据已保存到 'gacha_data.yaml'")
         except Exception as e:
             print(f"无法保存数据: {e}")
 
     def load_state(self):
         try:
-            with open('data.dat', 'rb') as f:
-                state = pickle.load(f)
+            with open('gacha_data.yaml', 'r', encoding='utf-8') as f:
+                state = yaml.safe_load(f)
                 self.current_banner = state.get('current_banner')
                 self.pity_5 = state.get('pity_5', 0)
                 self.pity_4 = state.get('pity_4', 0)
@@ -88,9 +105,9 @@ class GachaSystem:
                 self.failed_featured_5star = state.get('failed_featured_5star', 0)
                 self.successful_featured_5star = state.get('successful_featured_5star', 0)
                 self.pulls_since_last_5star = state.get('pulls_since_last_5star', 0)
-            print("数据已从 'data.dat' 加载.")
+            print("数据已从 'gacha_data.yaml' 加载.")
         except FileNotFoundError:
-            print("没有找到 'data.dat' 文件，使用初始数据.")
+            print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
         except Exception as e:
             print(f"无法加载数据: {e}")
 
@@ -542,7 +559,7 @@ def main():
         pass
     
     print("\n感谢使用抽卡模拟器！祝抽卡愉快！")
-    print(f"\n跟程序同一目录的{CYAN}`data.dat`{RESET}是数据文件，保存了你的抽卡记录，删不删由你")
+    print(f"\n跟程序同一目录的{CYAN}`gacha_data.yaml`{RESET}是数据文件，保存了你的抽卡记录，删不删由你")
     input("按任意键退出...")  
 
 if __name__ == "__main__":
