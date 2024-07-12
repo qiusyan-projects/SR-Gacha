@@ -1,7 +1,7 @@
 # SR-Gacha
 <div align=center>
 
-![64a53733cd8bb10824147ba921a13f85.png](https://s2.loli.net/2024/07/12/QpwPVnNlqHz8ExR.png)
+![image.png](https://github.com/user-attachments/assets/98af3268-1ffc-4179-bfae-3d05849fc211)
 
 _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 
@@ -30,7 +30,7 @@ Release: [Releases](https://github.com/qiusyan-projects/SR-Gacha/releases)
 适用于 `Windows/MacOS/Linux` 
 
 1. 使用 `pip install -r requirements.txt` 安装依赖
-2. 使用 `python gacha.py`运行脚本
+2. 使用 `python gacha.py` 运行脚本
 3. Have Fun!
 
 
