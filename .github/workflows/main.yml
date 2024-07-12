@@ -33,7 +33,7 @@ jobs:
 
     - name: Create ZIP file
       run: |
-        cp banners.json dist
+        cp banners.yaml dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
