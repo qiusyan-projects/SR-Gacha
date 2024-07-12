@@ -4,4 +4,5 @@ build/
 # *.ico
 *.dat
 *.spec
-*.yaml
+gacha_data.yaml
+*.json

@@ -1,12 +1,12 @@
 import random
-import json
+import yaml
 import argparse
 from collections import Counter
 import os
 import signal
 import sys
 import requests
-import yaml
+
 
 os.system("title 抽卡模拟器")
 
@@ -20,9 +20,9 @@ CYAN = '\033[36m'
 YELLOW = '\033[33m'
 BLUE = '\033[34m'
 # 变量
-BANNER_FILE = 'banners.json'
+BANNER_FILE = 'banners.yaml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
-BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.json"
+BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yaml"
 
 
 class GachaSystem:
@@ -45,7 +45,7 @@ class GachaSystem:
 
     def load_pools(self, file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
-            self.pools = json.load(f)
+            self.pools = yaml.safe_load(f)
         self.banners = list(self.pools['banners'].keys())
 
     def save_state(self):
@@ -64,7 +64,6 @@ class GachaSystem:
                 'pulls_since_last_5star': self.pulls_since_last_5star
             }
             
-            # Yaml注释
             yaml_str = "# 抽卡模拟器数据文件\n"
             yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n\n"
             
@@ -112,7 +111,7 @@ class GachaSystem:
     def ensure_pool_file_exists(self):
         if not os.path.exists(self.pool_file):
             print(f"错误: '{self.pool_file}' 文件不存在。")
-            download = input("是否从GitHub下载最新的banners.json? (y/n): ").lower().strip()
+            download = input("是否从GitHub下载最新的banners.yaml? (y/n): ").lower().strip()
             if download == 'y':
                 try:
                     proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
@@ -125,7 +124,7 @@ class GachaSystem:
                     print(f"{RED}下载失败: {e}{RESET}")
                     sys.exit(1)
             else:
-                print("你选择了不从Github下载数据文件，请手动将banners.json文件放置于程序目录")
+                print("你选择了不从Github下载数据文件，请手动将banners.yaml文件放置于程序目录")
                 sys.exit(1)
 
     def set_banner(self, banner_name):
