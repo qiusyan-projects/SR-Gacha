@@ -20,9 +20,9 @@ CYAN = '\033[36m'
 YELLOW = '\033[33m'
 BLUE = '\033[34m'
 # 变量
-BANNER_FILE = 'banners.yaml'
+BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
-BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yaml"
+BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
 
 
 class GachaSystem:
@@ -111,7 +111,7 @@ class GachaSystem:
     def ensure_pool_file_exists(self):
         if not os.path.exists(self.pool_file):
             print(f"错误: '{self.pool_file}' 文件不存在。")
-            download = input("是否从GitHub下载最新的banners.yaml? (y/n): ").lower().strip()
+            download = input("是否从GitHub下载最新的banners.yml? (y/n): ").lower().strip()
             if download == 'y':
                 try:
                     proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
@@ -124,7 +124,7 @@ class GachaSystem:
                     print(f"{RED}下载失败: {e}{RESET}")
                     sys.exit(1)
             else:
-                print("你选择了不从Github下载数据文件，请手动将banners.yaml文件放置于程序目录")
+                print("你选择了不从Github下载数据文件，请手动将banners.yml文件放置于程序目录")
                 sys.exit(1)
 
     def set_banner(self, banner_name):
