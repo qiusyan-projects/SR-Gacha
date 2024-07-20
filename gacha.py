@@ -137,6 +137,11 @@ class GachaSystem:
                 self.banner_pulls[banner_name] = 0
             pool_type = "角色" if "character_up_5_star" in self.pools['banners'][banner_name] else "光锥"
             print(f"切换到{pool_type}卡池: {self.pools['banners'][banner_name]['name']}")
+            
+            # 重置大保底状态
+            if banner_name == 'standard':
+                self.is_guaranteed = False
+            
             self.save_state()
         else:
             print(f"错误: 卡池 '{banner_name}' 不存在")
@@ -292,11 +297,13 @@ class GachaSystem:
     def pull_5_star(self, pool_type):
         banner = self.pools['banners'][self.current_banner]
         if self.current_banner == 'standard':
+            # 常驻池逻辑
             all_5_star = (self.pools['common_pools']['character_5_star'] + 
                         self.pools['common_pools']['weapon_5_star'])
             result = random.choice(all_5_star)
             return {"name": result, "is_up": False, "rarity": "5星"}
         else:
+            # 限定池逻辑
             up_key = f"{pool_type}_up_5_star"
             common_key = f"{pool_type}_5_star"
             
@@ -371,10 +378,11 @@ class GachaSystem:
 
     def print_pity_info(self):
         print(f"\n距离下一个5星保底还需: {90 - self.pity_5} 抽")
-        if self.is_guaranteed:
-            print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
-        else:
-            print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
+        if self.current_banner != 'standard':
+            if self.is_guaranteed:
+                print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
+            else:
+                print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
         print(f"距离下一个4星保底还需: {10 - self.pity_4} 抽")
         print(f"当前卡池总抽数: {self.banner_pulls[self.current_banner]}")
         print(f"总抽卡次数: {self.total_pulls}")
@@ -493,10 +501,11 @@ class GachaSystem:
 
         print(f"\n当前卡池抽取次数: {self.banner_pulls.get(self.current_banner, 0)}")
         print(f"距离下一个5星保底还需: {90 - self.pity_5} 抽")
-        if self.is_guaranteed:
-            print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
-        else:
-            print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
+        if self.current_banner != 'standard':
+            if self.is_guaranteed:
+                print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
+            else:
+                print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
         print(f"距离下一个4星保底还需: {10 - self.pity_4} 抽")
 
     def reload_pools(self):
