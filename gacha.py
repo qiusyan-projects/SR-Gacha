@@ -41,6 +41,7 @@ class GachaSystem:
         self.failed_featured_5star = 0 
         self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
+        self.is_guaranteed = False  # 新增：追踪是否处于大保底状态
         self.load_state()
 
     def load_pools(self, file_name):
@@ -61,7 +62,8 @@ class GachaSystem:
                 'purple_records': self.purple_records,
                 'failed_featured_5star': self.failed_featured_5star,
                 'successful_featured_5star': self.successful_featured_5star,
-                'pulls_since_last_5star': self.pulls_since_last_5star
+                'pulls_since_last_5star': self.pulls_since_last_5star,
+                'is_guaranteed': self.is_guaranteed
             }
             
             yaml_str = "# 抽卡模拟器数据文件\n"
@@ -102,6 +104,7 @@ class GachaSystem:
                 self.failed_featured_5star = state.get('failed_featured_5star', 0)
                 self.successful_featured_5star = state.get('successful_featured_5star', 0)
                 self.pulls_since_last_5star = state.get('pulls_since_last_5star', 0)
+                self.is_guaranteed = state.get('is_guaranteed', False)  # 新增：加载大保底状态
             print("数据已从 'gacha_data.yaml' 加载.")
         except FileNotFoundError:
             print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
@@ -307,13 +310,13 @@ class GachaSystem:
             else:
                 common_items = self.pools['common_pools'].get('weapon_5_star', [])
 
-            if random.randint(1, 100) <= 50 or self.failed_featured_pulls >= 1:
+            if random.randint(1, 100) <= 50 or self.is_guaranteed:
                 if up_items:
-                    self.failed_featured_pulls = 0
+                    self.is_guaranteed = False  # 重置大保底状态
                     result = random.choice(up_items)
                     return {"name": result, "is_up": True, "rarity": "5星"}
 
-            self.failed_featured_pulls += 1
+            self.is_guaranteed = True  # 设置大保底状态
             result = random.choice(common_items)
             return {"name": result, "is_up": False, "rarity": "5星"}
 
@@ -368,6 +371,10 @@ class GachaSystem:
 
     def print_pity_info(self):
         print(f"\n距离下一个5星保底还需: {90 - self.pity_5} 抽")
+        if self.is_guaranteed:
+            print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
+        else:
+            print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
         print(f"距离下一个4星保底还需: {10 - self.pity_4} 抽")
         print(f"当前卡池总抽数: {self.banner_pulls[self.current_banner]}")
         print(f"总抽卡次数: {self.total_pulls}")
@@ -486,6 +493,10 @@ class GachaSystem:
 
         print(f"\n当前卡池抽取次数: {self.banner_pulls.get(self.current_banner, 0)}")
         print(f"距离下一个5星保底还需: {90 - self.pity_5} 抽")
+        if self.is_guaranteed:
+            print(f"{GREEN}当前处于大保底状态，下个5星必定为UP{RESET}")
+        else:
+            print(f"{YELLOW}当前处于小保底状态，下个5星有50%概率为UP{RESET}")
         print(f"距离下一个4星保底还需: {10 - self.pity_4} 抽")
 
     def reload_pools(self):
