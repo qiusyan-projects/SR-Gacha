@@ -77,6 +77,7 @@ common_pools:
   - 两个人的演唱会
   - 无边曼舞
   - 谐乐静默之后
+  - 芳华待灼
   weapon_3_star:
   - 锋镝
   - 物穰
@@ -496,6 +497,42 @@ banners:
     - 同一种心情
     - 宇宙市场趋势
     - 谐乐静默之后
+  yunli-c:
+    name: 掷山破云
+    pool_type: character
+    character_up_5_star:
+    - 云璃
+    character_up_4_star:
+    - 寒鸦
+    - 驭空
+    - 铃可
+  yunli-w:
+    name: 云璃光锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 落日时起舞
+    weapon_up_4_star:
+    - 鼹鼠党欢迎你
+    - 此时恰好
+    - 「我」的诞生
+  jiaoqiu-c:
+    name: 鼎中捭阖
+    pool_type: character
+    character_up_5_star:
+    - 椒丘
+    character_up_4_star:
+    - 虎克
+    - 桂乃芬
+    - 阿兰
+  jiaoqiu-w:
+    name: 椒丘光锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 那无数个春天
+    weapon_up_4_star:
+    - 芳华待灼
+    - 猎物的视线
+    - 秘密誓心
   standard:
     name: 群星跃迁
     character_5_star: '@common_pools.character_5_star'
