@@ -35,6 +35,9 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 2. 使用 `python gacha.py` 运行脚本
 3. Have Fun!
 
+## 当前卡池版本 (banners.yml)
+
+`2.4`
 
 ## 其他
 
@@ -52,10 +55,20 @@ reload - 重新加载卡池配置文件
 
 > 这个程序理论上适用于所有米家游戏（只要使用了此概率的）
 >
-> 可以通过修改卡池文件 (banners.json) 来实现 **原神 / 绝区零** 抽卡的效果
+> 可以通过修改卡池文件 (banners.yml) 来实现 **原神 / 绝区零** 抽卡的效果
 
-## 友情链接
+
+
+# 已知问题
+
+- 已知在双栏输出抽卡结果时，当左侧结果末尾有`(UP)` / `(Non-UP)` 标记时会错位
+
+
+
+# 友情链接
 全新异世探险百合类GalGame正在制作中！本体完全免费，点击链接快速前往仓库：https://github.com/MewBaka/OtherSideProject
+
+***
 
 **点个Star叭 💕**
 
