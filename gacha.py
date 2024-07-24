@@ -6,6 +6,7 @@ import os
 import signal
 import sys
 import requests
+from datetime import datetime
 
 
 os.system("title 抽卡模拟器")
@@ -23,7 +24,15 @@ BLUE = '\033[34m'
 BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
 BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
-
+TIPS = [
+    "使用 'info' 命令可以查看你的抽卡统计信息。",
+    "大保底时，下一个5星角色必定是UP角色。",
+    "每10次抽卡必定至少有一个4星或以上角色/光锥。",
+    "使用 'history' 命令可以查看最近的抽卡历史。",
+    "使用 'set' 命令可以切换不同的卡池。",
+    "使用 'clear' 命令可以重置所有抽卡数据，慎用！",
+    "使用 'banner' 命令查看当前选择的卡池详情。"
+]
 
 class GachaSystem:
     def __init__(self, pool_file):
@@ -41,8 +50,11 @@ class GachaSystem:
         self.failed_featured_5star = 0 
         self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
-        self.is_guaranteed = False  # 新增：追踪是否处于大保底状态
+        self.is_guaranteed = False  # 追踪是否处于大保底状态
+        self.pull_history = []  # 用于存储抽卡历史
+        show_random_tip()
         self.load_state()
+
 
     def load_pools(self, file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
@@ -63,7 +75,8 @@ class GachaSystem:
                 'failed_featured_5star': self.failed_featured_5star,
                 'successful_featured_5star': self.successful_featured_5star,
                 'pulls_since_last_5star': self.pulls_since_last_5star,
-                'is_guaranteed': self.is_guaranteed
+                'is_guaranteed': self.is_guaranteed,
+                'pull_history': self.pull_history  # 保存抽卡历史
             }
             
             yaml_str = "# 抽卡模拟器数据文件\n"
@@ -83,6 +96,7 @@ class GachaSystem:
             yaml_str = yaml_str.replace('failed_featured_5star:', '# 歪掉的5星次数\nfailed_featured_5star:')
             yaml_str = yaml_str.replace('successful_featured_5star:', '# 抽中UP的5星次数\nsuccessful_featured_5star:')
             yaml_str = yaml_str.replace('pulls_since_last_5star:', '# 距离上次5星的抽数\npulls_since_last_5star:')
+            yaml_str = yaml_str.replace('pull_history:', '# 抽卡历史记录\npull_history:')
             
             with open('gacha_data.yaml', 'w', encoding='utf-8') as f:
                 f.write(yaml_str)
@@ -104,7 +118,8 @@ class GachaSystem:
                 self.failed_featured_5star = state.get('failed_featured_5star', 0)
                 self.successful_featured_5star = state.get('successful_featured_5star', 0)
                 self.pulls_since_last_5star = state.get('pulls_since_last_5star', 0)
-                self.is_guaranteed = state.get('is_guaranteed', False)  # 新增：加载大保底状态
+                self.is_guaranteed = state.get('is_guaranteed', False)  # 加载大保底状态
+                self.pull_history = state.get('pull_history', [])  # 加载抽卡历史
             print("数据已从 'gacha_data.yaml' 加载.")
         except FileNotFoundError:
             print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
@@ -207,7 +222,7 @@ class GachaSystem:
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] += 1
             self.pulls_since_last_5star += 1
-
+            pull_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # 记录抽卡时间
             pool_type = "character" if "character_up_5_star" in self.pools['banners'][self.current_banner] else "weapon"
 
             # 确定是否出五星
@@ -246,6 +261,19 @@ class GachaSystem:
 
             results.append(result)
 
+            # 在抽卡结果中不计入三星光锥
+            if result['rarity'] != '3星':
+                    self.pull_history.append({
+                        'time': pull_time,
+                        'banner': self.current_banner,
+                        'name': result['name'],
+                        'rarity': result['rarity'],
+                        'is_up': result.get('is_up', False),
+                        'item_type': result.get('item_type', 'unknown')
+                    })
+            else:
+                continue
+
         self.print_results(results)
         self.print_summary(summary)
 
@@ -275,7 +303,8 @@ class GachaSystem:
             all_4_star = (self.pools['common_pools']['character_4_star'] + 
                         self.pools['common_pools']['weapon_4_star'])
             result = random.choice(all_4_star)
-            return {"name": result, "is_up": False, "rarity": "4星"}
+            item_type = "角色" if result in self.pools['common_pools']['character_4_star'] else "光锥"
+            return {"name": result, "is_up": False, "rarity": "4星", "item_type": item_type}
         else:
             up_key = f"{pool_type}_up_4_star"
             common_key = f"{pool_type}_4_star"
@@ -289,10 +318,12 @@ class GachaSystem:
 
             if up_names and random.randint(1, 100) <= 50:
                 result = random.choice(up_names)
-                return {"name": result, "is_up": True, "rarity": "4星"}
+                item_type = "角色" if pool_type == "character" else "光锥"
+                return {"name": result, "is_up": True, "rarity": "4星", "item_type": item_type}
             else:
                 result = random.choice(all_items)
-                return {"name": result, "is_up": False, "rarity": "4星"}
+                item_type = "角色" if result in self.pools['common_pools']['character_4_star'] else "光锥"
+                return {"name": result, "is_up": False, "rarity": "4星", "item_type": item_type}
 
 
     def pull_5_star(self, pool_type):
@@ -302,10 +333,10 @@ class GachaSystem:
             weapon_5_star = self.pools['common_pools']['weapon_5_star']
             if random.random() < 0.5:  # 50% 概率出角色
                 result = random.choice(character_5_star)
-                item_type = "character"
+                item_type = "角色"
             else:  # 50% 概率出光锥
                 result = random.choice(weapon_5_star)
-                item_type = "weapon"
+                item_type = "光锥"
             return {"name": result, "is_up": False, "rarity": "5星", "item_type": item_type}
         else:
             # 限定池逻辑
@@ -326,11 +357,13 @@ class GachaSystem:
                 if up_items:
                     self.is_guaranteed = False  # 重置大保底状态
                     result = random.choice(up_items)
-                    return {"name": result, "is_up": True, "rarity": "5星", "item_type": pool_type}
+                    item_type = "角色" if pool_type == "character" else "光锥"
+                    return {"name": result, "is_up": True, "rarity": "5星", "item_type": item_type}
 
             self.is_guaranteed = True  # 设置大保底状态
             result = random.choice(common_items)
-            return {"name": result, "is_up": False, "rarity": "5星", "item_type": pool_type}
+            item_type = "角色" if pool_type == "character" else "光锥"
+            return {"name": result, "is_up": False, "rarity": "5星", "item_type": item_type}
 
 
     def print_results(self, results):
@@ -463,7 +496,11 @@ class GachaSystem:
         print("banner - 查看当前选择的卡池")
         print("pull <次数> - 进行抽卡")
         print("info - 查看抽卡统计信息")
+        print("history - 查看抽卡历史")
         print("version - 查看版本信息和指令列表")
+        print("reload - 重新加载卡池配置文件")
+        print("clear - 清除所有抽卡数据")
+        print("tips - 查看Tips")
         print("exit - 退出程序")
 
     def show_current_banner(self):
@@ -518,6 +555,43 @@ class GachaSystem:
         self.load_pools(self.pool_file)
         print("重新加载完成。")
 
+    def get_banner_name(self, banner_id):
+        return self.pools['banners'].get(banner_id, {}).get('name', banner_id)
+
+    def show_pull_history(self, limit=10):
+        print(f"\n{CYAN}最近{limit}次抽卡历史:{RESET}")
+        for pull in self.pull_history[-limit:]:
+            rarity_color = GOLD if pull['rarity'] == '5星' else (PURPLE if pull['rarity'] == '4星' else RESET)
+            item_type = f"{CYAN}{pull['item_type']}{RESET}"
+            banner_name = f"{YELLOW}{self.get_banner_name(pull['banner'])}{RESET}"
+            
+            if pull['banner'] != 'standard':
+                up_status = f"{GREEN}UP{RESET}" if pull['is_up'] else f"{RED}Non-UP{RESET}"
+                print(f"{pull['time']} - {rarity_color}{pull['name']}{RESET} - {up_status} - {item_type} - {banner_name}")
+            else:
+                print(f"{pull['time']} - {rarity_color}{pull['name']}{RESET} - {item_type} - {banner_name}")
+
+    def clear_data(self):
+        self.pity_5 = 0
+        self.pity_4 = 0
+        self.failed_featured_pulls = 0
+        self.total_pulls = 0
+        self.banner_pulls = {}
+        self.gold_records = []
+        self.purple_records = []
+        self.failed_featured_5star = 0
+        self.successful_featured_5star = 0
+        self.pulls_since_last_5star = 0
+        self.is_guaranteed = False
+        self.pull_history = []
+        self.current_banner = None
+        self.save_state()
+        print(f"{GREEN}抽卡数据已清除。{RESET}")
+
+def show_random_tip():
+    tip = random.choice(TIPS)
+    print(f"\n{YELLOW}Tip: {tip}{RESET}\n")
+
 def signal_handler(sig, frame):
     print("\n\n感谢使用抽卡模拟器！祝抽卡愉快！")
     exit(0)
@@ -535,8 +609,11 @@ def main():
     print("banner - 查看当前选择的卡池")
     print("pull <次数> - 进行抽卡")
     print("info - 查看抽卡统计信息")
+    print("history - 查看抽卡历史")
     print("version - 查看版本信息和指令列表")
     print("reload - 重新加载卡池配置文件")
+    print("clear - 清除所有抽卡数据")
+    print("tips - 查看Tips")
     print("exit - 退出程序")
     print()
 
@@ -577,12 +654,28 @@ def main():
                         print("错误：抽卡次数必须是一个整数")
             elif command[0] == "info":
                 gacha.show_info()
+            elif command[0] == "history":  # 显示抽卡历史的命令
+                limit = 10
+                if len(command) > 1:
+                    try:
+                        limit = int(command[1])
+                    except ValueError:
+                        print("错误：请输入有效的数字来限制显示的历史记录数量")
+                gacha.show_pull_history(limit)
             elif command[0] in ["ver", "version"]:
                 gacha.show_version_info()
             elif command[0] == "reload":
                 gacha.reload_pools()
+            elif command[0] == "clear":
+                confirmation = input(f"{RED}警告：此操作将清除所有抽卡数据。是否确认？(y/n): {RESET}").strip().lower()
+                if confirmation == 'y':
+                    gacha.clear_data()
+                else:
+                    print("操作已取消。")
+            elif command[0] in ["tip","tips"]:
+                show_random_tip()
             else:
-                print("未知命令。可用命令：show, set, banner, pull, info, version, exit")
+                print("未知命令。可用命令：show | set | banner | pull | info | history | clear | version | exit")
     except KeyboardInterrupt:
         pass
     
