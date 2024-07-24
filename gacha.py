@@ -1,12 +1,11 @@
 import random
 import yaml
 import argparse
-from collections import Counter
+from collections import Counter, OrderedDict
 import os
 import signal
 import sys
 import requests
-import hashlib
 from datetime import datetime
 
 
@@ -35,12 +34,36 @@ TIPS = [
     "使用 'banner' 命令查看当前选择的卡池详情。"
 ]
 
+
+# 保持 YAML 文件的顺序
+def ordered_yaml_load(stream):
+    class OrderedLoader(yaml.SafeLoader):
+        pass
+    def construct_mapping(loader, node):
+        loader.flatten_mapping(node)
+        return OrderedDict(loader.construct_pairs(node))
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        construct_mapping)
+    return yaml.load(stream, OrderedLoader)
+
+# 按顺序保存 YAML 文件
+def ordered_yaml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
+    class OrderedDumper(Dumper):
+        pass
+    def _dict_representer(dumper, data):
+        return dumper.represent_mapping(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            data.items())
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
+
 class GachaSystem:
-    def __init__(self, pool_file):
+    def __init__(self, pool_file, no_update=False):
         self.pool_file = pool_file
         self.is_first_download = not os.path.exists(self.pool_file)
         self.ensure_pool_file_exists()
-        if not self.is_first_download:
+        if not self.is_first_download and not no_update:
             update_result = self.check_and_update_pool_file()
             if update_result == "current":
                 print(f"{CYAN}卡池文件已是最新版本。{RESET}")
@@ -48,6 +71,8 @@ class GachaSystem:
                 print(f"{GREEN}卡池文件已自动更新到最新版本。{RESET}")
             else:
                 print(f"{YELLOW}检查更新时发生错误: {update_result}。使用当前版本的卡池文件。{RESET}")
+        else:
+            print(f"{GREEN}已跳过更新检查。{RESET}")  
         self.load_pools(pool_file)
         self.current_banner = None
         self.pity_5 = 0
@@ -68,7 +93,7 @@ class GachaSystem:
 
     def load_pools(self, file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
-            self.pools = yaml.safe_load(f)
+            self.pools = ordered_yaml_load(f)
         self.banners = list(self.pools['banners'].keys())
 
     def save_state(self):
@@ -610,23 +635,41 @@ class GachaSystem:
             # 获取远程文件
             response = requests.get(proxy_url)
             response.raise_for_status()
-            remote_content = response.content
+            remote_content = ordered_yaml_load(response.text)
+            remote_version = remote_content.get('version', '0.0')
 
-            # 如果本地文件存在，比较哈希值
+            # 如果本地文件存在，比较版本号
             if os.path.exists(local_file) and not force:
-                with open(local_file, 'rb') as f:
-                    local_content = f.read()
-                if hashlib.md5(local_content).hexdigest() == hashlib.md5(remote_content).hexdigest():
+                with open(local_file, 'r', encoding='utf-8') as f:
+                    local_content = ordered_yaml_load(f)
+                local_version = local_content.get('version', '0.0')
+                
+                print(f"本地版本 = {local_version}, 远程版本 = {remote_version}")  # 调试信息
+                
+                if self.compare_versions(local_version, remote_version) >= 0:
                     return "current"  # 当前已是最新版本
 
             # 更新本地文件
-            with open(local_file, 'wb') as f:
-                f.write(remote_content)
+            with open(local_file, 'w', encoding='utf-8') as f:
+                ordered_yaml_dump(remote_content, f, allow_unicode=True)
             self.load_pools(local_file)  # 重新加载卡池
             return "updated"  # 已更新到最新版本
 
         except requests.RequestException as e:
             return f"error: {e}"  # 发生错误
+        
+    def compare_versions(self, version1, version2):
+        v1_parts = list(map(int, version1.split('.')))
+        v2_parts = list(map(int, version2.split('.')))
+        
+        for i in range(max(len(v1_parts), len(v2_parts))):
+            v1 = v1_parts[i] if i < len(v1_parts) else 0
+            v2 = v2_parts[i] if i < len(v2_parts) else 0
+            if v1 > v2:
+                return 1
+            elif v1 < v2:
+                return -1
+        return 0
 
 def show_random_tip():
     tip = random.choice(TIPS)
@@ -640,6 +683,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     parser = argparse.ArgumentParser(description="崩坏：星穹铁道抽卡模拟器")
+    parser.add_argument("--no-update", action="store_true", help="禁用自动检查更新")
     args = parser.parse_args()
 
     print("欢迎使用 崩坏：星穹铁道抽卡模拟器！")
@@ -659,7 +703,7 @@ def main():
     print()
 
     try:
-        gacha = GachaSystem(BANNER_FILE)
+        gacha = GachaSystem(BANNER_FILE, no_update=args.no_update)
     except SystemExit:
         input("按任意键退出...")
         return
