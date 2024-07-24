@@ -30,11 +30,11 @@ jobs:
         pip install pyinstaller
 
     - name: Build executable
-      run: pyinstaller -F gacha.py -i icon.ico
+      run: pyinstaller -F gacha.py 
 
-    - name: Create ZIP file
-      run: |
-        cp banners.yml dist
+    # - name: Create ZIP file
+    #   run: |
+    #     cp banners.yml dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2

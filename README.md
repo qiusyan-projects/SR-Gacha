@@ -8,7 +8,6 @@ _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 ![github license](https://img.shields.io/github/license/qiusyan-projects/SR-Gacha)
 
 ![GitHub contributors](https://img.shields.io/github/contributors/qiusyan-projects/SR-Gacha)
-<!-- ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/qiusyan-projects/SR-Gacha) -->
 ![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml)
 ![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha)
@@ -32,6 +31,7 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 适用于 `Windows/MacOS/Linux` 
 
 1. 使用 `pip install -r requirements.txt` 安装依赖
+    - （可选）从仓库中下载 `banners.yml` 并与脚本放置于同一文件夹
 2. 使用 `python gacha.py` 运行脚本
 3. Have Fun!
 
