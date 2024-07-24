@@ -127,7 +127,7 @@ class GachaSystem:
                     print(f"{RED}下载失败: {e}{RESET}")
                     sys.exit(1)
             else:
-                print("你选择了不从Github下载数据文件，请手动将banners.yml文件放置于程序目录")
+                print("你不想自动下载卡池文件？那就手动将banners.yml文件放置于程序目录罢")
                 sys.exit(1)
 
     def set_banner(self, banner_name):
@@ -241,7 +241,7 @@ class GachaSystem:
                 summary['3星'] += 1
             
             if result['rarity'] == '5星':
-                five_star_results.append((self.pulls_since_last_5star, result['name'], result['is_up']))
+                five_star_results.append((self.pulls_since_last_5star, result['name'], result['is_up'], result.get('item_type')))
                 self.pulls_since_last_5star = 0
 
             results.append(result)
@@ -249,15 +249,16 @@ class GachaSystem:
         self.print_results(results)
         self.print_summary(summary)
 
-        for pulls, name, is_up in five_star_results:
-            item_type = "角色" if pool_type == "character" else "光锥"
+
+        for pulls, name, is_up, item_type in five_star_results:
+            item_name = "角色" if item_type == "character" else "光锥"
             if self.current_banner != 'standard':
                 if is_up:
-                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！恭喜没歪！{RESET}")
+                    print(f"{GREEN}恭喜，你花费了{pulls}抽获得了五星{item_name}{name}！恭喜没歪！{RESET}")
                 else:
-                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！可惜歪了！{RESET}")
+                    print(f"{RED}恭喜，你花费了{pulls}抽获得了五星{item_name}{name}！可惜歪了！{RESET}")
             else:
-                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星{item_type}{name}！{RESET}")
+                print(f"{GOLD}恭喜，你花费了{pulls}抽获得了五星{item_name}{name}！{RESET}")
 
         print(f"结束抽卡，当前卡池: {CYAN}{self.pools['banners'][self.current_banner]['name']}{RESET}")
         self.print_pity_info()
@@ -297,11 +298,15 @@ class GachaSystem:
     def pull_5_star(self, pool_type):
         banner = self.pools['banners'][self.current_banner]
         if self.current_banner == 'standard':
-            # 常驻池逻辑
-            all_5_star = (self.pools['common_pools']['character_5_star'] + 
-                        self.pools['common_pools']['weapon_5_star'])
-            result = random.choice(all_5_star)
-            return {"name": result, "is_up": False, "rarity": "5星"}
+            character_5_star = self.pools['common_pools']['character_5_star']
+            weapon_5_star = self.pools['common_pools']['weapon_5_star']
+            if random.random() < 0.5:  # 50% 概率出角色
+                result = random.choice(character_5_star)
+                item_type = "character"
+            else:  # 50% 概率出光锥
+                result = random.choice(weapon_5_star)
+                item_type = "weapon"
+            return {"name": result, "is_up": False, "rarity": "5星", "item_type": item_type}
         else:
             # 限定池逻辑
             up_key = f"{pool_type}_up_5_star"
@@ -321,13 +326,11 @@ class GachaSystem:
                 if up_items:
                     self.is_guaranteed = False  # 重置大保底状态
                     result = random.choice(up_items)
-                    return {"name": result, "is_up": True, "rarity": "5星"}
+                    return {"name": result, "is_up": True, "rarity": "5星", "item_type": pool_type}
 
             self.is_guaranteed = True  # 设置大保底状态
             result = random.choice(common_items)
-            return {"name": result, "is_up": False, "rarity": "5星"}
-
-
+            return {"name": result, "is_up": False, "rarity": "5星", "item_type": pool_type}
 
 
     def print_results(self, results):
@@ -448,10 +451,12 @@ class GachaSystem:
         version = "1.0.0"  
         author = "QiuSYan & Claude" 
         github = "qiusyan-projects/SR-Gacha"
+        other = "来个Star叭~"
         print(f"\n{GOLD}抽卡模拟器{RESET}")
         print(f"版本: {version}")
         print(f"作者: {author}")
         print(f"Github: {CYAN}{github}{RESET}")
+        print(f"{other}")
         print("\n指令列表:")
         print("show - 查看所有可用卡池")
         print("set <卡池ID> - 选择卡池")
@@ -582,7 +587,7 @@ def main():
         pass
     
     print("\n感谢使用抽卡模拟器！祝抽卡愉快！")
-    print(f"\n跟程序同一目录的{CYAN}`gacha_data.yaml`{RESET}是数据文件，保存了你的抽卡记录，删不删由你")
+    print(f"\n跟程序同一目录的{CYAN}`gacha_data.yaml`{RESET}是数据文件，保存了你的抽卡相关记录，删不删由你")
     input("按任意键退出...")  
 
 if __name__ == "__main__":
