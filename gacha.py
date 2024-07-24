@@ -28,7 +28,6 @@ TIPS = [
     "可以使用 'info' 命令查看抽卡统计信息。",
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
-    "建议在每次前瞻直播结束后使用 'update' 来更新卡池。",
     "这个Tip我还没想好怎么写...",
     "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
     "你说得对，但是...",
@@ -60,6 +59,24 @@ def ordered_yaml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
             data.items())
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
     return yaml.dump(data, stream, OrderedDumper, **kwds)
+
+
+# 将指令封装成函数
+def command_list():
+    print("\n指令列表:")
+    print("alias - 查看所有有别名的命令")
+    print("show - 查看所有可用卡池")
+    print("set <卡池ID> - 选择卡池")
+    print("banner - 查看当前选择的卡池")
+    print("pull <次数> - 进行抽卡")
+    print("info - 查看抽卡统计信息")
+    print("history - 查看抽卡历史")
+    print("version - 查看版本信息和指令列表")
+    print("reload - 重新加载卡池配置文件")
+    print("clear - 清除所有抽卡数据")
+    print("tips - 查看Tips")
+    print("update - 检查并更新卡池文件")
+    print("exit - 退出程序")
 
 class GachaSystem:
     def __init__(self, pool_file, no_update=False):
@@ -95,7 +112,6 @@ class GachaSystem:
         show_random_tip()
         self.load_state()
 
-
     def load_pools(self, file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
             self.pools = ordered_yaml_load(f)
@@ -120,7 +136,8 @@ class GachaSystem:
             }
             
             yaml_str = "# 抽卡模拟器数据文件\n"
-            yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n\n"
+            yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n"
+            yaml_str += "# 为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录\n\n"
             
             yaml_str += yaml.dump(state, allow_unicode=True, sort_keys=False)
             
@@ -531,20 +548,8 @@ class GachaSystem:
         print(f"作者: {author}")
         print(f"Github: {CYAN}{github}{RESET}")
         print(f"{other}")
-        print("\n指令列表:")
-        print("alias - 查看所有有别名的命令")
-        print("show - 查看所有可用卡池")
-        print("set <卡池ID> - 选择卡池")
-        print("banner - 查看当前选择的卡池")
-        print("pull <次数> - 进行抽卡")
-        print("info - 查看抽卡统计信息")
-        print("history - 查看抽卡历史")
-        print("version - 查看版本信息和指令列表")
-        print("reload - 重新加载卡池配置文件")
-        print("clear - 清除所有抽卡数据")
-        print("tips - 查看Tips")
-        print("update - 检查并更新卡池文件")
-        print("exit - 退出程序")
+        command_list()
+
 
     def show_current_banner(self):
         if not self.current_banner:
@@ -699,20 +704,7 @@ def main():
     args = parser.parse_args()
 
     print("欢迎使用 崩坏：星穹铁道抽卡模拟器！")
-    print("可用命令：")
-    print("alias - 查看所有有别名的命令")
-    print("show - 查看所有可用卡池")
-    print("set <卡池ID> - 选择卡池")
-    print("banner - 查看当前选择的卡池")
-    print("pull <次数> - 进行抽卡")
-    print("info - 查看抽卡统计信息")
-    print("history - 查看抽卡历史")
-    print("version - 查看版本信息和指令列表")
-    print("reload - 重新加载卡池配置文件")
-    print("clear - 清除所有抽卡数据")
-    print("tips - 查看Tips")
-    print("update - 检查并更新卡池文件")
-    print("exit - 退出程序")
+    command_list()
     print()
 
     try:
