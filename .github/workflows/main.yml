@@ -5,11 +5,12 @@ on:
     branches: [ main ]
     paths:
       - '**.py'
-      - '**.yml'
+      - 'main.yml'
   pull_request:
     branches: [ main ]
     paths:
       - '**.py'
+      - 'main.yml'
 
 jobs:
   build:
@@ -31,10 +32,6 @@ jobs:
 
     - name: Build executable
       run: pyinstaller -F gacha.py 
-
-    # - name: Create ZIP file
-    #   run: |
-    #     cp banners.yml dist
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
