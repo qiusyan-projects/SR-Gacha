@@ -25,13 +25,15 @@ BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
 BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
 TIPS = [
-    "使用 'info' 命令可以查看你的抽卡统计信息。",
+    "可以使用 'info' 命令查看抽卡统计信息。",
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
-    "使用 'history' 命令可以查看最近的抽卡历史。",
-    "使用 'set' 命令可以切换不同的卡池。",
-    "使用 'clear' 命令可以重置所有抽卡数据，慎用！",
-    "使用 'banner' 命令查看当前选择的卡池详情。"
+    "建议在每次前瞻直播结束后使用 'update' 来更新卡池。",
+    "这个Tip我还没想好怎么写...",
+    "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
+    "你说得对，但是...",
+    "来点Star叭！",
+    "这是一个小Tip。只有聪明人才能看到它的内容"
 ]
 
 
@@ -71,8 +73,10 @@ class GachaSystem:
                 print(f"{GREEN}卡池文件已自动更新到最新版本。{RESET}")
             else:
                 print(f"{YELLOW}检查更新时发生错误: {update_result}。使用当前版本的卡池文件。{RESET}")
-        else:
+        elif no_update:
             print(f"{GREEN}已跳过更新检查。{RESET}")  
+        else:
+            return 
         self.load_pools(pool_file)
         self.current_banner = None
         self.pity_5 = 0
@@ -747,7 +751,7 @@ def main():
                     except ValueError:
                         print("错误：请输入有效的数字来限制显示的历史记录数量")
                 gacha.show_pull_history(limit)
-            elif command[0] in ["ver", "version"]:
+            elif command[0] in ["ver", "version","help"]:
                 gacha.show_version_info()
             elif command[0] == "reload":
                 gacha.reload_pools()
