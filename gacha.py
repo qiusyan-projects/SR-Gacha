@@ -6,10 +6,11 @@ import os
 import signal
 import sys
 import requests
+import hashlib
 from datetime import datetime
 
 
-os.system("title 抽卡模拟器")
+os.system("title 崩坏：星穹铁道抽卡模拟器")
 
 # 颜色定义
 PURPLE = '\033[95m'
@@ -37,7 +38,16 @@ TIPS = [
 class GachaSystem:
     def __init__(self, pool_file):
         self.pool_file = pool_file
+        self.is_first_download = not os.path.exists(self.pool_file)
         self.ensure_pool_file_exists()
+        if not self.is_first_download:
+            update_result = self.check_and_update_pool_file()
+            if update_result == "current":
+                print(f"{CYAN}卡池文件已是最新版本。{RESET}")
+            elif update_result == "updated":
+                print(f"{GREEN}卡池文件已自动更新到最新版本。{RESET}")
+            else:
+                print(f"{YELLOW}检查更新时发生错误: {update_result}。使用当前版本的卡池文件。{RESET}")
         self.load_pools(pool_file)
         self.current_banner = None
         self.pity_5 = 0
@@ -138,6 +148,7 @@ class GachaSystem:
                     with open(self.pool_file, 'wb') as f:
                         f.write(response.content)
                     print(f"{GREEN}成功下载 '{self.pool_file}'！{RESET}")
+                    self.is_first_download = True
                 except requests.RequestException as e:
                     print(f"{RED}下载失败: {e}{RESET}")
                     sys.exit(1)
@@ -485,7 +496,7 @@ class GachaSystem:
         author = "QiuSYan & Claude" 
         github = "qiusyan-projects/SR-Gacha"
         other = "来个Star叭~"
-        print(f"\n{GOLD}抽卡模拟器{RESET}")
+        print(f"\n{GOLD}崩坏：星穹铁道抽卡模拟器{RESET}")
         print(f"版本: {version}")
         print(f"作者: {author}")
         print(f"Github: {CYAN}{github}{RESET}")
@@ -501,6 +512,7 @@ class GachaSystem:
         print("reload - 重新加载卡池配置文件")
         print("clear - 清除所有抽卡数据")
         print("tips - 查看Tips")
+        print("update - 检查并更新卡池文件")
         print("exit - 退出程序")
 
     def show_current_banner(self):
@@ -588,21 +600,49 @@ class GachaSystem:
         self.save_state()
         print(f"{GREEN}抽卡数据已清除。{RESET}")
 
+
+    def check_and_update_pool_file(self, force=False):
+        proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
+        local_file = self.pool_file
+
+        print(f"{YELLOW}正在检查卡池文件更新...{RESET}")
+        try:
+            # 获取远程文件
+            response = requests.get(proxy_url)
+            response.raise_for_status()
+            remote_content = response.content
+
+            # 如果本地文件存在，比较哈希值
+            if os.path.exists(local_file) and not force:
+                with open(local_file, 'rb') as f:
+                    local_content = f.read()
+                if hashlib.md5(local_content).hexdigest() == hashlib.md5(remote_content).hexdigest():
+                    return "current"  # 当前已是最新版本
+
+            # 更新本地文件
+            with open(local_file, 'wb') as f:
+                f.write(remote_content)
+            self.load_pools(local_file)  # 重新加载卡池
+            return "updated"  # 已更新到最新版本
+
+        except requests.RequestException as e:
+            return f"error: {e}"  # 发生错误
+
 def show_random_tip():
     tip = random.choice(TIPS)
     print(f"\n{YELLOW}Tip: {tip}{RESET}\n")
 
 def signal_handler(sig, frame):
-    print("\n\n感谢使用抽卡模拟器！祝抽卡愉快！")
+    print("\n\n感谢使用崩坏：星穹铁道抽卡模拟器！祝抽卡愉快！")
     exit(0)
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
 
-    parser = argparse.ArgumentParser(description="抽卡模拟器")
+    parser = argparse.ArgumentParser(description="崩坏：星穹铁道抽卡模拟器")
     args = parser.parse_args()
 
-    print("欢迎使用抽卡模拟器！")
+    print("欢迎使用 崩坏：星穹铁道抽卡模拟器！")
     print("可用命令：")
     print("show - 查看所有可用卡池")
     print("set <卡池ID> - 选择卡池")
@@ -614,6 +654,7 @@ def main():
     print("reload - 重新加载卡池配置文件")
     print("clear - 清除所有抽卡数据")
     print("tips - 查看Tips")
+    print("update - 检查并更新卡池文件")
     print("exit - 退出程序")
     print()
 
@@ -674,12 +715,20 @@ def main():
                     print("操作已取消。")
             elif command[0] in ["tip","tips"]:
                 show_random_tip()
+            elif command[0] == "update":
+                result = gacha.check_and_update_pool_file(force=True)
+                if result == "current":
+                    print(f"{CYAN}当前卡池已为最新！无需更新。{RESET}")
+                elif result == "updated":
+                    print(f"{GREEN}卡池文件已成功手动更新到最新版本！{RESET}")
+                else:
+                    print(f"{RED}手动更新卡池文件时发生错误: {result}{RESET}")
             else:
-                print("未知命令。可用命令：show | set | banner | pull | info | history | clear | version | exit")
+                print("未知命令。可用命令：show | set | banner | pull | info | history | clear | version | update | tips | exit")
     except KeyboardInterrupt:
         pass
     
-    print("\n感谢使用抽卡模拟器！祝抽卡愉快！")
+    print("\n感谢使用 崩坏：星穹铁道抽卡模拟器！祝抽卡愉快！")
     print(f"\n跟程序同一目录的{CYAN}`gacha_data.yaml`{RESET}是数据文件，保存了你的抽卡相关记录，删不删由你")
     input("按任意键退出...")  
 
