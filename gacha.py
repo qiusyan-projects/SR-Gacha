@@ -33,7 +33,8 @@ TIPS = [
     "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
     "你说得对，但是...",
     "来点Star叭！",
-    "这是一个小Tip。只有聪明人才能看到它的内容"
+    "这是一个小Tip，只有聪明人才能看到它的内容",
+    "可以修改卡池文件来实现其他游戏的抽卡效果，具体请移步项目README"
 ]
 
 
@@ -521,7 +522,7 @@ class GachaSystem:
 
 
     def show_version_info(self):
-        version = "1.0.0"  
+        version = "1.1.0"  
         author = "QiuSYan & Claude" 
         github = "qiusyan-projects/SR-Gacha"
         other = "来个Star叭~"
@@ -531,6 +532,7 @@ class GachaSystem:
         print(f"Github: {CYAN}{github}{RESET}")
         print(f"{other}")
         print("\n指令列表:")
+        print("alias - 查看所有有别名的命令")
         print("show - 查看所有可用卡池")
         print("set <卡池ID> - 选择卡池")
         print("banner - 查看当前选择的卡池")
@@ -648,7 +650,7 @@ class GachaSystem:
                     local_content = ordered_yaml_load(f)
                 local_version = local_content.get('version', '0.0')
                 
-                print(f"本地版本 = {local_version}, 远程版本 = {remote_version}")  # 调试信息
+                # print(f"本地版本 = {local_version}, 远程版本 = {remote_version}")  # Debug
                 
                 if self.compare_versions(local_version, remote_version) >= 0:
                     return "current"  # 当前已是最新版本
@@ -675,6 +677,12 @@ class GachaSystem:
                 return -1
         return 0
 
+    def command_alias(self):
+        print(f"\n以下是所有有别名的命令：")
+        print("ver | version | help：查看版本号与帮助信息")
+        print("tip | tips：查看提示")
+        print(f"stop | exit：退出脚本\n")
+
 def show_random_tip():
     tip = random.choice(TIPS)
     print(f"\n{YELLOW}Tip: {tip}{RESET}\n")
@@ -692,6 +700,7 @@ def main():
 
     print("欢迎使用 崩坏：星穹铁道抽卡模拟器！")
     print("可用命令：")
+    print("alias - 查看所有有别名的命令")
     print("show - 查看所有可用卡池")
     print("set <卡池ID> - 选择卡池")
     print("banner - 查看当前选择的卡池")
@@ -771,8 +780,10 @@ def main():
                     print(f"{GREEN}卡池文件已成功手动更新到最新版本！{RESET}")
                 else:
                     print(f"{RED}手动更新卡池文件时发生错误: {result}{RESET}")
+            elif command[0] == "alias":
+                gacha.command_alias()
             else:
-                print("未知命令。可用命令：show | set | banner | pull | info | history | clear | version | update | tips | exit")
+                print("未知命令。可用命令：alias | show | set | banner | pull | info | history | clear | version | update | tips | exit")
     except KeyboardInterrupt:
         pass
     
