@@ -1,6 +1,6 @@
-version: '2.4'
+version: '2.4' 
 common_pools:
-  character_5_star:
+  character_5_star: # 常驻的五星角色
   - 姬子
   - 瓦尔特
   - 布洛妮娅
@@ -8,7 +8,7 @@ common_pools:
   - 杰帕德
   - 彦卿
   - 白露
-  character_4_star:
+  character_4_star: # 所有的四星角色
   - 三月七
   - 丹恒
   - 阿兰
@@ -30,7 +30,7 @@ common_pools:
   - 寒鸦
   - 加拉赫
   - 米沙
-  weapon_5_star:
+  weapon_5_star: # 常驻的五星光锥/武器
   - 银河铁道之夜
   - 以世界之名
   - 但战斗还未结束
@@ -38,7 +38,7 @@ common_pools:
   - 制胜的瞬间
   - 如泥酣眠
   - 时节不居
-  weapon_4_star:
+  weapon_4_star: # 所有可获取的四星光锥/武器
   - 一场术后对话
   - 晚安与睡颜
   - 余生的第一天
@@ -79,7 +79,7 @@ common_pools:
   - 无边曼舞
   - 谐乐静默之后
   - 芳华待灼
-  weapon_3_star:
+  weapon_3_star: # 所有的三星光锥/武器
   - 锋镝
   - 物穰
   - 天倾
@@ -101,13 +101,13 @@ common_pools:
   - 匿影
   - 调和
   - 睿见
-banners:
-  seele-c:
-    name: 蝶立锋锷
-    pool_type: character
-    character_up_5_star:
-    - 希儿
-    character_up_4_star:
+banners: # 限时卡池
+  seele-c: # 卡池id
+    name: 蝶立锋锷 # 卡池名
+    pool_type: character # 卡池类型，character or weapon
+    character_up_5_star: # UP的五星角色
+    - 希儿 
+    character_up_4_star: # UP的四星角色
     - 娜塔莎
     - 虎克
     - 佩拉
