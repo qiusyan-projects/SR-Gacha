@@ -1,3 +1,4 @@
+version: '2.4'
 common_pools:
   character_5_star:
   - 姬子
