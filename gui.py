@@ -28,7 +28,7 @@ TIPS = [
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
     "这个Tip我还没想好怎么写...",
-    "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
+    # "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
     "你说得对，但是...",
     "来点Star叭！",
     "这是一个小Tip，只有聪明人才能看到它的内容",
@@ -334,8 +334,21 @@ class GachaSystem:
         pull_history_text.tag_config(RESET, foreground=fg_color)
         banner_label.configure(bg=bg_color, fg=fg_color)
         tip_label.configure(bg=bg_color, fg=fg_color)
-        for widget in [banner_listbox, switch_banner_button, pull_1_button, pull_10_button, info_button, mode_button]:
+        for widget in [banner_listbox, switch_banner_button, pull_1_button, pull_10_button, info_button, mode_button, random_tip_button,toggle_button,standard_banner_button]:
             widget.configure(bg=bg_color, fg=fg_color)
+
+    def categorize_banners(self):
+        character_banners = []
+        weapon_banners = []
+        for banner_id, banner_info in self.pools['banners'].items():
+            if banner_info.get('pool_type') == 'character':
+                character_banners.append(banner_id)
+            elif banner_info.get('pool_type') == 'weapon':
+                weapon_banners.append(banner_id)
+        return character_banners, weapon_banners
+    
+    def get_standard_banner(self):
+        return next((banner_id for banner_id, banner_info in self.pools['banners'].items() if banner_info.get('name') == '群星跃迁'), None)
 
 def show_random_tip():
     tip_label.config(text=random.choice(TIPS))
@@ -355,6 +368,10 @@ def on_switch_banner():
 def on_show_info():
     gacha_system.show_info()
 
+
+
+# GUI部分
+
 # Initialize the GachaSystem
 gacha_system = GachaSystem(BANNER_FILE)
 
@@ -365,40 +382,99 @@ root.geometry("1024x900")
 
 # Banner label
 banner_label_var = StringVar()
-banner_label = Label(root, textvariable=banner_label_var, font=("Arial", 14))
+banner_label = tk.Label(root, textvariable=banner_label_var, font=("Arial", 14))
 banner_label.pack(pady=10)
 gacha_system.update_gui_banner_name()
 
 # Mode switch
+is_night_mode = BooleanVar(value=False)
+
 def toggle_mode():
     is_night_mode.set(not is_night_mode.get())
     mode_button.config(text="切换到日间模式" if is_night_mode.get() else "切换到夜间模式")
     gacha_system.toggle_mode(is_night_mode.get())
 
-is_night_mode = BooleanVar(value=False)
-mode_button = Button(root, text="切换到夜间模式", command=lambda: toggle_mode())
+mode_button = tk.Button(root, text="切换到夜间模式", command=toggle_mode)
 mode_button.pack(pady=5)
 
+# Categorize banners
+character_banners, weapon_banners = gacha_system.categorize_banners()
+current_banner_type = StringVar(value="character")
 
+def update_banner_list():
+    banner_listbox.delete(0, tk.END)
+    banners_to_show = character_banners if current_banner_type.get() == "character" else weapon_banners
+    for banner in banners_to_show:
+        banner_listbox.insert(tk.END, banner)
+        if banner == gacha_system.current_banner:
+            banner_listbox.selection_set(tk.END)
+
+    # 如果当前选中的是常驻池，也要显示出来
+    standard_banner = gacha_system.get_standard_banner()
+    if standard_banner and standard_banner not in banners_to_show:
+        banner_listbox.insert(tk.END, standard_banner)
+        if standard_banner == gacha_system.current_banner:
+            banner_listbox.selection_set(tk.END)
+
+def toggle_banner_type():
+    if current_banner_type.get() == "character":
+        current_banner_type.set("weapon")
+        toggle_button.config(text="切换到角色池")
+    else:
+        current_banner_type.set("character")
+        toggle_button.config(text="切换到光锥池")
+    update_banner_list()
+
+# Add toggle button
+toggle_button = tk.Button(root, text="切换到光锥池", command=toggle_banner_type)
+toggle_button.pack(pady=5)
+
+def select_standard_banner():
+    standard_banner = gacha_system.get_standard_banner()
+    if standard_banner:
+        gacha_system.switch_banner(standard_banner)
+        update_banner_list()
+    else:
+        messagebox.showinfo("提示", "未找到常驻池")
+
+# Add standard banner button
+standard_banner_button = tk.Button(root, text="选择常驻池", command=select_standard_banner)
+standard_banner_button.pack(pady=5)
 
 # Banner listbox
-banner_listbox = Listbox(root, height=10)
-for banner in gacha_system.banners:
-    banner_listbox.insert(END, banner)
+banner_listbox = tk.Listbox(root, height=10)
+update_banner_list()
 banner_listbox.pack(pady=10)
 
-switch_banner_button = Button(root, text="切换卡池", command=on_switch_banner)
+def on_switch_banner():
+    selected_indices = banner_listbox.curselection()
+    if selected_indices:
+        selected_banner = banner_listbox.get(selected_indices[0])
+        gacha_system.switch_banner(selected_banner)
+        update_banner_list()
+        gacha_system.update_gui_banner_name()
+
+switch_banner_button = tk.Button(root, text="切换卡池", command=on_switch_banner)
 switch_banner_button.pack(pady=5)
 
 # Pull buttons
-pull_1_button = Button(root, text="抽一次", command=lambda: on_pull(1))
+def on_pull(num_pulls):
+    pulls = gacha_system.perform_pull(num_pulls)
+    if pulls:
+        gacha_system.update_gui_pull_history(pulls)
+        gacha_system.save_state()
+
+pull_1_button = tk.Button(root, text="抽一次", command=lambda: on_pull(1))
 pull_1_button.pack(pady=5)
 
-pull_10_button = Button(root, text="抽十次", command=lambda: on_pull(10))
+pull_10_button = tk.Button(root, text="抽十次", command=lambda: on_pull(10))
 pull_10_button.pack(pady=5)
 
 # Info button
-info_button = Button(root, text="查看统计信息", command=on_show_info)
+def on_show_info():
+    gacha_system.show_info()
+
+info_button = tk.Button(root, text="查看统计信息", command=on_show_info)
 info_button.pack(pady=5)
 
 # Pull history
@@ -409,11 +485,15 @@ pull_history_text.tag_config(PURPLE, foreground=PURPLE)
 pull_history_text.tag_config(RESET, foreground=RESET)
 
 # Tips
-tip_label = Label(root, text="", font=("Arial", 10), fg="blue")
+tip_label = tk.Label(root, text="", font=("Arial", 10), fg="blue")
 tip_label.pack(pady=10)
+
+def show_random_tip():
+    tip_label.config(text=random.choice(TIPS))
+
 show_random_tip()
-info_button = Button(root, text="随机Tips", command=show_random_tip)
-info_button.pack(pady=5)
+random_tip_button = tk.Button(root, text="随机Tips", command=show_random_tip)
+random_tip_button.pack(pady=5)
 
 # Start the main loop
 root.mainloop()
