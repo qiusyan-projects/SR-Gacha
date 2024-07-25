@@ -1,5 +1,5 @@
 import random
-import yaml
+from ruamel.yaml import YAML
 import argparse
 from collections import Counter, OrderedDict
 import os
@@ -39,44 +39,32 @@ TIPS = [
 
 # 保持 YAML 文件的顺序
 def ordered_yaml_load(stream):
-    class OrderedLoader(yaml.SafeLoader):
-        pass
-    def construct_mapping(loader, node):
-        loader.flatten_mapping(node)
-        return OrderedDict(loader.construct_pairs(node))
-    OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
-    return yaml.load(stream, OrderedLoader)
+    yaml = YAML()
+    return yaml.load(stream)
 
 # 按顺序保存 YAML 文件
-def ordered_yaml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
-    class OrderedDumper(Dumper):
-        pass
-    def _dict_representer(dumper, data):
-        return dumper.represent_mapping(
-            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            data.items())
-    OrderedDumper.add_representer(OrderedDict, _dict_representer)
-    return yaml.dump(data, stream, OrderedDumper, **kwds)
+def ordered_yaml_dump(data, stream=None, **kwds):
+    yaml = YAML()
+    yaml.default_flow_style = False
+    return yaml.dump(data, stream, **kwds)
 
 
 # 将指令封装成函数
 def command_list():
-    print("\n指令列表:")
-    print("alias - 查看所有有别名的命令")
-    print("show - 查看所有可用卡池")
-    print("set <卡池ID> - 选择卡池")
-    print("banner - 查看当前选择的卡池")
-    print("pull <次数> - 进行抽卡")
-    print("info - 查看抽卡统计信息")
-    print("history - 查看抽卡历史")
-    print("version - 查看版本信息和指令列表")
-    print("reload - 重新加载卡池配置文件")
-    print("clear - 清除所有抽卡数据")
-    print("tips - 查看Tips")
-    print("update - 检查并更新卡池文件")
-    print("exit - 退出程序")
+    print(f"{GREEN}帮助指令列表:{RESET}")
+    print(f"{GREEN}show{RESET} - 查看所有可用卡池")
+    print(f"{GREEN}set <卡池ID>{RESET} - 选择卡池")
+    print(f"{GREEN}banner{RESET} - 查看当前选择的卡池")
+    print(f"{GREEN}pull <次数>{RESET} - 进行抽卡")
+    print(f"{GREEN}info{RESET} - 查看抽卡统计信息")
+    print(f"{GREEN}history{RESET} - 查看抽卡历史")
+    print(f"{GREEN}version{RESET} - 查看版本信息")
+    print(f"{GREEN}reload{RESET} - 重新加载卡池配置文件")
+    print(f"{GREEN}clear{RESET} - 清除所有抽卡数据")
+    print(f"{GREEN}tips{RESET} - 查看Tips")
+    print(f"{GREEN}update{RESET} - 检查并更新卡池文件")
+    print(f"{GREEN}help{RESET} - 查看帮助指令")
+    print(f"{GREEN}exit{RESET} - 退出程序")
 
 class GachaSystem:
     def __init__(self, pool_file, no_update=False):
@@ -113,8 +101,9 @@ class GachaSystem:
         self.load_state()
 
     def load_pools(self, file_name):
+        yaml = YAML()
         with open(file_name, 'r', encoding='utf-8') as f:
-            self.pools = ordered_yaml_load(f)
+            self.pools = yaml.load(f)
         self.banners = list(self.pools['banners'].keys())
 
     def save_state(self):
@@ -135,6 +124,9 @@ class GachaSystem:
                 'pull_history': self.pull_history  # 保存抽卡历史
             }
             
+            yaml = YAML()
+            yaml.default_flow_style = False
+
             yaml_str = "# 抽卡模拟器数据文件\n"
             yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n"
             yaml_str += "# 为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录\n\n"
@@ -156,14 +148,14 @@ class GachaSystem:
             yaml_str = yaml_str.replace('pull_history:', '# 抽卡历史记录\npull_history:')
             
             with open('gacha_data.yaml', 'w', encoding='utf-8') as f:
-                f.write(yaml_str)
+                yaml.dump(state, f)
         except Exception as e:
             print(f"无法保存数据: {e}")
 
     def load_state(self):
         try:
             with open('gacha_data.yaml', 'r', encoding='utf-8') as f:
-                state = yaml.safe_load(f)
+                state = ordered_yaml_load(f)
                 self.current_banner = state.get('current_banner')
                 self.pity_5 = state.get('pity_5', 0)
                 self.pity_4 = state.get('pity_4', 0)
@@ -183,9 +175,10 @@ class GachaSystem:
                     elif pull['item_type'] == 'weapon':
                         pull['item_type'] = '光锥'
 
-            print("数据已从 'gacha_data.yaml' 加载.")
+            # print("数据已从 'gacha_data.yaml' 加载.")
         except FileNotFoundError:
-            print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
+            return
+            # print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
         except Exception as e:
             print(f"无法加载数据: {e}")
 
@@ -211,11 +204,15 @@ class GachaSystem:
 
     def set_banner(self, banner_name):
         if banner_name in self.pools['banners']:
+            if self.current_banner == banner_name:
+                print(f"{YELLOW}你已经选择了这个卡池了啦！{RESET}")
+                return
+            
             self.current_banner = banner_name
             if banner_name not in self.banner_pulls:
                 self.banner_pulls[banner_name] = 0
             pool_type = "角色" if "character_up_5_star" in self.pools['banners'][banner_name] else "光锥"
-            print(f"切换到{pool_type}卡池: {self.pools['banners'][banner_name]['name']}")
+            print(f"切换到{pool_type}卡池: {CYAN}{self.pools['banners'][banner_name]['name']}{RESET}")
             
             # 重置大保底状态
             if banner_name == 'standard':
@@ -548,16 +545,20 @@ class GachaSystem:
 
 
     def show_version_info(self):
-        version = "1.1.0"  
+        version = "1.2.0"  
         author = "QiuSYan & Claude" 
         github = "qiusyan-projects/SR-Gacha"
         other = "来个Star叭~"
-        print(f"\n{GOLD}崩坏：星穹铁道抽卡模拟器{RESET}")
+        local_file = self.pool_file
+        with open(local_file, 'r', encoding='utf-8') as f:
+            local_content = f.read()
+        local_version = self.get_version_from_content(local_content).strip("'\"")  # 移除可能的引号
+        print(f"\n{GREEN}崩坏：星穹铁道抽卡模拟器{RESET}")
         print(f"版本: {version}")
         print(f"作者: {author}")
         print(f"Github: {CYAN}{github}{RESET}")
+        print(f"当前本地卡池版本：{GREEN}{local_version}{RESET}")
         print(f"{other}")
-        command_list()
 
 
     def show_current_banner(self):
@@ -655,30 +656,39 @@ class GachaSystem:
             # 获取远程文件
             response = requests.get(proxy_url)
             response.raise_for_status()
-            remote_content = ordered_yaml_load(response.text)
-            remote_version = remote_content.get('version', '0.0')
+            remote_content = response.text
 
-            # 如果本地文件存在，比较版本号
+            # 如果本地文件存在且不是强制更新，比较版本号
             if os.path.exists(local_file) and not force:
                 with open(local_file, 'r', encoding='utf-8') as f:
-                    local_content = ordered_yaml_load(f)
-                local_version = local_content.get('version', '0.0')
+                    local_content = f.read()
                 
-                # print(f"本地版本 = {local_version}, 远程版本 = {remote_version}")  # Debug
+                remote_version = self.get_version_from_content(remote_content)
+                local_version = self.get_version_from_content(local_content)
                 
                 if self.compare_versions(local_version, remote_version) >= 0:
                     return "current"  # 当前已是最新版本
 
             # 更新本地文件
             with open(local_file, 'w', encoding='utf-8') as f:
-                ordered_yaml_dump(remote_content, f, allow_unicode=True)
+                f.write(remote_content)
             self.load_pools(local_file)  # 重新加载卡池
             return "updated"  # 已更新到最新版本
 
         except requests.RequestException as e:
             return f"error: {e}"  # 发生错误
+
+    def get_version_from_content(self, content):
+        for line in content.split('\n'):
+            if line.strip().startswith('version:'):
+                return line.split(':', 1)[1].strip()
+        return '0.0'  # 如果没有找到版本号，返回默认值
         
     def compare_versions(self, version1, version2):
+        # 去除版本字符串中的多余字符
+        version1 = version1.strip().strip("'\"")
+        version2 = version2.strip().strip("'\"")
+    
         v1_parts = list(map(int, version1.split('.')))
         v2_parts = list(map(int, version2.split('.')))
         
@@ -691,11 +701,6 @@ class GachaSystem:
                 return -1
         return 0
 
-    def command_alias(self):
-        print(f"\n以下是所有有别名的命令：")
-        print("ver | version | help：查看版本号与帮助信息")
-        print("tip | tips：查看提示")
-        print(f"stop | exit：退出脚本\n")
 
 def show_random_tip():
     tip = random.choice(TIPS)
@@ -761,7 +766,7 @@ def main():
                     except ValueError:
                         print("错误：请输入有效的数字来限制显示的历史记录数量")
                 gacha.show_pull_history(limit)
-            elif command[0] in ["ver", "version","help"]:
+            elif command[0] in ["ver", "version"]:
                 gacha.show_version_info()
             elif command[0] == "reload":
                 gacha.reload_pools()
@@ -781,10 +786,10 @@ def main():
                     print(f"{GREEN}卡池文件已成功手动更新到最新版本！{RESET}")
                 else:
                     print(f"{RED}手动更新卡池文件时发生错误: {result}{RESET}")
-            elif command[0] == "alias":
-                gacha.command_alias()
+            elif command[0] == "help":
+                command_list()
             else:
-                print("未知命令。可用命令：alias | show | set | banner | pull | info | history | clear | version | update | tips | exit")
+                print("未知命令。可用命令： show | set | banner | pull | info | history | clear | version | update | tips | help | exit")
     except KeyboardInterrupt:
         pass
     
