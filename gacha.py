@@ -177,6 +177,12 @@ class GachaSystem:
                 self.pulls_since_last_5star = state.get('pulls_since_last_5star', 0)
                 self.is_guaranteed = state.get('is_guaranteed', False)  # 加载大保底状态
                 self.pull_history = state.get('pull_history', [])  # 加载抽卡历史
+                for pull in self.pull_history:
+                    if pull['item_type'] == 'character':
+                        pull['item_type'] = '角色'
+                    elif pull['item_type'] == 'weapon':
+                        pull['item_type'] = '光锥'
+
             print("数据已从 'gacha_data.yaml' 加载.")
         except FileNotFoundError:
             print("没有找到 'gacha_data.yaml' 文件，使用初始数据.")
@@ -327,7 +333,7 @@ class GachaSystem:
                         'name': result['name'],
                         'rarity': result['rarity'],
                         'is_up': result.get('is_up', False),
-                        'item_type': result.get('item_type', 'unknown')
+                        'item_type': '角色' if result.get('item_type') == 'character' else '光锥'
                     })
             else:
                 continue
@@ -395,6 +401,7 @@ class GachaSystem:
             else:  # 50% 概率出光锥
                 result = random.choice(weapon_5_star)
                 item_type = "光锥"
+            print(f"DEBUG: Standard pool 5-star pull - Name: {result}, Type: {item_type}")  # Debug
             return {"name": result, "is_up": False, "rarity": "5星", "item_type": item_type}
         else:
             # 限定池逻辑
@@ -415,12 +422,14 @@ class GachaSystem:
                 if up_items:
                     self.is_guaranteed = False  # 重置大保底状态
                     result = random.choice(up_items)
-                    item_type = "角色" if pool_type == "character" else "光锥"
+                    item_type = pool_type
+                    # print(f"DEBUG: UP 5-star pull - Name: {result}, Type: {item_type}")  # Debug
                     return {"name": result, "is_up": True, "rarity": "5星", "item_type": item_type}
 
             self.is_guaranteed = True  # 设置大保底状态
             result = random.choice(common_items)
-            item_type = "角色" if pool_type == "character" else "光锥"
+            item_type = pool_type
+            # print(f"DEBUG: Non-UP 5-star pull - Name: {result}, Type: {item_type}")  # Debug
             return {"name": result, "is_up": False, "rarity": "5星", "item_type": item_type}
 
 
