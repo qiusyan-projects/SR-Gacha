@@ -121,34 +121,43 @@ class GachaSystem:
                 'successful_featured_5star': self.successful_featured_5star,
                 'pulls_since_last_5star': self.pulls_since_last_5star,
                 'is_guaranteed': self.is_guaranteed,
-                'pull_history': self.pull_history  # 保存抽卡历史
+                'pull_history': self.pull_history
             }
             
             yaml = YAML()
             yaml.default_flow_style = False
+            yaml.width = 4096  # 避免长行被截断
+            yaml.indent(mapping=2, sequence=4, offset=2)
 
+            # 创建带注释的 YAML 字符串
             yaml_str = "# 抽卡模拟器数据文件\n"
             yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n"
             yaml_str += "# 为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录\n\n"
             
-            yaml_str += yaml.dump(state, allow_unicode=True, sort_keys=False)
+            # 将数据转换为 YAML 格式的字符串
+            from io import StringIO
+            string_stream = StringIO()
+            yaml.dump(state, string_stream)
+            data_str = string_stream.getvalue()
             
             # 为每个键添加注释
-            yaml_str = yaml_str.replace('current_banner:', '# 当前选择的卡池\ncurrent_banner:')
-            yaml_str = yaml_str.replace('pity_5:', '# 距离保底5星的抽数\npity_5:')
-            yaml_str = yaml_str.replace('pity_4:', '# 距离保底4星的抽数\npity_4:')
-            yaml_str = yaml_str.replace('failed_featured_pulls:', '# 未抽中UP角色/光锥的次数\nfailed_featured_pulls:')
-            yaml_str = yaml_str.replace('total_pulls:', '# 总抽卡次数\ntotal_pulls:')
-            yaml_str = yaml_str.replace('banner_pulls:', '# 每个卡池的抽卡次数\nbanner_pulls:')
-            yaml_str = yaml_str.replace('gold_records:', '# 获得5星的抽数记录\ngold_records:')
-            yaml_str = yaml_str.replace('purple_records:', '# 获得4星的抽数记录\npurple_records:')
-            yaml_str = yaml_str.replace('failed_featured_5star:', '# 歪掉的5星次数\nfailed_featured_5star:')
-            yaml_str = yaml_str.replace('successful_featured_5star:', '# 抽中UP的5星次数\nsuccessful_featured_5star:')
-            yaml_str = yaml_str.replace('pulls_since_last_5star:', '# 距离上次5星的抽数\npulls_since_last_5star:')
-            yaml_str = yaml_str.replace('pull_history:', '# 抽卡历史记录\npull_history:')
+            data_str = data_str.replace('current_banner:', '# 当前选择的卡池\ncurrent_banner:')
+            data_str = data_str.replace('pity_5:', '# 距离保底5星的抽数\npity_5:')
+            data_str = data_str.replace('pity_4:', '# 距离保底4星的抽数\npity_4:')
+            data_str = data_str.replace('failed_featured_pulls:', '# 未抽中UP角色/光锥的次数\nfailed_featured_pulls:')
+            data_str = data_str.replace('total_pulls:', '# 总抽卡次数\ntotal_pulls:')
+            data_str = data_str.replace('banner_pulls:', '# 每个卡池的抽卡次数\nbanner_pulls:')
+            data_str = data_str.replace('gold_records:', '# 获得5星的抽数记录\ngold_records:')
+            data_str = data_str.replace('purple_records:', '# 获得4星的抽数记录\npurple_records:')
+            data_str = data_str.replace('failed_featured_5star:', '# 歪掉的5星次数\nfailed_featured_5star:')
+            data_str = data_str.replace('successful_featured_5star:', '# 抽中UP的5星次数\nsuccessful_featured_5star:')
+            data_str = data_str.replace('pulls_since_last_5star:', '# 距离上次5星的抽数\npulls_since_last_5star:')
+            data_str = data_str.replace('pull_history:', '# 抽卡历史记录\npull_history:')
             
+            yaml_str += data_str
+
             with open('gacha_data.yaml', 'w', encoding='utf-8') as f:
-                yaml.dump(state, f)
+                f.write(yaml_str)
         except Exception as e:
             print(f"无法保存数据: {e}")
 
