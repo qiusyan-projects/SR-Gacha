@@ -1,8 +1,2 @@
 .venv/
-dist/
-build/
-# *.ico
-*.dat
-*.spec
 gacha_data.yaml
-*.json
