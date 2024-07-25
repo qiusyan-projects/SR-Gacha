@@ -1,7 +1,7 @@
 import random
 from ruamel.yaml import YAML
 import argparse
-from collections import Counter, OrderedDict
+from collections import Counter
 import os
 import signal
 import sys
@@ -232,7 +232,7 @@ class GachaSystem:
             print(f"错误: 卡池 '{banner_name}' 不存在")
 
     def show_banners(self):
-        print("\n可用卡池列表:")
+        print("\n当前可用卡池列表:")
         
         character_banners = []
         weapon_banners = []
@@ -634,7 +634,7 @@ class GachaSystem:
             
             if pull['banner'] != 'standard':
                 up_status = f"{GREEN}UP{RESET}" if pull['is_up'] else f"{RED}Non-UP{RESET}"
-                print(f"{pull['time']} - {rarity_color}{pull['name']}{RESET} - {up_status} - {item_type} - {banner_name}")
+                print(f"{pull['time']} - {rarity_color}{pull['name']}{RESET} - {item_type} - {up_status} - {banner_name}")
             else:
                 print(f"{pull['time']} - {rarity_color}{pull['name']}{RESET} - {item_type} - {banner_name}")
 
@@ -750,6 +750,7 @@ def main():
             elif command[0] == "set":
                 if len(command) < 2:
                     print("错误：请指定卡池ID")
+                    print("使用 'show' 查看当前所有卡池 ")
                 else:
                     gacha.set_banner(command[1])
             elif command[0] == "banner":
