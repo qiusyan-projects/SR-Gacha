@@ -545,7 +545,7 @@ class GachaSystem:
 
 
     def show_version_info(self):
-        version = "1.2.0"  
+        version = "1.1.1"  
         author = "QiuSYan & Claude" 
         github = "qiusyan-projects/SR-Gacha"
         other = "来个Star叭~"
