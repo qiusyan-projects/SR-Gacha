@@ -4,7 +4,7 @@ import os
 import requests
 from datetime import datetime
 import tkinter as tk
-from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar
+from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
 
 # Colors and other constants
 PURPLE = '#BA55D3'
@@ -350,6 +350,26 @@ class GachaSystem:
     def get_standard_banner(self):
         return next((banner_id for banner_id, banner_info in self.pools['banners'].items() if banner_info.get('name') == '群星跃迁'), None)
 
+    def update_font(self, font_name):
+        new_font = (font_name, 10)
+        widgets = [
+            banner_label, tip_label, pull_history_text, banner_listbox, 
+            switch_banner_button, pull_1_button, pull_10_button, 
+            info_button, mode_button, random_tip_button, 
+            toggle_button, standard_banner_button
+        ]
+        for widget in widgets:
+            if widget:  # 检查 widget 是否存在
+                widget.configure(font=new_font)
+        
+        # 更新滚动文本框的标签配置
+        if pull_history_text:
+            pull_history_text.tag_config(GOLD, foreground=GOLD, font=new_font)
+            pull_history_text.tag_config(PURPLE, foreground=PURPLE, font=new_font)
+            pull_history_text.tag_config(RESET, foreground=RESET, font=new_font)
+
+# GachaSystem 部分结束
+
 def show_random_tip():
     tip_label.config(text=random.choice(TIPS))
 
@@ -385,6 +405,25 @@ banner_label_var = StringVar()
 banner_label = tk.Label(root, textvariable=banner_label_var, font=("Arial", 14))
 banner_label.pack(pady=10)
 gacha_system.update_gui_banner_name()
+
+
+# Fonts
+
+available_fonts = font.families()
+
+# 创建字体选择下拉菜单
+font_var = tk.StringVar(root)
+font_var.set("Arial")  # 默认字体
+
+font_menu = ttk.Combobox(root, textvariable=font_var, values=available_fonts)
+font_menu.pack(pady=5)
+
+def on_font_change(event):
+    selected_font = font_var.get()
+    gacha_system.update_font(selected_font)
+
+font_menu.bind("<<ComboboxSelected>>", on_font_change)
+
 
 # Mode switch
 is_night_mode = BooleanVar(value=False)
@@ -494,6 +533,9 @@ def show_random_tip():
 show_random_tip()
 random_tip_button = tk.Button(root, text="随机Tips", command=show_random_tip)
 random_tip_button.pack(pady=5)
+
+# 初始化字体
+gacha_system.update_font("Arial")
 
 # Start the main loop
 root.mainloop()
