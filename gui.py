@@ -42,6 +42,10 @@ class GachaSimulatorGUI:
     def __init__(self, root):
         self.root = root
         
+        # 设置默认字体为微软雅黑
+        self.default_font_name = 'Microsoft YaHei'  # 如果这个不可用，Tkinter 会自动尝试下一个可用的系统字体
+        self.default_font = (self.default_font_name, 10)
+        self.large_font = (self.default_font_name, 14)
         # 更新确认
         if os.path.exists(BANNER_FILE):
             check_update = messagebox.askyesno("更新确认", "是否检查卡池文件更新？（修改卡池了的不要选更新）")
@@ -98,7 +102,7 @@ class GachaSimulatorGUI:
         self.standard_banner_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Banner listbox
-        self.banner_listbox = tk.Listbox(self.left_frame, height=10)
+        self.banner_listbox = tk.Listbox(self.left_frame, height=10, font=self.default_font)
         self.banner_listbox.pack(pady=10, padx=10, fill=tk.X)
         self.update_banner_list()
 
@@ -128,7 +132,7 @@ class GachaSimulatorGUI:
         self.random_tip_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Font selection
-        self.setup_font_selection()
+        # self.setup_font_selection()
 
         # Clear Data
         self.clear_data_button = ttk.Button(self.left_frame, text="清除抽卡统计数据", command=self.clear_gacha_data)
@@ -137,30 +141,22 @@ class GachaSimulatorGUI:
     def setup_right_frame(self):
         # Banner label
         self.banner_label_var = StringVar()
-        self.banner_label = ttk.Label(self.right_frame, textvariable=self.banner_label_var, font=("Courier", 14))
+        self.banner_label = ttk.Label(self.right_frame, textvariable=self.banner_label_var, font=self.large_font)
         self.banner_label.pack(pady=10)
         self.update_gui_banner_name()
 
         # Pull history
-        self.pull_history_text = scrolledtext.ScrolledText(self.right_frame, state='disabled', width=80, height=30, wrap=tk.WORD)
+        self.pull_history_text = scrolledtext.ScrolledText(self.right_frame, state='disabled', width=80, height=30, wrap=tk.WORD, font=self.default_font)
         self.pull_history_text.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
-        self.pull_history_text.tag_config('GOLD', foreground='#FFD700')
-        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3')
-        self.pull_history_text.tag_config('RESET', foreground='#000000')
+        self.pull_history_text.tag_config('GOLD', foreground='#FFD700', font=self.default_font)
+        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3', font=self.default_font)
+        self.pull_history_text.tag_config('RESET', foreground='#000000', font=self.default_font)
 
         # Tips
-        self.tip_label = ttk.Label(self.right_frame, text="", font=("Courier", 10), foreground="blue")
+        self.tip_label = ttk.Label(self.right_frame, text="", font=self.default_font, foreground="blue")
         self.tip_label.pack(pady=10)
         self.show_random_tip()
 
-    def setup_font_selection(self):
-        available_fonts = tk.font.families()
-        self.font_var = StringVar(self.root)
-        self.font_var.set("Courier")  # Default font
-
-        self.font_menu = ttk.Combobox(self.left_frame, textvariable=self.font_var, values=available_fonts)
-        self.font_menu.pack(pady=5, padx=10, fill=tk.X)
-        self.font_menu.bind("<<ComboboxSelected>>", self.on_font_change)
 
     def toggle_banner_type(self):
         if self.current_banner_type.get() == "character":
@@ -260,21 +256,6 @@ class GachaSimulatorGUI:
         self.banner_label.config(background=bg_color, foreground=fg_color)
         self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
 
-    def on_font_change(self, event):
-        selected_font = self.font_var.get()
-        self.update_font(selected_font)
-
-    def update_font(self, font_name):
-        new_font = (font_name, 10)
-        widgets = [
-            self.banner_label, self.tip_label, self.pull_history_text, self.banner_listbox
-        ]
-        for widget in widgets:
-            widget.config(font=new_font)
-        
-        self.pull_history_text.tag_config('GOLD', foreground='#FFD700', font=new_font)
-        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3', font=new_font)
-        self.pull_history_text.tag_config('RESET', font=new_font)
 
     def show_random_tip(self):
         self.tip_label.config(text=random.choice(self.gacha_system.TIPS))
