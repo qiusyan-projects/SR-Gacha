@@ -41,7 +41,15 @@ yaml = YAML()
 class GachaSimulatorGUI:
     def __init__(self, root, gacha_system):
         self.root = root
-        self.gacha_system = gacha_system
+        
+        # 更新确认
+        if os.path.exists(BANNER_FILE):
+            check_update = messagebox.askyesno("更新确认", "是否检查卡池文件更新？")
+            no_update = not check_update
+        else:
+            no_update = False  # 如果文件不存在，强制更新
+        
+        self.gacha_system = GachaSystem(BANNER_FILE, no_update=no_update)
         self.setup_gui()
 
     def setup_gui(self):
@@ -535,6 +543,5 @@ class GachaSystem:
 # GUI 部分
 if __name__ == "__main__":
     root = tk.Tk()
-    gacha_system = GachaSystem(BANNER_FILE)
     gui = GachaSimulatorGUI(root, gacha_system)
     root.mainloop()
