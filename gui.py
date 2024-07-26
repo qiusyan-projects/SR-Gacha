@@ -116,12 +116,17 @@ class GachaSimulatorGUI:
         self.mode_button = ttk.Button(self.left_frame, text="切换到夜间模式", command=self.toggle_mode)
         self.mode_button.pack(pady=5, padx=10, fill=tk.X)
 
-        # Font selection
-        self.setup_font_selection()
 
         # Random tip button
         self.random_tip_button = ttk.Button(self.left_frame, text="随机Tips", command=self.show_random_tip)
         self.random_tip_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Font selection
+        self.setup_font_selection()
+
+        # Clear Data
+        self.clear_data_button = ttk.Button(self.left_frame, text="清除抽卡统计数据", command=self.clear_gacha_data)
+        self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
 
     def setup_right_frame(self):
         # Banner label
@@ -164,7 +169,8 @@ class GachaSimulatorGUI:
         standard_banner = self.gacha_system.get_standard_banner()
         if standard_banner:
             if self.gacha_system.switch_banner(standard_banner):
-                banner_name = self.banner_name_map.get(standard_banner, standard_banner)
+                banner_info = self.gacha_system.pools['banners'].get(standard_banner, {})
+                banner_name = banner_info.get('name', standard_banner)
                 self.update_gui_banner_name()
                 self.update_banner_list()
                 messagebox.showinfo("提示", f"已切换到常驻池：{banner_name}")
@@ -178,8 +184,14 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
         
-        for _, banner_name in banners_to_show:
-            self.banner_listbox.insert(tk.END, banner_name)
+        for banner_id, banner_name in banners_to_show:
+            banner_info = self.gacha_system.pools['banners'][banner_id]
+            if 'character_up_5_star' in banner_info:
+                up_character = banner_info['character_up_5_star'][0]
+                display_name = f"{banner_name} - UP: {up_character}"
+            else:
+                display_name = banner_name
+            self.banner_listbox.insert(tk.END, display_name)
             if self.banner_id_map[banner_name] == self.gacha_system.current_banner:
                 self.banner_listbox.selection_set(tk.END)
 
@@ -189,9 +201,16 @@ class GachaSimulatorGUI:
             selected_banner_name = self.banner_listbox.get(selected_indices[0])
             selected_banner_id = self.banner_id_map.get(selected_banner_name)
             if selected_banner_id:
-                self.gacha_system.switch_banner(selected_banner_id)
-                self.update_banner_list()
-                self.update_gui_banner_name()
+                if self.gacha_system.switch_banner(selected_banner_id):
+                    self.update_banner_list()
+                    self.update_gui_banner_name()
+                    banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
+                    banner_name = banner_info.get('name', selected_banner_name)
+                    messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
+                else:
+                    messagebox.showerror("错误", f"切换到卡池 {selected_banner_name} 失败")
+        else:
+            messagebox.showinfo("提示", "请先选择一个卡池")
 
     def on_pull(self, num_pulls):
         pulls = self.gacha_system.perform_pull(num_pulls)
@@ -237,7 +256,8 @@ class GachaSimulatorGUI:
 
     def update_gui_banner_name(self):
         if self.gacha_system.current_banner:
-            banner_name = self.banner_name_map.get(self.gacha_system.current_banner, self.gacha_system.current_banner)
+            banner_info = self.gacha_system.pools['banners'].get(self.gacha_system.current_banner, {})
+            banner_name = banner_info.get('name', self.gacha_system.current_banner)
             self.banner_label_var.set(f"当前卡池: {banner_name}")
         else:
             self.banner_label_var.set("当前卡池: 未选择")
@@ -255,6 +275,14 @@ class GachaSimulatorGUI:
             self.pull_history_text.insert(tk.END, f"{rarity} - {item_type}: {item}\n", color)
         self.pull_history_text.configure(state='disabled')
         self.pull_history_text.see(tk.END)
+
+    def clear_gacha_data(self):
+        confirm = messagebox.askyesno("确认", "您确定要清除所有抽卡统计数据吗？此操作不可逆。")
+        if confirm:
+            second_confirm = messagebox.askyesno("二次确认", "真的要清除所有数据吗？这将重置所有统计信息。")
+            if second_confirm:
+                self.gacha_system.reset_statistics()
+                messagebox.showinfo("成功", "所有抽卡统计数据已被清除。")
 
 
 
@@ -546,6 +574,22 @@ class GachaSystem:
     
     def get_standard_banner(self):
         return next((banner_id for banner_id, banner_info in self.pools['banners'].items() if banner_info.get('name') == '群星跃迁'), None)
+    
+
+    def reset_statistics(self):
+        self.pity_5 = 0
+        self.pity_4 = 0
+        self.failed_featured_pulls = 0
+        self.total_pulls = 0
+        self.banner_pulls = {}
+        self.gold_records = []
+        self.purple_records = []
+        self.failed_featured_5star = 0
+        self.successful_featured_5star = 0
+        self.pulls_since_last_5star = 0
+        self.is_guaranteed = False
+        self.pull_history = []
+        self.save_state()
 
 
 # GachaSystem 部分结束
