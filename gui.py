@@ -60,9 +60,15 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         all_banners = character_banners + weapon_banners
         
+        print("初始化 banner_id_map:")  # 调试信息
         for banner_id, banner_name in all_banners:
             self.banner_id_map[banner_name] = banner_id
             self.banner_name_map[banner_id] = banner_name
+            print(f"  {banner_name} -> {banner_id}")  # 调试信息
+        
+        print("banner_id_map 内容:")  # 调试信息
+        for name, id in self.banner_id_map.items():
+            print(f"  {name}: {id}")  # 调试信息
 
     def setup_gui(self):
         self.root.title("Gacha Simulator")
@@ -184,6 +190,7 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
         
+        print("更新卡池列表:")  # 调试信息
         for banner_id, banner_name in banners_to_show:
             banner_info = self.gacha_system.pools['banners'][banner_id]
             if 'character_up_5_star' in banner_info:
@@ -191,25 +198,43 @@ class GachaSimulatorGUI:
                 display_name = f"{banner_name} - UP: {up_character}"
             else:
                 display_name = banner_name
+            print(f"  添加到列表: {display_name}")  # 调试信息
             self.banner_listbox.insert(tk.END, display_name)
-            if self.banner_id_map[banner_name] == self.gacha_system.current_banner:
+            if banner_id == self.gacha_system.current_banner:
                 self.banner_listbox.selection_set(tk.END)
 
     def on_switch_banner(self):
+        print("开始切换卡池...")  # 调试信息
         selected_indices = self.banner_listbox.curselection()
+        print(f"选中的索引: {selected_indices}")  # 调试信息
         if selected_indices:
-            selected_banner_name = self.banner_listbox.get(selected_indices[0])
+            selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
+            print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
+            
+            # 提取原始卡池名称（去掉 " - UP: xxx" 部分）
+            selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
+            print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
+            
             selected_banner_id = self.banner_id_map.get(selected_banner_name)
+            print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
+            
             if selected_banner_id:
+                print(f"尝试切换到卡池ID: {selected_banner_id}")  # 调试信息
                 if self.gacha_system.switch_banner(selected_banner_id):
+                    print("成功切换卡池")  # 调试信息
                     self.update_banner_list()
                     self.update_gui_banner_name()
                     banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
                     banner_name = banner_info.get('name', selected_banner_name)
                     messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
                 else:
+                    print(f"切换卡池失败")  # 调试信息
                     messagebox.showerror("错误", f"切换到卡池 {selected_banner_name} 失败")
+            else:
+                print(f"未找到卡池ID")  # 调试信息
+                messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
         else:
+            print("未选择卡池")  # 调试信息
             messagebox.showinfo("提示", "请先选择一个卡池")
 
     def on_pull(self, num_pulls):
@@ -442,9 +467,13 @@ class GachaSystem:
             return str(e)
 
     def switch_banner(self, banner_name):
+        print(f"尝试切换到卡池: {banner_name}")  # 调试信息
+        print(f"可用的卡池: {self.banners}")  # 调试信息
         if banner_name not in self.banners:
+            print(f"卡池 {banner_name} 不在可用卡池列表中")  # 调试信息
             return False
         self.current_banner = banner_name
+        print(f"成功切换到卡池: {self.current_banner}")  # 调试信息
         self.save_state()
         return True
 
@@ -563,13 +592,19 @@ class GachaSystem:
         character_banners = []
         weapon_banners = []
         standard_banner = self.get_standard_banner()
+        print("分类卡池:")  # 调试信息
         for banner_id, banner_info in self.pools['banners'].items():
             if banner_id != standard_banner:
                 banner_name = banner_info.get('name', banner_id)
+                print(f"  处理卡池: {banner_id} - {banner_name}")  # 调试信息
                 if banner_info.get('pool_type') == 'character':
                     character_banners.append((banner_id, banner_name))
+                    print(f"    添加到角色卡池")  # 调试信息
                 elif banner_info.get('pool_type') == 'weapon':
                     weapon_banners.append((banner_id, banner_name))
+                    print(f"    添加到武器卡池")  # 调试信息
+        print(f"角色卡池: {character_banners}")  # 调试信息
+        print(f"武器卡池: {weapon_banners}")  # 调试信息
         return character_banners, weapon_banners
     
     def get_standard_banner(self):
