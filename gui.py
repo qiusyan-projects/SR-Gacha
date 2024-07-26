@@ -24,7 +24,7 @@ BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
 BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
 TIPS = [
-    "可以使用 'info' 命令查看抽卡统计信息。",
+    # "可以使用 'info' 命令查看抽卡统计信息。",
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
     "这个Tip我还没想好怎么写...",
@@ -39,12 +39,12 @@ yaml = YAML()
 
 
 class GachaSimulatorGUI:
-    def __init__(self, root, gacha_system):
+    def __init__(self, root):
         self.root = root
         
         # 更新确认
         if os.path.exists(BANNER_FILE):
-            check_update = messagebox.askyesno("更新确认", "是否检查卡池文件更新？")
+            check_update = messagebox.askyesno("更新确认", "是否检查卡池文件更新？（修改卡池了的不要选更新）")
             no_update = not check_update
         else:
             no_update = False  # 如果文件不存在，强制更新
@@ -85,7 +85,7 @@ class GachaSimulatorGUI:
         self.update_banner_list()
 
         # Switch banner button
-        self.switch_banner_button = ttk.Button(self.left_frame, text="切换卡池", command=self.on_switch_banner)
+        self.switch_banner_button = ttk.Button(self.left_frame, text="切换到选择的卡池", command=self.on_switch_banner)
         self.switch_banner_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Pull buttons
@@ -152,7 +152,8 @@ class GachaSimulatorGUI:
         standard_banner = self.gacha_system.get_standard_banner()
         if standard_banner:
             self.gacha_system.switch_banner(standard_banner)
-            self.update_banner_list()
+            self.update_gui_banner_name()
+            messagebox.showinfo("提示", f"已切换到常驻池：{standard_banner}")
         else:
             messagebox.showinfo("提示", "未找到常驻池")
 
@@ -160,16 +161,10 @@ class GachaSimulatorGUI:
         self.banner_listbox.delete(0, tk.END)
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
+        
         for banner in banners_to_show:
             self.banner_listbox.insert(tk.END, banner)
             if banner == self.gacha_system.current_banner:
-                self.banner_listbox.selection_set(tk.END)
-
-        # If the current selected banner is the standard banner, show it too
-        standard_banner = self.gacha_system.get_standard_banner()
-        if standard_banner and standard_banner not in banners_to_show:
-            self.banner_listbox.insert(tk.END, standard_banner)
-            if standard_banner == self.gacha_system.current_banner:
                 self.banner_listbox.selection_set(tk.END)
 
     def on_switch_banner(self):
@@ -519,11 +514,13 @@ class GachaSystem:
     def categorize_banners(self):
         character_banners = []
         weapon_banners = []
+        standard_banner = self.get_standard_banner()
         for banner_id, banner_info in self.pools['banners'].items():
-            if banner_info.get('pool_type') == 'character':
-                character_banners.append(banner_id)
-            elif banner_info.get('pool_type') == 'weapon':
-                weapon_banners.append(banner_id)
+            if banner_id != standard_banner:
+                if banner_info.get('pool_type') == 'character':
+                    character_banners.append(banner_id)
+                elif banner_info.get('pool_type') == 'weapon':
+                    weapon_banners.append(banner_id)
         return character_banners, weapon_banners
     
     def get_standard_banner(self):
@@ -533,15 +530,8 @@ class GachaSystem:
 # GachaSystem 部分结束
 
 
-
-
-
-
-
-
-
 # GUI 部分
 if __name__ == "__main__":
     root = tk.Tk()
-    gui = GachaSimulatorGUI(root, gacha_system)
+    gui = GachaSimulatorGUI(root)
     root.mainloop()
