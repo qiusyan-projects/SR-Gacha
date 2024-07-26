@@ -536,6 +536,7 @@ banners: # 限时卡池
     - 秘密誓心
   standard:
     name: 群星跃迁
+    pool_type: standard
     character_5_star: '@common_pools.character_5_star'
     character_4_star: '@common_pools.character_4_star'
     weapon_5_star: '@common_pools.weapon_5_star'
