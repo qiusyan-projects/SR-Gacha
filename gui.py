@@ -37,6 +37,202 @@ TIPS = [
 
 yaml = YAML()
 
+
+class GachaSimulatorGUI:
+    def __init__(self, root, gacha_system):
+        self.root = root
+        self.gacha_system = gacha_system
+        self.setup_gui()
+
+    def setup_gui(self):
+        self.root.title("Gacha Simulator")
+        self.root.geometry("1200x800")
+
+        # Create main frames
+        self.left_frame = tk.Frame(self.root, width=300, bg='#f0f0f0')
+        self.right_frame = tk.Frame(self.root, bg='white')
+
+        self.left_frame.pack(side=tk.LEFT, fill=tk.Y, expand=False)
+        self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        # Left frame content
+        self.setup_left_frame()
+
+        # Right frame content
+        self.setup_right_frame()
+
+    def setup_left_frame(self):
+        # Banner type toggle
+        self.current_banner_type = StringVar(value="character")
+        self.toggle_button = ttk.Button(self.left_frame, text="切换到光锥池", command=self.toggle_banner_type)
+        self.toggle_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Standard banner button
+        self.standard_banner_button = ttk.Button(self.left_frame, text="选择常驻池", command=self.select_standard_banner)
+        self.standard_banner_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Banner listbox
+        self.banner_listbox = tk.Listbox(self.left_frame, height=10)
+        self.banner_listbox.pack(pady=10, padx=10, fill=tk.X)
+        self.update_banner_list()
+
+        # Switch banner button
+        self.switch_banner_button = ttk.Button(self.left_frame, text="切换卡池", command=self.on_switch_banner)
+        self.switch_banner_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Pull buttons
+        self.pull_1_button = ttk.Button(self.left_frame, text="抽一次", command=lambda: self.on_pull(1))
+        self.pull_1_button.pack(pady=5, padx=10, fill=tk.X)
+
+        self.pull_10_button = ttk.Button(self.left_frame, text="抽十次", command=lambda: self.on_pull(10))
+        self.pull_10_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Info button
+        self.info_button = ttk.Button(self.left_frame, text="查看统计信息", command=self.on_show_info)
+        self.info_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Mode switch
+        self.is_night_mode = BooleanVar(value=False)
+        self.mode_button = ttk.Button(self.left_frame, text="切换到夜间模式", command=self.toggle_mode)
+        self.mode_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Font selection
+        self.setup_font_selection()
+
+        # Random tip button
+        self.random_tip_button = ttk.Button(self.left_frame, text="随机Tips", command=self.show_random_tip)
+        self.random_tip_button.pack(pady=5, padx=10, fill=tk.X)
+
+    def setup_right_frame(self):
+        # Banner label
+        self.banner_label_var = StringVar()
+        self.banner_label = ttk.Label(self.right_frame, textvariable=self.banner_label_var, font=("Courier", 14))
+        self.banner_label.pack(pady=10)
+        self.update_gui_banner_name()
+
+        # Pull history
+        self.pull_history_text = scrolledtext.ScrolledText(self.right_frame, state='disabled', width=80, height=30, wrap=tk.WORD)
+        self.pull_history_text.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        self.pull_history_text.tag_config('GOLD', foreground='#FFD700')
+        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3')
+        self.pull_history_text.tag_config('RESET', foreground='#000000')
+
+        # Tips
+        self.tip_label = ttk.Label(self.right_frame, text="", font=("Courier", 10), foreground="blue")
+        self.tip_label.pack(pady=10)
+        self.show_random_tip()
+
+    def setup_font_selection(self):
+        available_fonts = tk.font.families()
+        self.font_var = StringVar(self.root)
+        self.font_var.set("Courier")  # Default font
+
+        self.font_menu = ttk.Combobox(self.left_frame, textvariable=self.font_var, values=available_fonts)
+        self.font_menu.pack(pady=5, padx=10, fill=tk.X)
+        self.font_menu.bind("<<ComboboxSelected>>", self.on_font_change)
+
+    def toggle_banner_type(self):
+        if self.current_banner_type.get() == "character":
+            self.current_banner_type.set("weapon")
+            self.toggle_button.config(text="切换到角色池")
+        else:
+            self.current_banner_type.set("character")
+            self.toggle_button.config(text="切换到光锥池")
+        self.update_banner_list()
+
+    def select_standard_banner(self):
+        standard_banner = self.gacha_system.get_standard_banner()
+        if standard_banner:
+            self.gacha_system.switch_banner(standard_banner)
+            self.update_banner_list()
+        else:
+            messagebox.showinfo("提示", "未找到常驻池")
+
+    def update_banner_list(self):
+        self.banner_listbox.delete(0, tk.END)
+        character_banners, weapon_banners = self.gacha_system.categorize_banners()
+        banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
+        for banner in banners_to_show:
+            self.banner_listbox.insert(tk.END, banner)
+            if banner == self.gacha_system.current_banner:
+                self.banner_listbox.selection_set(tk.END)
+
+        # If the current selected banner is the standard banner, show it too
+        standard_banner = self.gacha_system.get_standard_banner()
+        if standard_banner and standard_banner not in banners_to_show:
+            self.banner_listbox.insert(tk.END, standard_banner)
+            if standard_banner == self.gacha_system.current_banner:
+                self.banner_listbox.selection_set(tk.END)
+
+    def on_switch_banner(self):
+        selected_indices = self.banner_listbox.curselection()
+        if selected_indices:
+            selected_banner = self.banner_listbox.get(selected_indices[0])
+            self.gacha_system.switch_banner(selected_banner)
+            self.update_banner_list()
+            self.update_gui_banner_name()
+
+    def on_pull(self, num_pulls):
+        pulls = self.gacha_system.perform_pull(num_pulls)
+        if pulls:
+            self.update_gui_pull_history(pulls)
+            self.gacha_system.save_state()
+
+    def on_show_info(self):
+        self.gacha_system.show_info()
+
+    def toggle_mode(self):
+        self.is_night_mode.set(not self.is_night_mode.get())
+        self.mode_button.config(text="切换到日间模式" if self.is_night_mode.get() else "切换到夜间模式")
+        self.update_color_scheme()
+
+    def update_color_scheme(self):
+        bg_color = '#222222' if self.is_night_mode.get() else '#FFFFFF'
+        fg_color = '#FFFFFF' if self.is_night_mode.get() else '#000000'
+        self.right_frame.config(bg=bg_color)
+        self.pull_history_text.config(bg=bg_color, fg=fg_color)
+        self.pull_history_text.tag_config('RESET', foreground=fg_color)
+        self.banner_label.config(background=bg_color, foreground=fg_color)
+        self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
+
+    def on_font_change(self, event):
+        selected_font = self.font_var.get()
+        self.update_font(selected_font)
+
+    def update_font(self, font_name):
+        new_font = (font_name, 10)
+        widgets = [
+            self.banner_label, self.tip_label, self.pull_history_text, self.banner_listbox
+        ]
+        for widget in widgets:
+            widget.config(font=new_font)
+        
+        self.pull_history_text.tag_config('GOLD', foreground='#FFD700', font=new_font)
+        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3', font=new_font)
+        self.pull_history_text.tag_config('RESET', font=new_font)
+
+    def show_random_tip(self):
+        self.tip_label.config(text=random.choice(self.gacha_system.TIPS))
+
+    def update_gui_banner_name(self):
+        self.banner_label_var.set(f"当前卡池: {self.gacha_system.current_banner}" if self.gacha_system.current_banner else "当前卡池: 未选择")
+
+    def update_gui_pull_history(self, pulls):
+        self.pull_history_text.configure(state='normal')
+        self.pull_history_text.insert(tk.END, f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        for rarity, item_type, item in pulls:
+            if rarity == '5_star':
+                color = 'GOLD'
+            elif rarity == '4_star':
+                color = 'PURPLE'
+            else:
+                color = 'RESET'
+            self.pull_history_text.insert(tk.END, f"{rarity} - {item_type}: {item}\n", color)
+        self.pull_history_text.configure(state='disabled')
+        self.pull_history_text.see(tk.END)
+
+
+
 class GachaSystem:
     def __init__(self, pool_file, no_update=False):
         self.pool_file = pool_file
@@ -68,6 +264,7 @@ class GachaSystem:
         self.pulls_since_last_5star = 0
         self.is_guaranteed = False
         self.pull_history = []
+        self.TIPS = TIPS
         self.load_state()
 
     def load_pools(self, file_name):
@@ -198,7 +395,6 @@ class GachaSystem:
 
         self.current_banner = banner_name
         self.show_message(f"已切换到卡池: {banner_name}", BLUE)
-        self.update_gui_banner_name()
         self.save_state()
 
     def perform_pull(self, num_pulls):
@@ -290,22 +486,7 @@ class GachaSystem:
         else:
             messagebox.showinfo("提示", message)
         
-    def update_gui_banner_name(self):
-        banner_label_var.set(f"当前卡池: {self.current_banner}" if self.current_banner else "当前卡池: 未选择")
 
-    def update_gui_pull_history(self, pulls):
-        pull_history_text.configure(state='normal')
-        pull_history_text.insert(tk.END, f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        for rarity, item_type, item in pulls:
-            if rarity == '5_star':
-                color = GOLD
-            elif rarity == '4_star':
-                color = PURPLE
-            else:
-                color = RESET
-            pull_history_text.insert(tk.END, f"{rarity} - {item_type}: {item}\n", color)
-        pull_history_text.configure(state='disabled')
-        pull_history_text.see(tk.END)
 
     def show_info(self):
         info = f"""总抽卡次数: {self.total_pulls}
@@ -326,16 +507,6 @@ class GachaSystem:
         messagebox.showinfo("抽卡统计信息", info)
 
 
-    def toggle_mode(self, is_night_mode):
-        bg_color = NIGHT_BG if is_night_mode else DAY_BG
-        fg_color = NIGHT_FG if is_night_mode else DAY_FG
-        root.configure(bg=bg_color)
-        pull_history_text.configure(bg=bg_color, fg=fg_color)
-        pull_history_text.tag_config(RESET, foreground=fg_color)
-        banner_label.configure(bg=bg_color, fg=fg_color)
-        tip_label.configure(bg=bg_color, fg=fg_color)
-        for widget in [banner_listbox, switch_banner_button, pull_1_button, pull_10_button, info_button, mode_button, random_tip_button,toggle_button,standard_banner_button]:
-            widget.configure(bg=bg_color, fg=fg_color)
 
     def categorize_banners(self):
         character_banners = []
@@ -350,192 +521,20 @@ class GachaSystem:
     def get_standard_banner(self):
         return next((banner_id for banner_id, banner_info in self.pools['banners'].items() if banner_info.get('name') == '群星跃迁'), None)
 
-    def update_font(self, font_name):
-        new_font = (font_name, 10)
-        widgets = [
-            banner_label, tip_label, pull_history_text, banner_listbox, 
-            switch_banner_button, pull_1_button, pull_10_button, 
-            info_button, mode_button, random_tip_button, 
-            toggle_button, standard_banner_button
-        ]
-        for widget in widgets:
-            if widget:  # 检查 widget 是否存在
-                widget.configure(font=new_font)
-        
-        # 更新滚动文本框的标签配置
-        if pull_history_text:
-            pull_history_text.tag_config(GOLD, foreground=GOLD, font=new_font)
-            pull_history_text.tag_config(PURPLE, foreground=PURPLE, font=new_font)
-            pull_history_text.tag_config(RESET, foreground=RESET, font=new_font)
 
 # GachaSystem 部分结束
 
-def show_random_tip():
-    tip_label.config(text=random.choice(TIPS))
-
-def on_pull(num_pulls):
-    pulls = gacha_system.perform_pull(num_pulls)
-    if pulls:
-        gacha_system.update_gui_pull_history(pulls)
-        gacha_system.save_state()
-
-def on_switch_banner():
-    selected_indices = banner_listbox.curselection()
-    if selected_indices:
-        selected_banner = banner_listbox.get(selected_indices[0])
-        gacha_system.switch_banner(selected_banner)
-
-def on_show_info():
-    gacha_system.show_info()
 
 
 
-# GUI部分
-
-# Initialize the GachaSystem
-gacha_system = GachaSystem(BANNER_FILE)
-
-# Initialize GUI
-root = tk.Tk()
-root.title("Gacha Simulator")
-root.geometry("1024x900")
-
-# Banner label
-banner_label_var = StringVar()
-banner_label = tk.Label(root, textvariable=banner_label_var, font=("Arial", 14))
-banner_label.pack(pady=10)
-gacha_system.update_gui_banner_name()
 
 
-# Fonts
-
-available_fonts = font.families()
-
-# 创建字体选择下拉菜单
-font_var = tk.StringVar(root)
-font_var.set("Arial")  # 默认字体
-
-font_menu = ttk.Combobox(root, textvariable=font_var, values=available_fonts)
-font_menu.pack(pady=5)
-
-def on_font_change(event):
-    selected_font = font_var.get()
-    gacha_system.update_font(selected_font)
-
-font_menu.bind("<<ComboboxSelected>>", on_font_change)
 
 
-# Mode switch
-is_night_mode = BooleanVar(value=False)
 
-def toggle_mode():
-    is_night_mode.set(not is_night_mode.get())
-    mode_button.config(text="切换到日间模式" if is_night_mode.get() else "切换到夜间模式")
-    gacha_system.toggle_mode(is_night_mode.get())
-
-mode_button = tk.Button(root, text="切换到夜间模式", command=toggle_mode)
-mode_button.pack(pady=5)
-
-# Categorize banners
-character_banners, weapon_banners = gacha_system.categorize_banners()
-current_banner_type = StringVar(value="character")
-
-def update_banner_list():
-    banner_listbox.delete(0, tk.END)
-    banners_to_show = character_banners if current_banner_type.get() == "character" else weapon_banners
-    for banner in banners_to_show:
-        banner_listbox.insert(tk.END, banner)
-        if banner == gacha_system.current_banner:
-            banner_listbox.selection_set(tk.END)
-
-    # 如果当前选中的是常驻池，也要显示出来
-    standard_banner = gacha_system.get_standard_banner()
-    if standard_banner and standard_banner not in banners_to_show:
-        banner_listbox.insert(tk.END, standard_banner)
-        if standard_banner == gacha_system.current_banner:
-            banner_listbox.selection_set(tk.END)
-
-def toggle_banner_type():
-    if current_banner_type.get() == "character":
-        current_banner_type.set("weapon")
-        toggle_button.config(text="切换到角色池")
-    else:
-        current_banner_type.set("character")
-        toggle_button.config(text="切换到光锥池")
-    update_banner_list()
-
-# Add toggle button
-toggle_button = tk.Button(root, text="切换到光锥池", command=toggle_banner_type)
-toggle_button.pack(pady=5)
-
-def select_standard_banner():
-    standard_banner = gacha_system.get_standard_banner()
-    if standard_banner:
-        gacha_system.switch_banner(standard_banner)
-        update_banner_list()
-    else:
-        messagebox.showinfo("提示", "未找到常驻池")
-
-# Add standard banner button
-standard_banner_button = tk.Button(root, text="选择常驻池", command=select_standard_banner)
-standard_banner_button.pack(pady=5)
-
-# Banner listbox
-banner_listbox = tk.Listbox(root, height=10)
-update_banner_list()
-banner_listbox.pack(pady=10)
-
-def on_switch_banner():
-    selected_indices = banner_listbox.curselection()
-    if selected_indices:
-        selected_banner = banner_listbox.get(selected_indices[0])
-        gacha_system.switch_banner(selected_banner)
-        update_banner_list()
-        gacha_system.update_gui_banner_name()
-
-switch_banner_button = tk.Button(root, text="切换卡池", command=on_switch_banner)
-switch_banner_button.pack(pady=5)
-
-# Pull buttons
-def on_pull(num_pulls):
-    pulls = gacha_system.perform_pull(num_pulls)
-    if pulls:
-        gacha_system.update_gui_pull_history(pulls)
-        gacha_system.save_state()
-
-pull_1_button = tk.Button(root, text="抽一次", command=lambda: on_pull(1))
-pull_1_button.pack(pady=5)
-
-pull_10_button = tk.Button(root, text="抽十次", command=lambda: on_pull(10))
-pull_10_button.pack(pady=5)
-
-# Info button
-def on_show_info():
-    gacha_system.show_info()
-
-info_button = tk.Button(root, text="查看统计信息", command=on_show_info)
-info_button.pack(pady=5)
-
-# Pull history
-pull_history_text = scrolledtext.ScrolledText(root, state='disabled', width=80, height=20, wrap=tk.WORD)
-pull_history_text.pack(pady=10)
-pull_history_text.tag_config(GOLD, foreground=GOLD)
-pull_history_text.tag_config(PURPLE, foreground=PURPLE)
-pull_history_text.tag_config(RESET, foreground=RESET)
-
-# Tips
-tip_label = tk.Label(root, text="", font=("Arial", 10), fg="blue")
-tip_label.pack(pady=10)
-
-def show_random_tip():
-    tip_label.config(text=random.choice(TIPS))
-
-show_random_tip()
-random_tip_button = tk.Button(root, text="随机Tips", command=show_random_tip)
-random_tip_button.pack(pady=5)
-
-# 初始化字体
-gacha_system.update_font("Arial")
-
-# Start the main loop
-root.mainloop()
+# GUI 部分
+if __name__ == "__main__":
+    root = tk.Tk()
+    gacha_system = GachaSystem(BANNER_FILE)
+    gui = GachaSimulatorGUI(root, gacha_system)
+    root.mainloop()
