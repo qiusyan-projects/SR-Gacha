@@ -145,12 +145,21 @@ class GachaSimulatorGUI:
         self.banner_label.pack(pady=10)
         self.update_gui_banner_name()
 
-        # Pull history
-        self.pull_history_text = scrolledtext.ScrolledText(self.right_frame, state='disabled', width=80, height=30, wrap=tk.WORD, font=self.default_font)
-        self.pull_history_text.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
-        self.pull_history_text.tag_config('GOLD', foreground='#FFD700', font=self.default_font)
-        self.pull_history_text.tag_config('PURPLE', foreground='#BA55D3', font=self.default_font)
-        self.pull_history_text.tag_config('RESET', foreground='#000000', font=self.default_font)
+        # Pull history table
+        columns = ('时间', '星级', '类型', '物品')
+        self.pull_history_tree = ttk.Treeview(self.right_frame, columns=columns, show='headings')
+        
+        # Define column headings
+        for col in columns:
+            self.pull_history_tree.heading(col, text=col)
+            self.pull_history_tree.column(col, width=100)  # Adjust width as needed
+        
+        self.pull_history_tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        
+        # Add a scrollbar
+        scrollbar = ttk.Scrollbar(self.right_frame, orient=tk.VERTICAL, command=self.pull_history_tree.yview)
+        self.pull_history_tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Tips
         self.tip_label = ttk.Label(self.right_frame, text="", font=self.default_font, foreground="blue")
@@ -251,10 +260,16 @@ class GachaSimulatorGUI:
         bg_color = '#222222' if self.is_night_mode.get() else '#FFFFFF'
         fg_color = '#FFFFFF' if self.is_night_mode.get() else '#000000'
         self.right_frame.config(bg=bg_color)
-        self.pull_history_text.config(bg=bg_color, fg=fg_color)
-        self.pull_history_text.tag_config('RESET', foreground=fg_color)
         self.banner_label.config(background=bg_color, foreground=fg_color)
         self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
+        
+        # Update Treeview colors
+        style = ttk.Style()
+        style.configure("Treeview", 
+                        background=bg_color, 
+                        foreground=fg_color, 
+                        fieldbackground=bg_color)
+        style.map('Treeview', background=[('selected', '#0078D7')])
 
 
     def show_random_tip(self):
@@ -269,18 +284,14 @@ class GachaSimulatorGUI:
             self.banner_label_var.set("当前卡池: 未选择")
 
     def update_gui_pull_history(self, pulls):
-        self.pull_history_text.configure(state='normal')
-        self.pull_history_text.insert(tk.END, f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         for rarity, item_type, item in pulls:
-            if rarity == '5_star':
-                color = 'GOLD'
-            elif rarity == '4_star':
-                color = 'PURPLE'
-            else:
-                color = 'RESET'
-            self.pull_history_text.insert(tk.END, f"{rarity} - {item_type}: {item}\n", color)
-        self.pull_history_text.configure(state='disabled')
-        self.pull_history_text.see(tk.END)
+            tag = rarity.replace('_star', '')  # '5_star' becomes '5'
+            self.pull_history_tree.insert('', 0, values=(current_time, rarity, item_type, item), tags=(tag,))
+        
+        # Set tag colors
+        self.pull_history_tree.tag_configure('5', foreground='gold')
+        self.pull_history_tree.tag_configure('4', foreground='purple')
 
     def clear_gacha_data(self):
         confirm = messagebox.askyesno("确认", "您确定要清除所有抽卡统计数据吗？此操作不可逆。")
