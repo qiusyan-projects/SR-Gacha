@@ -132,7 +132,7 @@ class GachaSimulatorGUI:
         # self.setup_font_selection()
 
         # Clear Data
-        self.clear_data_button = ttk.Button(self.left_frame, text="清除抽卡统计数据", command=self.clear_gacha_data)
+        self.clear_data_button = ttk.Button(self.left_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
         self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Add statistics display
@@ -538,7 +538,7 @@ class GachaSystem:
     def perform_pull(self, num_pulls):
         print(f"执行抽卡: {num_pulls} 次")
         if not self.current_banner:
-            self.show_message("请先选择卡池。", RED)
+            self.show_message("请先选择一个卡池。", RED)
             return
 
         banner = self.pools['banners'][self.current_banner]
@@ -555,7 +555,6 @@ class GachaSystem:
         for i in range(num_pulls):
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] = self.banner_pulls.get(self.current_banner, 0) + 1
-            self.pulls_since_last_5star += 1
 
             # 确定是否出五星
             if self.pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(self.pity_5 * 600 // 73, 7300):
@@ -563,6 +562,7 @@ class GachaSystem:
                 self.gold_records.append(self.pity_5 + 1)  # 记录出金抽数
                 self.pity_5 = 0
                 self.pity_4 = 0  # 重置4星保底
+                self.pulls_since_last_5star = 0  # 重置距离上次五星的抽数
                 summary['5星'] += 1
                 if self.current_banner != 'standard':
                     if result['is_up']:
@@ -577,6 +577,7 @@ class GachaSystem:
                 self.purple_records.append(self.pity_4 + 1)  # 记录出紫抽数
                 self.pity_5 += 1
                 self.pity_4 = 0
+                self.pulls_since_last_5star += 1  # 增加距离上次五星的抽数
                 summary['4星'] += 1
                 if self.current_banner != 'standard' and result['is_up']:
                     summary['4星UP'] += 1
@@ -585,6 +586,7 @@ class GachaSystem:
                 result = self.pull_3_star()
                 self.pity_5 += 1
                 self.pity_4 += 1
+                self.pulls_since_last_5star += 1  # 增加距离上次五星的抽数
                 summary['3星'] += 1
 
             pulls.append((result['rarity'], result['type'], result['item']))
