@@ -24,11 +24,9 @@ BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
 BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
 TIPS = [
-    # "可以使用 'info' 命令查看抽卡统计信息。",
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
     "这个Tip我还没想好怎么写...",
-    # "为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录",
     "你说得对，但是...",
     "来点Star叭！",
     "这是一个小Tip，只有聪明人才能看到它的内容",
@@ -353,8 +351,8 @@ class GachaSimulatorGUI:
 
     def update_stats_display(self):
         stats = f"""总抽卡次数: {self.gacha_system.total_pulls}
-当前五星保底: {self.gacha_system.pity_5}
-当前四星保底: {self.gacha_system.pity_4}
+距离下一个五星保底的抽数: {90 - self.gacha_system.pity_5}
+距离下一个四星保底: {10 - self.gacha_system.pity_4}
 获得五星次数: {len(self.gacha_system.gold_records)}
 获得四星次数: {len(self.gacha_system.purple_records)}
 歪掉五星次数: {self.gacha_system.failed_featured_5star}
@@ -432,7 +430,6 @@ class GachaSystem:
 
             yaml_str = "# 抽卡模拟器数据文件\n"
             yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n"
-            yaml_str += "# 为了防止抽卡记录过多导致数据读取缓慢，抽卡记录中没有三星的光锥获得记录\n\n"
             
             from io import StringIO
             string_stream = StringIO()
@@ -653,24 +650,6 @@ class GachaSystem:
             messagebox.showinfo("提示", message)
         
 
-
-    def show_info(self):
-        info = f"""总抽卡次数: {self.total_pulls}
-当前五星保底: {self.pity_5}
-当前四星保底: {self.pity_4}
-获得五星次数: {len(self.gold_records)}
-获得四星次数: {len(self.purple_records)}
-歪掉五星次数: {self.failed_featured_5star}
-抽中UP五星次数: {self.successful_featured_5star}
-距离上次五星: {self.pulls_since_last_5star}
-大保底状态: {'是' if self.is_guaranteed else '否'}
-
-各卡池抽卡次数:
-"""
-        for banner, pulls in self.banner_pulls.items():
-            info += f"{banner}: {pulls}\n"
-
-        messagebox.showinfo("抽卡统计信息", info)
 
 
 
