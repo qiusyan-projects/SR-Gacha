@@ -746,7 +746,10 @@ class GachaSystem:
                 else:
                     messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
-                self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, is_guaranteed=result['is_up'])
+                self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
+                                    is_guaranteed=result['is_up'], 
+                                    failed_featured_5star=failed_featured_5star,
+                                    successful_featured_5star=successful_featured_5star)
                 summary['5星'] += 1
                 guaranteed_4_star = False
             # 确定是否出四星
