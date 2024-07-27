@@ -225,33 +225,37 @@ class GachaSimulatorGUI:
         print("开始切换卡池...")  # 调试信息
         selected_indices = self.banner_listbox.curselection()
         print(f"选中的索引: {selected_indices}")  # 调试信息
-        if selected_indices:
-            selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
-            print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
-            
-            # 提取原始卡池名称（去掉 " - UP: xxx" 部分）
-            selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
-            print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
-            
-            selected_banner_id = self.banner_id_map.get(selected_banner_name)
-            print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
-            
-            if selected_banner_id:
-                print(f"尝试切换到卡池ID: {selected_banner_id}")  # 调试信息
-                if self.gacha_system.switch_banner(selected_banner_id):
-                    print("成功切换卡池")  # 调试信息
-                    self.update_banner_list()
-                    self.update_gui_banner_name()
-                    self.update_stats_display()  # Update stats when switching banner
-                    banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
-                    banner_name = banner_info.get('name', selected_banner_name)
-                    messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
-                else:
-                    print(f"切换卡池失败")  # 调试信息
-                    messagebox.showerror("错误", f"切换到卡池 {selected_banner_name} 失败")
+        
+        if not selected_indices:
+            messagebox.showinfo("提示", "你还没有选择一个卡池")
+            return
+        
+        selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
+        print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
+        
+        # 提取原始卡池名称（去掉 " - UP: xxx" 部分）
+        selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
+        print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
+        
+        selected_banner_id = self.banner_id_map.get(selected_banner_name)
+        print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
+        
+        if selected_banner_id:
+            print(f"尝试切换到卡池ID: {selected_banner_id}")  # 调试信息
+            if self.gacha_system.switch_banner(selected_banner_id):
+                print("成功切换卡池")  # 调试信息
+                self.update_banner_list()
+                self.update_gui_banner_name()
+                self.update_stats_display()  # Update stats when switching banner
+                banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
+                banner_name = banner_info.get('name', selected_banner_name)
+                messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
             else:
-                print(f"未找到卡池ID")  # 调试信息
-                messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
+                print(f"切换卡池失败")  # 调试信息
+                messagebox.showerror("错误", f"切换到卡池 {selected_banner_name} 失败")
+        else:
+            print(f"未找到卡池ID")  # 调试信息
+            messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
 
     def on_pull(self, num_pulls):
         pulls = self.gacha_system.perform_pull(num_pulls)
