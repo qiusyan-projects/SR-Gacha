@@ -139,11 +139,19 @@ class GachaSimulatorGUI:
         self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
 
     def setup_right_frame(self):
+        # Banner label and clear history button frame
+        top_frame = ttk.Frame(self.right_frame)
+        top_frame.pack(fill=tk.X, pady=10)
+
         # Banner label
         self.banner_label_var = StringVar()
-        self.banner_label = ttk.Label(self.right_frame, textvariable=self.banner_label_var, font=self.large_font)
-        self.banner_label.pack(pady=10)
+        self.banner_label = ttk.Label(top_frame, textvariable=self.banner_label_var, font=self.large_font)
+        self.banner_label.pack(side=tk.LEFT, padx=(10, 0))
         self.update_gui_banner_name()
+
+        # Clear history button
+        self.clear_history_button = ttk.Button(top_frame, text="清空抽卡记录", command=self.clear_pull_history)
+        self.clear_history_button.pack(side=tk.RIGHT, padx=(0, 10))
 
         # Pull history table
         columns = ('时间', '星级', '类型', '物品', '卡池', '是否UP')
@@ -328,6 +336,14 @@ class GachaSimulatorGUI:
             if second_confirm:
                 self.gacha_system.reset_statistics()
                 messagebox.showinfo("成功", "所有抽卡统计数据已被清除。")
+
+    def clear_pull_history(self):
+        confirm = messagebox.askyesno("确认", "您确定要清空抽卡记录吗？此操作不可逆。")
+        if confirm:
+            self.pull_history_tree.delete(*self.pull_history_tree.get_children())
+            self.gacha_system.pull_history = []
+            self.gacha_system.save_state()
+            messagebox.showinfo("成功", "抽卡记录已清空。")
 
 
 
