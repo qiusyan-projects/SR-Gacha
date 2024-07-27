@@ -146,7 +146,7 @@ class GachaSimulatorGUI:
         self.update_gui_banner_name()
 
         # Pull history table
-        columns = ('时间', '星级', '类型', '物品')
+        columns = ('时间', '星级', '类型', '物品', '卡池', '是否UP')
         self.pull_history_tree = ttk.Treeview(self.right_frame, columns=columns, show='headings')
         
         # Define column headings
@@ -285,9 +285,37 @@ class GachaSimulatorGUI:
 
     def update_gui_pull_history(self, pulls):
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_banner_info = self.gacha_system.pools['banners'].get(self.gacha_system.current_banner, {})
+        current_banner_name = current_banner_info.get('name', self.gacha_system.current_banner)
+        is_standard_banner = current_banner_info.get('pool_type') == 'standard'
+
+        print(f"Debug: Current banner: {current_banner_name}")
+        print(f"Debug: Is standard banner: {is_standard_banner}")
+        print(f"Debug: Current banner info: {current_banner_info}")
+
         for rarity, item_type, item in pulls:
             tag = rarity.replace('_star', '')  # '5_star' becomes '5'
-            self.pull_history_tree.insert('', 0, values=(current_time, rarity, item_type, item), tags=(tag,))
+            
+            # Determine if it's an UP item
+            is_up = "否"
+            if not is_standard_banner and rarity in ['4_star', '5_star']:
+                up_items = current_banner_info.get(f"{item_type}_up_{rarity}", [])
+                if not up_items and item_type == '角色':
+                    up_items = current_banner_info.get(f"character_up_{rarity}", [])
+                elif not up_items and item_type == '光锥':
+                    up_items = current_banner_info.get(f"weapon_up_{rarity}", [])
+                
+                print(f"Debug: UP items for {rarity} {item_type}: {up_items}")
+                print(f"Debug: Current item: {item}")
+                is_up = "是" if item in up_items else "否"
+                print(f"Debug: Is UP: {is_up}")
+            
+            # For 3-star items and standard banner pulls, leave the UP column empty
+            if rarity == '3_star' or is_standard_banner:
+                is_up = ""
+
+            print(f"Debug: Inserting item: {current_time}, {rarity}, {item_type}, {item}, {current_banner_name}, {is_up}")
+            self.pull_history_tree.insert('', 0, values=(current_time, rarity, item_type, item, current_banner_name, is_up), tags=(tag,))
         
         # Set tag colors
         self.pull_history_tree.tag_configure('5', foreground='gold')
