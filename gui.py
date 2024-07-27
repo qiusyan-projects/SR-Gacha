@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
-from ttkthemes import ThemedTk
+# from ttkthemes import ThemedTk
 
 # Colors and other constants
 PURPLE = '#BA55D3'
@@ -31,7 +31,8 @@ TIPS = [
     "你说得对，但是...",
     "来点Star叭！",
     "这是一个小Tip，只有聪明人才能看到它的内容",
-    "可以修改卡池文件来实现其他游戏的抽卡效果，具体请移步项目README"
+    "可以修改卡池文件来实现其他游戏的抽卡效果，具体请移步项目README",
+    "本来我是想整个主题的，但是好像加上之后会变得很卡我就删了"
 ]
 
 yaml = YAML()
@@ -54,7 +55,7 @@ class GachaSimulatorGUI:
         self.check_for_updates()
 
         # 初始化主题选择
-        self.setup_theme_selection()
+        # self.setup_theme_selection()
 
         # 初始化其他GUI组件
         self.initialize_gui_components()
@@ -82,15 +83,15 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         all_banners = character_banners + weapon_banners
         
-        print("初始化 banner_id_map:")  # 调试信息
+        # print("初始化 banner_id_map:")  # 调试信息
         for banner_id, banner_name in all_banners:
             self.banner_id_map[banner_name] = banner_id
             self.banner_name_map[banner_id] = banner_name
-            print(f"  {banner_name} -> {banner_id}")  # 调试信息
+            # print(f"  {banner_name} -> {banner_id}")  # 调试信息
         
-        print("banner_id_map 内容:")  # 调试信息
-        for name, id in self.banner_id_map.items():
-            print(f"  {name}: {id}")  # 调试信息
+        # print("banner_id_map 内容:")  # 调试信息
+        # for name, id in self.banner_id_map.items():
+            # print(f"  {name}: {id}")  # 调试信息
 
     def setup_gui(self):
 
@@ -110,11 +111,11 @@ class GachaSimulatorGUI:
     def setup_left_frame(self):
         # Banner type toggle
         self.current_banner_type = StringVar(value="character")
-        self.toggle_button = ttk.Button(self.left_frame, text="切换到光锥池", command=self.toggle_banner_type)
+        self.toggle_button = ttk.Button(self.left_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
         self.toggle_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Standard banner button
-        self.standard_banner_button = ttk.Button(self.left_frame, text="选择常驻池", command=self.select_standard_banner)
+        self.standard_banner_button = ttk.Button(self.left_frame, text="切换到常驻池", command=self.select_standard_banner)
         self.standard_banner_button.pack(pady=5, padx=10, fill=tk.X)
 
         # Banner listbox
@@ -201,10 +202,10 @@ class GachaSimulatorGUI:
     def toggle_banner_type(self):
         if self.current_banner_type.get() == "character":
             self.current_banner_type.set("weapon")
-            self.toggle_button.config(text="切换到角色池")
+            self.toggle_button.config(text="切换到角色池列表")
         else:
             self.current_banner_type.set("character")
-            self.toggle_button.config(text="切换到光锥池")
+            self.toggle_button.config(text="切换到光锥池列表")
         self.update_banner_list()
 
     def select_standard_banner(self):
@@ -226,7 +227,7 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
         
-        print("更新卡池列表:")  # 调试信息
+        # print("更新卡池列表:")  # 调试信息
         for banner_id, banner_name in banners_to_show:
             banner_info = self.gacha_system.pools['banners'][banner_id]
             if 'character_up_5_star' in banner_info:
@@ -234,7 +235,7 @@ class GachaSimulatorGUI:
                 display_name = f"{banner_name} - UP: {up_character}"
             else:
                 display_name = banner_name
-            print(f"  添加到列表: {display_name}")  # 调试信息
+            # print(f"  添加到列表: {display_name}")  # 调试信息
             self.banner_listbox.insert(tk.END, display_name)
             if banner_id == self.gacha_system.current_banner:
                 self.banner_listbox.selection_set(tk.END)
@@ -249,11 +250,11 @@ class GachaSimulatorGUI:
             return
         
         selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
-        print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
+        # print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
         
         # 提取原始卡池名称（去掉 " - UP: xxx" 部分）
         selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
-        print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
+        # print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
         
         selected_banner_id = self.banner_id_map.get(selected_banner_name)
         print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
@@ -387,31 +388,31 @@ class GachaSimulatorGUI:
         self.stats_text.insert(tk.END, stats)
         self.stats_text.config(state=tk.DISABLED)
 
-    def setup_theme_selection(self):
-        # 创建一个框架来容纳标签和下拉菜单
-        theme_frame = ttk.Frame(self.root)
-        theme_frame.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
+# def setup_theme_selection(self):
+#     # 创建一个框架来容纳标签和下拉菜单
+#     theme_frame = ttk.Frame(self.root)
+#     theme_frame.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
 
-        # 添加提示标签
-        theme_label = ttk.Label(theme_frame, text="选择主题：", font=self.default_font)
-        theme_label.pack(side=tk.LEFT, padx=(0, 5))
+#     # 添加提示标签
+#     theme_label = ttk.Label(theme_frame, text="选择主题：", font=self.default_font)
+#     theme_label.pack(side=tk.LEFT, padx=(0, 5))
 
-        # 获取可用主题
-        self.themes = self.root.get_themes()
-        self.current_theme = tk.StringVar(value="arc")  # 设置默认主题
+#     # 获取可用主题
+#     self.themes = self.root.get_themes()
+#     self.current_theme = tk.StringVar(value="arc")  # 设置默认主题
 
-        # 创建主题选择下拉菜单
-        self.theme_menu = ttk.OptionMenu(
-            theme_frame,
-            self.current_theme,
-            "arc",
-            *self.themes,
-            command=self.change_theme
-        )
-        self.theme_menu.pack(side=tk.LEFT)
+#     # 创建主题选择下拉菜单
+#     self.theme_menu = ttk.OptionMenu(
+#         theme_frame,
+#         self.current_theme,
+#         "arc",
+#         *self.themes,
+#         command=self.change_theme
+#     )
+#     self.theme_menu.pack(side=tk.LEFT)
 
-    def change_theme(self, theme_name):
-        self.root.set_theme(theme_name)
+# def change_theme(self, theme_name):
+#     self.root.set_theme(theme_name)
 
 
 class GachaSystem:
@@ -569,13 +570,13 @@ class GachaSystem:
             return str(e)
 
     def switch_banner(self, banner_name):
-        print(f"尝试切换到卡池: {banner_name}")  # 调试信息
-        print(f"可用的卡池: {self.banners}")  # 调试信息
+        # print(f"尝试切换到卡池: {banner_name}")  # 调试信息
+        # print(f"可用的卡池: {self.banners}")  # 调试信息
         if banner_name not in self.banners:
-            print(f"卡池 {banner_name} 不在可用卡池列表中")  # 调试信息
+            # print(f"卡池 {banner_name} 不在可用卡池列表中")  # 调试信息
             return False
         self.current_banner = banner_name
-        print(f"成功切换到卡池: {self.current_banner}")  # 调试信息
+        # print(f"成功切换到卡池: {self.current_banner}")  # 调试信息
         self.save_state()
         return True
 
@@ -599,23 +600,23 @@ class GachaSystem:
         for i in range(num_pulls):
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] = self.banner_pulls.get(self.current_banner, 0) + 1
-            self.pulls_since_last_5star += 1  # 在每次抽卡开始时增加这个计数
+            
 
             # 确定是否出五星
             if self.pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(self.pity_5 * 600 // 73, 7300):
                 result = self.pull_5_star(pool_type)
                 self.gold_records.append(self.pity_5 + 1)  # 记录出金抽数
-                # 使用 self.pulls_since_last_5star 来显示抽卡次数
+                pulls_for_this_5star = self.pulls_since_last_5star + 1  # +1 因为当前这抽也算
                 if self.current_banner != 'standard':
                     if result['is_up']:
                         self.successful_featured_5star += 1
                         summary['5星UP'] += 1
-                        messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}，还好没歪!")
+                        messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，还好没歪!")
                     else:
                         self.failed_featured_5star += 1
-                        messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}，可惜歪了!")
+                        messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，可惜歪了!")
                 else:
-                    messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}!")
+                    messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
                 self.pity_5 = 0
                 self.pity_4 = 0
@@ -711,19 +712,19 @@ class GachaSystem:
         character_banners = []
         weapon_banners = []
         standard_banner = self.get_standard_banner()
-        print("分类卡池:")  # 调试信息
+        # print("分类卡池:")  # 调试信息
         for banner_id, banner_info in self.pools['banners'].items():
             if banner_id != standard_banner:
                 banner_name = banner_info.get('name', banner_id)
-                print(f"  处理卡池: {banner_id} - {banner_name}")  # 调试信息
+                # print(f"  处理卡池: {banner_id} - {banner_name}")  # 调试信息
                 if banner_info.get('pool_type') == 'character':
                     character_banners.append((banner_id, banner_name))
-                    print(f"    添加到角色卡池")  # 调试信息
+                    # print(f"    添加到角色卡池")  # 调试信息
                 elif banner_info.get('pool_type') == 'weapon':
                     weapon_banners.append((banner_id, banner_name))
-                    print(f"    添加到武器卡池")  # 调试信息
-        print(f"角色卡池: {character_banners}")  # 调试信息
-        print(f"武器卡池: {weapon_banners}")  # 调试信息
+                    # print(f"    添加到武器卡池")  # 调试信息
+        # print(f"角色卡池: {character_banners}")  # 调试信息
+        # print(f"武器卡池: {weapon_banners}")  # 调试信息
         return character_banners, weapon_banners
     
     def get_standard_banner(self):
@@ -742,7 +743,6 @@ class GachaSystem:
         self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
         self.is_guaranteed = False
-        # self.pull_history = []
         self.save_state()
 
 
@@ -751,6 +751,7 @@ class GachaSystem:
 
 # 主程序
 if __name__ == "__main__":
-    root = ThemedTk(theme="arc")  # 使用 ThemedTk 替换 Tk
+    # root = ThemedTk(theme="yaru")  不使用主题
+    root = tk.Tk()
     gui = GachaSimulatorGUI(root)
     root.mainloop()
