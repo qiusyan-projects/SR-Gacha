@@ -259,12 +259,7 @@ class GachaSimulatorGUI:
             return
         
         selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
-        # print(f"选中的卡池显示名称: {selected_banner_display_name}")  # 调试信息
-        
-        # 提取原始卡池名称（去掉 " - UP: xxx" 部分）
         selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
-        # print(f"提取的原始卡池名称: {selected_banner_name}")  # 调试信息
-        
         selected_banner_id = self.banner_id_map.get(selected_banner_name)
         print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
         
@@ -274,7 +269,11 @@ class GachaSimulatorGUI:
                 print("成功切换卡池")  # 调试信息
                 self.update_banner_list()
                 self.update_gui_banner_name()
-                self.update_stats_display()  # Update stats when switching banner
+                
+                # 获取新卡池的类型并更新统计显示
+                new_pool_type = self.gacha_system.pools['banners'][selected_banner_id].get('pool_type', 'standard')
+                self.update_stats_display(new_pool_type)
+                
                 banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
                 banner_name = banner_info.get('name', selected_banner_name)
                 messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
@@ -292,7 +291,10 @@ class GachaSimulatorGUI:
         if pulls:
             self.update_gui_pull_history(pulls)
             self.gacha_system.save_state()
-            self.update_stats_display()  # Update stats after each pull
+            
+            # 获取当前卡池类型并更新统计显示
+            current_pool_type = self.gacha_system.pools['banners'][self.gacha_system.current_banner].get('pool_type', 'standard')
+            self.update_stats_display(current_pool_type)
 
 
     # 夜间模式相关代码
@@ -393,12 +395,13 @@ class GachaSimulatorGUI:
             self.gacha_system.save_state()
             messagebox.showinfo("成功", "抽卡记录已清空。")
 
-    def update_stats_display(self):
-        if self.gacha_system.current_banner:
-            banner_info = self.gacha_system.pools['banners'].get(self.gacha_system.current_banner, {})
-            pool_type = banner_info.get('pool_type', 'standard')
-        else:
-            pool_type = 'standard'
+    def update_stats_display(self, pool_type=None):
+        if pool_type is None:
+            if self.gacha_system.current_banner:
+                banner_info = self.gacha_system.pools['banners'].get(self.gacha_system.current_banner, {})
+                pool_type = banner_info.get('pool_type', 'standard')
+            else:
+                pool_type = 'standard'
 
         if pool_type == 'character':
             pity_5 = self.gacha_system.character_pity_5
@@ -512,7 +515,7 @@ class GachaSystem:
         self.weapon_pulls_since_last_5star = 0
         self.character_is_guaranteed = False
         self.weapon_is_guaranteed = False
-        self.total_pulls = 0
+        # self.total_pulls = 0
         self.banner_pulls = {}
         self.pull_history = []
         self.pity_5 = 0
