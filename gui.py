@@ -121,10 +121,10 @@ class GachaSimulatorGUI:
         self.info_button = ttk.Button(self.left_frame, text="查看统计信息", command=self.on_show_info)
         self.info_button.pack(pady=5, padx=10, fill=tk.X)
 
-        # Mode switch
-        self.is_night_mode = BooleanVar(value=False)
-        self.mode_button = ttk.Button(self.left_frame, text="切换到夜间模式", command=self.toggle_mode)
-        self.mode_button.pack(pady=5, padx=10, fill=tk.X)
+        # # Mode switch
+        # self.is_night_mode = BooleanVar(value=False)
+        # self.mode_button = ttk.Button(self.left_frame, text="切换到夜间模式", command=self.toggle_mode)
+        # self.mode_button.pack(pady=5, padx=10, fill=tk.X)
 
 
         # Random tip button
@@ -259,25 +259,25 @@ class GachaSimulatorGUI:
     def on_show_info(self):
         self.gacha_system.show_info()
 
-    def toggle_mode(self):
-        self.is_night_mode.set(not self.is_night_mode.get())
-        self.mode_button.config(text="切换到日间模式" if self.is_night_mode.get() else "切换到夜间模式")
-        self.update_color_scheme()
+    # def toggle_mode(self):
+    #     self.is_night_mode.set(not self.is_night_mode.get())
+    #     self.mode_button.config(text="切换到日间模式" if self.is_night_mode.get() else "切换到夜间模式")
+    #     self.update_color_scheme()
 
-    def update_color_scheme(self):
-        bg_color = '#222222' if self.is_night_mode.get() else '#FFFFFF'
-        fg_color = '#FFFFFF' if self.is_night_mode.get() else '#000000'
-        self.right_frame.config(bg=bg_color)
-        self.banner_label.config(background=bg_color, foreground=fg_color)
-        self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
+    # def update_color_scheme(self):
+    #     bg_color = '#222222' if self.is_night_mode.get() else '#FFFFFF'
+    #     fg_color = '#FFFFFF' if self.is_night_mode.get() else '#000000'
+    #     self.right_frame.config(bg=bg_color)
+    #     self.banner_label.config(background=bg_color, foreground=fg_color)
+    #     self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
         
-        # Update Treeview colors
-        style = ttk.Style()
-        style.configure("Treeview", 
-                        background=bg_color, 
-                        foreground=fg_color, 
-                        fieldbackground=bg_color)
-        style.map('Treeview', background=[('selected', '#0078D7')])
+    #     # Update Treeview colors
+    #     style = ttk.Style()
+    #     style.configure("Treeview", 
+    #                     background=bg_color, 
+    #                     foreground=fg_color, 
+    #                     fieldbackground=bg_color)
+    #     style.map('Treeview', background=[('selected', '#0078D7')])
 
 
     def show_random_tip(self):
