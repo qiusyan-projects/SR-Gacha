@@ -688,7 +688,7 @@ class GachaSystem:
         self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
         self.is_guaranteed = False
-        self.pull_history = []
+        # self.pull_history = []
         self.save_state()
 
 
