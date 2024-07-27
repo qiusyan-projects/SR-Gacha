@@ -482,71 +482,97 @@ class GachaSystem:
         pool_type = banner.get('pool_type', 'standard')
         print(f"卡池类型: {pool_type}")
 
-        # 使用公共池中的武器和角色
-        weapon_3_star = self.pools['common_pools']['weapon_3_star']
-        weapon_4_star = self.pools['common_pools']['weapon_4_star']
-        weapon_5_star = self.pools['common_pools']['weapon_5_star']
-        character_4_star = self.pools['common_pools']['character_4_star']
-        character_5_star = self.pools['common_pools']['character_5_star']
-
         pulls = []
-        for _ in range(num_pulls):
+        summary = {'5星': 0, '5星UP': 0, '4星': 0, '4星UP': 0, '3星': 0}
+        guaranteed_4_star = False
+
+        for i in range(num_pulls):
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] = self.banner_pulls.get(self.current_banner, 0) + 1
             self.pulls_since_last_5star += 1
 
-            self.pity_5 += 1
-            self.pity_4 += 1
-
-            if self.pity_5 >= 90:
-                rarity = '5_star'
+            # 确定是否出五星
+            if self.pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(self.pity_5 * 600 // 73, 7300):
+                result = self.pull_5_star(pool_type)
+                self.gold_records.append(self.pity_5 + 1)  # 记录出金抽数
                 self.pity_5 = 0
-            elif self.pity_4 >= 10:
-                rarity = '4_star'
+                self.pity_4 = 0  # 重置4星保底
+                summary['5星'] += 1
+                if self.current_banner != 'standard':
+                    if result['is_up']:
+                        self.successful_featured_5star += 1
+                        summary['5星UP'] += 1
+                    else:
+                        self.failed_featured_5star += 1
+                guaranteed_4_star = False
+            # 确定是否出四星
+            elif self.pity_4 >= 9 or random.randint(1, 10000) <= 510 + min(self.pity_4 * 790 // 8, 7390) or (i + 1) % 10 == 0 and not guaranteed_4_star:
+                result = self.pull_4_star(pool_type)
+                self.purple_records.append(self.pity_4 + 1)  # 记录出紫抽数
+                self.pity_5 += 1
                 self.pity_4 = 0
+                summary['4星'] += 1
+                if self.current_banner != 'standard' and result['is_up']:
+                    summary['4星UP'] += 1
+                guaranteed_4_star = True
             else:
-                rarity = random.choices(['3_star', '4_star', '5_star'], weights=[94.3, 5.1, 0.6])[0]
+                result = self.pull_3_star()
+                self.pity_5 += 1
+                self.pity_4 += 1
+                summary['3星'] += 1
 
-            print(f"抽到的星级: {rarity}")
+            pulls.append((result['rarity'], result['type'], result['item']))
+            self.pull_history.append({'rarity': result['rarity'], 'item_type': result['type'], 'item': result['item']})
 
-            if rarity == '3_star':
-                item = random.choice(weapon_3_star)
-                pulls.append((rarity, '光锥', item))
-            elif rarity == '4_star':
-                if pool_type == 'character' and random.random() < 0.5:
-                    item = random.choice(banner.get('character_up_4_star', character_4_star))
-                    pulls.append((rarity, '角色', item))
-                else:
-                    item = random.choice(weapon_4_star)
-                    pulls.append((rarity, '光锥', item))
-            elif rarity == '5_star':
-                is_featured = random.random() < 0.5 or self.is_guaranteed
-                if is_featured and pool_type != 'standard':
-                    if pool_type == 'character':
-                        item = random.choice(banner['character_up_5_star'])
-                        pulls.append((rarity, '角色', item))
-                    else:
-                        item = random.choice(banner['weapon_up_5_star'])
-                        pulls.append((rarity, '光锥', item))
-                    self.is_guaranteed = False
-                    self.successful_featured_5star += 1
-                else:
-                    if random.random() < 0.5:
-                        item = random.choice(character_5_star)
-                        pulls.append((rarity, '角色', item))
-                    else:
-                        item = random.choice(weapon_5_star)
-                        pulls.append((rarity, '光锥', item))
-                    self.failed_featured_pulls += 1
-                    self.failed_featured_5star += 1
-                    self.is_guaranteed = True
-                self.gold_records.append(self.pity_5)
-                self.pity_5 = 0
-
-            print(f"抽到的物品: {item}")
-            self.pull_history.append({'rarity': rarity, 'item_type': '角色' if '角色' in pulls[-1][1] else '光锥', 'item': item})
-
+        print(f"抽卡结果统计: {summary}")
         return pulls
+
+    def pull_5_star(self, pool_type):
+        is_up = random.random() < 0.5 or self.is_guaranteed
+        if pool_type == 'character':
+            if is_up:
+                item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
+                self.is_guaranteed = False
+            else:
+                item = random.choice(self.pools['common_pools']['character_5_star'])
+                self.is_guaranteed = True
+            return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': is_up}
+        elif pool_type == 'weapon':
+            if is_up:
+                item = random.choice(self.pools['banners'][self.current_banner]['weapon_up_5_star'])
+                self.is_guaranteed = False
+            else:
+                item = random.choice(self.pools['common_pools']['weapon_5_star'])
+                self.is_guaranteed = True
+            return {'rarity': '5_star', 'type': '光锥', 'item': item, 'is_up': is_up}
+        else:  # standard pool
+            if random.random() < 0.5:
+                item = random.choice(self.pools['common_pools']['character_5_star'])
+                return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': False}
+            else:
+                item = random.choice(self.pools['common_pools']['weapon_5_star'])
+                return {'rarity': '5_star', 'type': '光锥', 'item': item, 'is_up': False}
+
+    def pull_4_star(self, pool_type):
+        is_up = random.random() < 0.5
+        if is_up and pool_type != 'standard':
+            if pool_type == 'character':
+                item = random.choice(self.pools['banners'][self.current_banner].get('character_up_4_star', []))
+                return {'rarity': '4_star', 'type': '角色', 'item': item, 'is_up': True}
+            else:  # weapon pool
+                item = random.choice(self.pools['banners'][self.current_banner].get('weapon_up_4_star', []))
+                return {'rarity': '4_star', 'type': '光锥', 'item': item, 'is_up': True}
+        else:
+            if random.random() < 0.5:
+                item = random.choice(self.pools['common_pools']['character_4_star'])
+                return {'rarity': '4_star', 'type': '角色', 'item': item, 'is_up': False}
+            else:
+                item = random.choice(self.pools['common_pools']['weapon_4_star'])
+                return {'rarity': '4_star', 'type': '光锥', 'item': item, 'is_up': False}
+
+    def pull_3_star(self):
+        item = random.choice(self.pools['common_pools']['weapon_3_star'])
+        return {'rarity': '3_star', 'type': '光锥', 'item': item, 'is_up': False}
 
     def show_message(self, message, color=RESET):
         if color == RED:
