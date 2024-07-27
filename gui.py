@@ -16,10 +16,10 @@ RESET = '#FFFFFF'
 CYAN = '#00CED1'
 YELLOW = '#FFFF00'
 BLUE = '#1E90FF'
-DAY_BG = '#FFFFFF'
-DAY_FG = '#000000'
-NIGHT_BG = '#222222'
-NIGHT_FG = '#FFFFFF'
+# DAY_BG = '#FFFFFF'
+# DAY_FG = '#000000'
+# NIGHT_BG = '#222222'
+# NIGHT_FG = '#FFFFFF'
 
 BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
@@ -53,16 +53,17 @@ class GachaSimulatorGUI:
 
         # 检查更新
         self.check_for_updates()
+        self.current_stats_type = tk.StringVar(value="character")
 
         # 初始化主题选择
         # self.setup_theme_selection()
 
         # 初始化其他GUI组件
         self.initialize_gui_components()
-
+        
         # 显示主窗口
         self.root.deiconify()
-
+        
 
     def check_for_updates(self):
         if os.path.exists(BANNER_FILE):
@@ -152,9 +153,17 @@ class GachaSimulatorGUI:
         self.clear_data_button = ttk.Button(self.left_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
         self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
 
-        # Add statistics display
+        # 添加统计信息切换按钮
+        # self.stats_toggle_button = ttk.Button(self.left_frame, text="切换到光锥池统计", command=self.toggle_stats_type)
+        # self.stats_toggle_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # 添加统计信息显示
         self.stats_frame = ttk.Frame(self.left_frame)
         self.stats_frame.pack(side=tk.BOTTOM, pady=10, padx=10, fill=tk.X)
+
+        # 添加显示当前数据类型的标签
+        self.current_stats_label = ttk.Label(self.stats_frame, text="", font=self.default_font)
+        self.current_stats_label.pack(fill=tk.X)
 
         self.stats_text = tk.Text(self.stats_frame, height=9, width=30, font=self.default_font, wrap=tk.WORD)
         self.stats_text.pack(fill=tk.BOTH, expand=True)
@@ -178,7 +187,7 @@ class GachaSimulatorGUI:
         self.clear_history_button.pack(side=tk.RIGHT, padx=(0, 10))
 
         # Pull history table
-        columns = ('时间', '星级', '类型', '物品', '卡池', '是否UP')
+        columns = ('时间', '星级', '类型', '名称', '卡池', '是否UP')
         self.pull_history_tree = ttk.Treeview(self.right_frame, columns=columns, show='headings')
         
         # Define column headings
@@ -276,6 +285,8 @@ class GachaSimulatorGUI:
             print(f"未找到卡池ID")  # 调试信息
             messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
 
+        self.update_stats_display()
+
     def on_pull(self, num_pulls):
         pulls = self.gacha_system.perform_pull(num_pulls)
         if pulls:
@@ -304,6 +315,16 @@ class GachaSimulatorGUI:
     #                     foreground=fg_color, 
     #                     fieldbackground=bg_color)
     #     style.map('Treeview', background=[('selected', '#0078D7')])
+
+
+    # def toggle_stats_type(self):
+    #     if self.current_stats_type.get() == "character":
+    #         self.current_stats_type.set("weapon")
+    #         self.stats_toggle_button.config(text="切换到角色池统计")
+    #     else:
+    #         self.current_stats_type.set("character")
+    #         self.stats_toggle_button.config(text="切换到光锥池统计")
+    #     self.update_stats_display()
 
 
     def show_random_tip(self):
@@ -373,15 +394,54 @@ class GachaSimulatorGUI:
             messagebox.showinfo("成功", "抽卡记录已清空。")
 
     def update_stats_display(self):
+        if self.gacha_system.current_banner:
+            banner_info = self.gacha_system.pools['banners'].get(self.gacha_system.current_banner, {})
+            pool_type = banner_info.get('pool_type', 'standard')
+        else:
+            pool_type = 'standard'
+
+        if pool_type == 'character':
+            pity_5 = self.gacha_system.character_pity_5
+            pity_4 = self.gacha_system.character_pity_4
+            gold_records = self.gacha_system.character_gold_records
+            purple_records = self.gacha_system.character_purple_records
+            failed_featured_5star = self.gacha_system.character_failed_featured_5star
+            successful_featured_5star = self.gacha_system.character_successful_featured_5star
+            pulls_since_last_5star = self.gacha_system.character_pulls_since_last_5star
+            is_guaranteed = self.gacha_system.character_is_guaranteed
+            stats_type = "角色池"
+        elif pool_type == 'weapon':
+            pity_5 = self.gacha_system.weapon_pity_5
+            pity_4 = self.gacha_system.weapon_pity_4
+            gold_records = self.gacha_system.weapon_gold_records
+            purple_records = self.gacha_system.weapon_purple_records
+            failed_featured_5star = self.gacha_system.weapon_failed_featured_5star
+            successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
+            pulls_since_last_5star = self.gacha_system.weapon_pulls_since_last_5star
+            is_guaranteed = self.gacha_system.weapon_is_guaranteed
+            stats_type = "光锥池"
+        else:
+            pity_5 = self.gacha_system.pity_5
+            pity_4 = self.gacha_system.pity_4
+            gold_records = self.gacha_system.gold_records
+            purple_records = self.gacha_system.purple_records
+            failed_featured_5star = self.gacha_system.failed_featured_5star
+            successful_featured_5star = self.gacha_system.successful_featured_5star
+            pulls_since_last_5star = self.gacha_system.pulls_since_last_5star
+            is_guaranteed = self.gacha_system.is_guaranteed
+            stats_type = "常驻池"
+
+        self.current_stats_label.config(text=f"当前显示的是{stats_type}的数据")
+
         stats = f"""总抽卡次数: {self.gacha_system.total_pulls}
-距离下一个五星保底的抽数: {90 - self.gacha_system.pity_5}
-距离下一个四星保底: {10 - self.gacha_system.pity_4}
-获得五星次数: {len(self.gacha_system.gold_records)}
-获得四星次数: {len(self.gacha_system.purple_records)}
-歪掉五星次数: {self.gacha_system.failed_featured_5star}
-抽中UP五星次数: {self.gacha_system.successful_featured_5star}
-距离上次五星: {self.gacha_system.pulls_since_last_5star}
-大保底状态: {'是' if self.gacha_system.is_guaranteed else '否'}"""
+    距离下一个五星保底的抽数: {90 - pity_5}
+    距离下一个四星保底: {10 - pity_4}
+    获得五星次数: {len(gold_records)}
+    获得四星次数: {len(purple_records)}
+    歪掉五星次数: {failed_featured_5star}
+    抽中UP五星次数: {successful_featured_5star}
+    距离上次五星: {pulls_since_last_5star}
+    大保底状态: {'是' if is_guaranteed else '否'}"""
 
         self.stats_text.config(state=tk.NORMAL)
         self.stats_text.delete(1.0, tk.END)
@@ -434,18 +494,35 @@ class GachaSystem:
             return
         self.load_pools(pool_file)
         self.current_banner = None
-        self.pity_5 = 0
-        self.pity_4 = 0
-        self.failed_featured_pulls = 0
+
+        # 为角色池和光锥池分别初始化保底计数器和统计信息
+        self.character_pity_5 = 0
+        self.character_pity_4 = 0
+        self.weapon_pity_5 = 0
+        self.weapon_pity_4 = 0
+        self.character_gold_records = []
+        self.character_purple_records = []
+        self.weapon_gold_records = []
+        self.weapon_purple_records = []
+        self.character_failed_featured_5star = 0
+        self.character_successful_featured_5star = 0
+        self.weapon_failed_featured_5star = 0
+        self.weapon_successful_featured_5star = 0
+        self.character_pulls_since_last_5star = 0
+        self.weapon_pulls_since_last_5star = 0
+        self.character_is_guaranteed = False
+        self.weapon_is_guaranteed = False
         self.total_pulls = 0
         self.banner_pulls = {}
+        self.pull_history = []
+        self.pity_5 = 0
+        self.pity_4 = 0
         self.gold_records = []
         self.purple_records = []
-        self.failed_featured_5star = 0 
-        self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
         self.is_guaranteed = False
-        self.pull_history = []
+        self.failed_featured_5star = 0
+        self.successful_featured_5star = 0
         self.TIPS = TIPS
         self.load_state()
 
@@ -458,18 +535,36 @@ class GachaSystem:
         try:
             state = {
                 'current_banner': self.current_banner,
-                'pity_5': self.pity_5,
-                'pity_4': self.pity_4,
-                'failed_featured_pulls': self.failed_featured_pulls,
                 'total_pulls': self.total_pulls,
                 'banner_pulls': self.banner_pulls,
-                'gold_records': self.gold_records,
-                'purple_records': self.purple_records,
-                'failed_featured_5star': self.failed_featured_5star,
-                'successful_featured_5star': self.successful_featured_5star,
-                'pulls_since_last_5star': self.pulls_since_last_5star,
-                'is_guaranteed': self.is_guaranteed,
-                'pull_history': self.pull_history
+                'pull_history': self.pull_history,
+                
+                # 角色池数据
+                'character_pity_5': self.character_pity_5,
+                'character_pity_4': self.character_pity_4,
+                'character_gold_records': self.character_gold_records,
+                'character_purple_records': self.character_purple_records,
+                'character_failed_featured_5star': self.character_failed_featured_5star,
+                'character_successful_featured_5star': self.character_successful_featured_5star,
+                'character_pulls_since_last_5star': self.character_pulls_since_last_5star,
+                'character_is_guaranteed': self.character_is_guaranteed,
+                
+                # 光锥池数据
+                'weapon_pity_5': self.weapon_pity_5,
+                'weapon_pity_4': self.weapon_pity_4,
+                'weapon_gold_records': self.weapon_gold_records,
+                'weapon_purple_records': self.weapon_purple_records,
+                'weapon_failed_featured_5star': self.weapon_failed_featured_5star,
+                'weapon_successful_featured_5star': self.weapon_successful_featured_5star,
+                'weapon_pulls_since_last_5star': self.weapon_pulls_since_last_5star,
+                'weapon_is_guaranteed': self.weapon_is_guaranteed,
+                
+                # 常驻池数据
+                'standard_pity_5': self.pity_5,
+                'standard_pity_4': self.pity_4,
+                'standard_gold_records': self.gold_records,
+                'standard_purple_records': self.purple_records,
+                'standard_pulls_since_last_5star': self.pulls_since_last_5star,
             }
 
             yaml.default_flow_style = False
@@ -484,18 +579,35 @@ class GachaSystem:
             yaml.dump(state, string_stream)
             data_str = string_stream.getvalue()
             
+            # 添加注释
             data_str = data_str.replace('current_banner:', '# 当前选择的卡池\ncurrent_banner:')
-            data_str = data_str.replace('pity_5:', '# 距离保底5星的抽数\npity_5:')
-            data_str = data_str.replace('pity_4:', '# 距离保底4星的抽数\npity_4:')
-            data_str = data_str.replace('failed_featured_pulls:', '# 未抽中UP角色/光锥的次数\nfailed_featured_pulls:')
             data_str = data_str.replace('total_pulls:', '# 总抽卡次数\ntotal_pulls:')
             data_str = data_str.replace('banner_pulls:', '# 每个卡池的抽卡次数\nbanner_pulls:')
-            data_str = data_str.replace('gold_records:', '# 获得5星的抽数记录\ngold_records:')
-            data_str = data_str.replace('purple_records:', '# 获得4星的抽数记录\npurple_records:')
-            data_str = data_str.replace('failed_featured_5star:', '# 歪掉的5星次数\nfailed_featured_5star:')
-            data_str = data_str.replace('successful_featured_5star:', '# 抽中UP的5星次数\nsuccessful_featured_5star:')
-            data_str = data_str.replace('pulls_since_last_5star:', '# 距离上次5星的抽数\npulls_since_last_5star:')
             data_str = data_str.replace('pull_history:', '# 抽卡历史记录\npull_history:')
+            
+            data_str = data_str.replace('character_pity_5:', '# 角色池5星保底计数\ncharacter_pity_5:')
+            data_str = data_str.replace('character_pity_4:', '# 角色池4星保底计数\ncharacter_pity_4:')
+            data_str = data_str.replace('character_gold_records:', '# 角色池5星记录\ncharacter_gold_records:')
+            data_str = data_str.replace('character_purple_records:', '# 角色池4星记录\ncharacter_purple_records:')
+            data_str = data_str.replace('character_failed_featured_5star:', '# 角色池歪掉的5星次数\ncharacter_failed_featured_5star:')
+            data_str = data_str.replace('character_successful_featured_5star:', '# 角色池抽中UP的5星次数\ncharacter_successful_featured_5star:')
+            data_str = data_str.replace('character_pulls_since_last_5star:', '# 角色池距离上次5星的抽数\ncharacter_pulls_since_last_5star:')
+            data_str = data_str.replace('character_is_guaranteed:', '# 角色池是否大保底\ncharacter_is_guaranteed:')
+            
+            data_str = data_str.replace('weapon_pity_5:', '# 光锥池5星保底计数\nweapon_pity_5:')
+            data_str = data_str.replace('weapon_pity_4:', '# 光锥池4星保底计数\nweapon_pity_4:')
+            data_str = data_str.replace('weapon_gold_records:', '# 光锥池5星记录\nweapon_gold_records:')
+            data_str = data_str.replace('weapon_purple_records:', '# 光锥池4星记录\nweapon_purple_records:')
+            data_str = data_str.replace('weapon_failed_featured_5star:', '# 光锥池歪掉的5星次数\nweapon_failed_featured_5star:')
+            data_str = data_str.replace('weapon_successful_featured_5star:', '# 光锥池抽中UP的5星次数\nweapon_successful_featured_5star:')
+            data_str = data_str.replace('weapon_pulls_since_last_5star:', '# 光锥池距离上次5星的抽数\nweapon_pulls_since_last_5star:')
+            data_str = data_str.replace('weapon_is_guaranteed:', '# 光锥池是否大保底\nweapon_is_guaranteed:')
+            
+            data_str = data_str.replace('standard_pity_5:', '# 常驻池5星保底计数\nstandard_pity_5:')
+            data_str = data_str.replace('standard_pity_4:', '# 常驻池4星保底计数\nstandard_pity_4:')
+            data_str = data_str.replace('standard_gold_records:', '# 常驻池5星记录\nstandard_gold_records:')
+            data_str = data_str.replace('standard_purple_records:', '# 常驻池4星记录\nstandard_purple_records:')
+            data_str = data_str.replace('standard_pulls_since_last_5star:', '# 常驻池距离上次5星的抽数\nstandard_pulls_since_last_5star:')
             
             yaml_str += data_str
 
@@ -509,27 +621,47 @@ class GachaSystem:
             with open('gacha_data.yaml', 'r', encoding='utf-8') as f:
                 state = yaml.load(f)
                 self.current_banner = state.get('current_banner')
-                self.pity_5 = state.get('pity_5', 0)
-                self.pity_4 = state.get('pity_4', 0)
-                self.failed_featured_pulls = state.get('failed_featured_pulls', 0)
                 self.total_pulls = state.get('total_pulls', 0)
                 self.banner_pulls = state.get('banner_pulls', {})
-                self.gold_records = state.get('gold_records', [])
-                self.purple_records = state.get('purple_records', [])
-                self.failed_featured_5star = state.get('failed_featured_5star', 0)
-                self.successful_featured_5star = state.get('successful_featured_5star', 0)
-                self.pulls_since_last_5star = state.get('pulls_since_last_5star', 0)
-                self.is_guaranteed = state.get('is_guaranteed', False)
                 self.pull_history = state.get('pull_history', [])
+                
+                # 加载角色池数据
+                self.character_pity_5 = state.get('character_pity_5', 0)
+                self.character_pity_4 = state.get('character_pity_4', 0)
+                self.character_gold_records = state.get('character_gold_records', [])
+                self.character_purple_records = state.get('character_purple_records', [])
+                self.character_failed_featured_5star = state.get('character_failed_featured_5star', 0)
+                self.character_successful_featured_5star = state.get('character_successful_featured_5star', 0)
+                self.character_pulls_since_last_5star = state.get('character_pulls_since_last_5star', 0)
+                self.character_is_guaranteed = state.get('character_is_guaranteed', False)
+                
+                # 加载光锥池数据
+                self.weapon_pity_5 = state.get('weapon_pity_5', 0)
+                self.weapon_pity_4 = state.get('weapon_pity_4', 0)
+                self.weapon_gold_records = state.get('weapon_gold_records', [])
+                self.weapon_purple_records = state.get('weapon_purple_records', [])
+                self.weapon_failed_featured_5star = state.get('weapon_failed_featured_5star', 0)
+                self.weapon_successful_featured_5star = state.get('weapon_successful_featured_5star', 0)
+                self.weapon_pulls_since_last_5star = state.get('weapon_pulls_since_last_5star', 0)
+                self.weapon_is_guaranteed = state.get('weapon_is_guaranteed', False)
+                
+                # 加载常驻池数据
+                self.pity_5 = state.get('standard_pity_5', 0)
+                self.pity_4 = state.get('standard_pity_4', 0)
+                self.gold_records = state.get('standard_gold_records', [])
+                self.purple_records = state.get('standard_purple_records', [])
+                self.pulls_since_last_5star = state.get('standard_pulls_since_last_5star', 0)
+                
+                # 处理pull_history中的item_type
                 for pull in self.pull_history:
                     if pull['item_type'] == 'character':
                         pull['item_type'] = '角色'
                     elif pull['item_type'] == 'weapon':
                         pull['item_type'] = '光锥'
         except FileNotFoundError:
-            return
+            self.show_message("未找到保存的数据，使用默认值初始化。", YELLOW)
         except Exception as e:
-            self.show_message(f"无法加载数据: {e}", RED)
+            self.show_message(f"加载数据时出错: {e}", RED)
 
     def ensure_pool_file_exists(self):
         if not os.path.exists(self.pool_file):
@@ -581,17 +713,12 @@ class GachaSystem:
         return True
 
     def perform_pull(self, num_pulls):
-        print(f"执行抽卡: {num_pulls} 次")
         if not self.current_banner:
             self.show_message("请先选择一个卡池。", RED)
             return
 
         banner = self.pools['banners'][self.current_banner]
-        print(f"当前卡池: {self.current_banner}")
-        print(f"卡池内容: {banner}")
-
         pool_type = banner.get('pool_type', 'standard')
-        print(f"卡池类型: {pool_type}")
 
         pulls = []
         summary = {'5星': 0, '5星UP': 0, '4星': 0, '4星UP': 0, '3星': 0}
@@ -601,51 +728,77 @@ class GachaSystem:
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] = self.banner_pulls.get(self.current_banner, 0) + 1
             
+            pity_5, pity_4, gold_records, purple_records, failed_featured_5star, successful_featured_5star, pulls_since_last_5star, is_guaranteed = self.get_pool_stats(pool_type)
 
             # 确定是否出五星
-            if self.pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(self.pity_5 * 600 // 73, 7300):
+            if pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(pity_5 * 600 // 73, 7300):
                 result = self.pull_5_star(pool_type)
-                self.gold_records.append(self.pity_5 + 1)  # 记录出金抽数
-                pulls_for_this_5star = self.pulls_since_last_5star + 1  # +1 因为当前这抽也算
+                gold_records.append(pity_5 + 1)
+                pulls_for_this_5star = pulls_since_last_5star + 1
                 if self.current_banner != 'standard':
                     if result['is_up']:
-                        self.successful_featured_5star += 1
+                        successful_featured_5star += 1
                         summary['5星UP'] += 1
                         messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，还好没歪!")
                     else:
-                        self.failed_featured_5star += 1
+                        failed_featured_5star += 1
                         messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，可惜歪了!")
                 else:
                     messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
-                self.pity_5 = 0
-                self.pity_4 = 0
-                self.pulls_since_last_5star = 0  # 重置距离上次五星的抽数
+                self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, is_guaranteed=result['is_up'])
                 summary['5星'] += 1
                 guaranteed_4_star = False
             # 确定是否出四星
-            elif self.pity_4 >= 9 or random.randint(1, 10000) <= 510 + min(self.pity_4 * 790 // 8, 7390) or (i + 1) % 10 == 0 and not guaranteed_4_star:
+            elif pity_4 >= 9 or random.randint(1, 10000) <= 510 + min(pity_4 * 790 // 8, 7390) or (i + 1) % 10 == 0 and not guaranteed_4_star:
                 result = self.pull_4_star(pool_type)
-                self.purple_records.append(self.pity_4 + 1)  # 记录出紫抽数
-                self.pity_5 += 1
-                self.pity_4 = 0
-                self.pulls_since_last_5star += 1  # 增加距离上次五星的抽数
+                purple_records.append(pity_4 + 1)
+                self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=0, pulls_since_last_5star=pulls_since_last_5star+1)
                 summary['4星'] += 1
                 if self.current_banner != 'standard' and result['is_up']:
                     summary['4星UP'] += 1
                 guaranteed_4_star = True
             else:
                 result = self.pull_3_star()
-                self.pity_5 += 1
-                self.pity_4 += 1
-                self.pulls_since_last_5star += 1  # 增加距离上次五星的抽数
+                self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=pity_4+1, pulls_since_last_5star=pulls_since_last_5star+1)
                 summary['3星'] += 1
 
             pulls.append((result['rarity'], result['type'], result['item']))
             self.pull_history.append({'rarity': result['rarity'], 'item_type': result['type'], 'item': result['item']})
 
-        print(f"抽卡结果统计: {summary}")
+
         return pulls
+        
+    
+
+
+    def get_pool_stats(self, pool_type):
+        if pool_type == 'character':
+            return (self.character_pity_5, self.character_pity_4, self.character_gold_records, 
+                    self.character_purple_records, self.character_failed_featured_5star, 
+                    self.character_successful_featured_5star, self.character_pulls_since_last_5star, 
+                    self.character_is_guaranteed)
+        elif pool_type == 'weapon':
+            return (self.weapon_pity_5, self.weapon_pity_4, self.weapon_gold_records, 
+                    self.weapon_purple_records, self.weapon_failed_featured_5star, 
+                    self.weapon_successful_featured_5star, self.weapon_pulls_since_last_5star, 
+                    self.weapon_is_guaranteed)
+        else:
+            return (self.pity_5, self.pity_4, self.gold_records, self.purple_records, 
+                    self.failed_featured_5star, self.successful_featured_5star, 
+                    self.pulls_since_last_5star, self.is_guaranteed)
+        
+
+    def update_pool_stats(self, pool_type, **kwargs):
+        if pool_type == 'character':
+            for key, value in kwargs.items():
+                setattr(self, f"character_{key}", value)
+        elif pool_type == 'weapon':
+            for key, value in kwargs.items():
+                setattr(self, f"weapon_{key}", value)
+        else:
+            for key, value in kwargs.items():
+                setattr(self, key, value)
 
     def pull_5_star(self, pool_type):
         is_up = random.random() < 0.5 or self.is_guaranteed
@@ -732,17 +885,33 @@ class GachaSystem:
     
 
     def reset_statistics(self):
-        self.pity_5 = 0
-        self.pity_4 = 0
-        self.failed_featured_pulls = 0
+        self.character_pity_5 = 0
+        self.character_pity_4 = 0
+        self.weapon_pity_5 = 0
+        self.weapon_pity_4 = 0
+        self.character_gold_records = []
+        self.character_purple_records = []
+        self.weapon_gold_records = []
+        self.weapon_purple_records = []
+        self.character_failed_featured_5star = 0
+        self.character_successful_featured_5star = 0
+        self.weapon_failed_featured_5star = 0
+        self.weapon_successful_featured_5star = 0
+        self.character_pulls_since_last_5star = 0
+        self.weapon_pulls_since_last_5star = 0
+        self.character_is_guaranteed = False
+        self.weapon_is_guaranteed = False
         self.total_pulls = 0
         self.banner_pulls = {}
+        self.pull_history = []
+        self.pity_5 = 0
+        self.pity_4 = 0
         self.gold_records = []
         self.purple_records = []
-        self.failed_featured_5star = 0
-        self.successful_featured_5star = 0
         self.pulls_since_last_5star = 0
         self.is_guaranteed = False
+        self.failed_featured_5star = 0
+        self.successful_featured_5star = 0
         self.save_state()
 
 
@@ -751,7 +920,7 @@ class GachaSystem:
 
 # 主程序
 if __name__ == "__main__":
-    # root = ThemedTk(theme="yaru")  不使用主题
+    # root = ThemedTk(theme="adapta")  # 不使用主题
     root = tk.Tk()
     gui = GachaSimulatorGUI(root)
     root.mainloop()
