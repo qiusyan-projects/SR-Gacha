@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
+from ttkthemes import ThemedTk
 
 # Colors and other constants
 PURPLE = '#BA55D3'
@@ -39,12 +40,30 @@ yaml = YAML()
 class GachaSimulatorGUI:
     def __init__(self, root):
         self.root = root
+        self.root.withdraw()  # 隐藏主窗口
+
+        self.root.title("Gacha Simulator")
+        self.root.geometry("1200x800")
         
         # 设置默认字体为微软雅黑
         self.default_font_name = 'Microsoft YaHei'  # 如果这个不可用，Tkinter 会自动尝试下一个可用的系统字体
         self.default_font = (self.default_font_name, 10)
         self.large_font = (self.default_font_name, 14)
-        # 更新确认
+
+        # 检查更新
+        self.check_for_updates()
+
+        # 初始化主题选择
+        self.setup_theme_selection()
+
+        # 初始化其他GUI组件
+        self.initialize_gui_components()
+
+        # 显示主窗口
+        self.root.deiconify()
+
+
+    def check_for_updates(self):
         if os.path.exists(BANNER_FILE):
             check_update = messagebox.askyesno("更新确认", "是否检查卡池文件更新？（修改卡池了的不要选更新）")
             no_update = not check_update
@@ -52,11 +71,12 @@ class GachaSimulatorGUI:
             no_update = False  # 如果文件不存在，强制更新
         
         self.gacha_system = GachaSystem(BANNER_FILE, no_update=no_update)
-        self.banner_id_map = {}  # 用于存储名称到ID的映射
-        self.banner_name_map = {}  # 用于存储ID到名称的映射
+
+    def initialize_gui_components(self):
+        self.banner_id_map = {}
+        self.banner_name_map = {}
         self.initialize_banner_maps()
         self.setup_gui()
-
 
     def initialize_banner_maps(self):
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
@@ -73,8 +93,6 @@ class GachaSimulatorGUI:
             print(f"  {name}: {id}")  # 调试信息
 
     def setup_gui(self):
-        self.root.title("Gacha Simulator")
-        self.root.geometry("1200x800")
 
         # Create main frames
         self.left_frame = tk.Frame(self.root, width=300, bg='#f0f0f0')
@@ -369,6 +387,31 @@ class GachaSimulatorGUI:
         self.stats_text.insert(tk.END, stats)
         self.stats_text.config(state=tk.DISABLED)
 
+    def setup_theme_selection(self):
+        # 创建一个框架来容纳标签和下拉菜单
+        theme_frame = ttk.Frame(self.root)
+        theme_frame.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
+
+        # 添加提示标签
+        theme_label = ttk.Label(theme_frame, text="选择主题：", font=self.default_font)
+        theme_label.pack(side=tk.LEFT, padx=(0, 5))
+
+        # 获取可用主题
+        self.themes = self.root.get_themes()
+        self.current_theme = tk.StringVar(value="arc")  # 设置默认主题
+
+        # 创建主题选择下拉菜单
+        self.theme_menu = ttk.OptionMenu(
+            theme_frame,
+            self.current_theme,
+            "arc",
+            *self.themes,
+            command=self.change_theme
+        )
+        self.theme_menu.pack(side=tk.LEFT)
+
+    def change_theme(self, theme_name):
+        self.root.set_theme(theme_name)
 
 
 class GachaSystem:
@@ -556,21 +599,28 @@ class GachaSystem:
         for i in range(num_pulls):
             self.total_pulls += 1
             self.banner_pulls[self.current_banner] = self.banner_pulls.get(self.current_banner, 0) + 1
+            self.pulls_since_last_5star += 1  # 在每次抽卡开始时增加这个计数
 
             # 确定是否出五星
             if self.pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(self.pity_5 * 600 // 73, 7300):
                 result = self.pull_5_star(pool_type)
                 self.gold_records.append(self.pity_5 + 1)  # 记录出金抽数
-                self.pity_5 = 0
-                self.pity_4 = 0  # 重置4星保底
-                self.pulls_since_last_5star = 0  # 重置距离上次五星的抽数
-                summary['5星'] += 1
+                # 使用 self.pulls_since_last_5star 来显示抽卡次数
                 if self.current_banner != 'standard':
                     if result['is_up']:
                         self.successful_featured_5star += 1
                         summary['5星UP'] += 1
+                        messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}，还好没歪!")
                     else:
                         self.failed_featured_5star += 1
+                        messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}，可惜歪了!")
+                else:
+                    messagebox.showinfo("恭喜!", f"恭喜，你用了{self.pulls_since_last_5star}抽获得了{result['item']}!")
+                
+                self.pity_5 = 0
+                self.pity_4 = 0
+                self.pulls_since_last_5star = 0  # 重置距离上次五星的抽数
+                summary['5星'] += 1
                 guaranteed_4_star = False
             # 确定是否出四星
             elif self.pity_4 >= 9 or random.randint(1, 10000) <= 510 + min(self.pity_4 * 790 // 8, 7390) or (i + 1) % 10 == 0 and not guaranteed_4_star:
@@ -699,8 +749,8 @@ class GachaSystem:
 # GachaSystem 部分结束
 
 
-# GUI 部分
+# 主程序
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ThemedTk(theme="arc")  # 使用 ThemedTk 替换 Tk
     gui = GachaSimulatorGUI(root)
     root.mainloop()
