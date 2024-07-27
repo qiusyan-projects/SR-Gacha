@@ -117,9 +117,6 @@ class GachaSimulatorGUI:
         self.pull_10_button = ttk.Button(self.left_frame, text="抽十次", command=lambda: self.on_pull(10))
         self.pull_10_button.pack(pady=5, padx=10, fill=tk.X)
 
-        # Info button
-        self.info_button = ttk.Button(self.left_frame, text="查看统计信息", command=self.on_show_info)
-        self.info_button.pack(pady=5, padx=10, fill=tk.X)
 
         # # Mode switch
         # self.is_night_mode = BooleanVar(value=False)
@@ -137,6 +134,16 @@ class GachaSimulatorGUI:
         # Clear Data
         self.clear_data_button = ttk.Button(self.left_frame, text="清除抽卡统计数据", command=self.clear_gacha_data)
         self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
+
+        # Add statistics display
+        self.stats_frame = ttk.Frame(self.left_frame)
+        self.stats_frame.pack(side=tk.BOTTOM, pady=10, padx=10, fill=tk.X)
+
+        self.stats_text = tk.Text(self.stats_frame, height=9, width=30, font=self.default_font, wrap=tk.WORD)
+        self.stats_text.pack(fill=tk.BOTH, expand=True)
+        self.stats_text.config(state=tk.DISABLED)
+
+        self.update_stats_display()
 
     def setup_right_frame(self):
         # Banner label and clear history button frame
@@ -237,6 +244,7 @@ class GachaSimulatorGUI:
                     print("成功切换卡池")  # 调试信息
                     self.update_banner_list()
                     self.update_gui_banner_name()
+                    self.update_stats_display()  # Update stats when switching banner
                     banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
                     banner_name = banner_info.get('name', selected_banner_name)
                     messagebox.showinfo("提示", f"已切换到卡池：{banner_name}")
@@ -246,19 +254,16 @@ class GachaSimulatorGUI:
             else:
                 print(f"未找到卡池ID")  # 调试信息
                 messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
-        else:
-            print("未选择卡池")  # 调试信息
-            messagebox.showinfo("提示", "请先选择一个卡池")
 
     def on_pull(self, num_pulls):
         pulls = self.gacha_system.perform_pull(num_pulls)
         if pulls:
             self.update_gui_pull_history(pulls)
             self.gacha_system.save_state()
+            self.update_stats_display()  # Update stats after each pull
 
-    def on_show_info(self):
-        self.gacha_system.show_info()
 
+    # 夜间模式相关代码
     # def toggle_mode(self):
     #     self.is_night_mode.set(not self.is_night_mode.get())
     #     self.mode_button.config(text="切换到日间模式" if self.is_night_mode.get() else "切换到夜间模式")
@@ -335,6 +340,7 @@ class GachaSimulatorGUI:
             second_confirm = messagebox.askyesno("二次确认", "真的要清除所有数据吗？这将重置所有统计信息。")
             if second_confirm:
                 self.gacha_system.reset_statistics()
+                self.update_stats_display()  # Update stats after clearing data
                 messagebox.showinfo("成功", "所有抽卡统计数据已被清除。")
 
     def clear_pull_history(self):
@@ -344,6 +350,22 @@ class GachaSimulatorGUI:
             self.gacha_system.pull_history = []
             self.gacha_system.save_state()
             messagebox.showinfo("成功", "抽卡记录已清空。")
+
+    def update_stats_display(self):
+        stats = f"""总抽卡次数: {self.gacha_system.total_pulls}
+当前五星保底: {self.gacha_system.pity_5}
+当前四星保底: {self.gacha_system.pity_4}
+获得五星次数: {len(self.gacha_system.gold_records)}
+获得四星次数: {len(self.gacha_system.purple_records)}
+歪掉五星次数: {self.gacha_system.failed_featured_5star}
+抽中UP五星次数: {self.gacha_system.successful_featured_5star}
+距离上次五星: {self.gacha_system.pulls_since_last_5star}
+大保底状态: {'是' if self.gacha_system.is_guaranteed else '否'}"""
+
+        self.stats_text.config(state=tk.NORMAL)
+        self.stats_text.delete(1.0, tk.END)
+        self.stats_text.insert(tk.END, stats)
+        self.stats_text.config(state=tk.DISABLED)
 
 
 
