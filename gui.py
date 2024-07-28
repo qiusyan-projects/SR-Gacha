@@ -621,6 +621,7 @@ class GachaSystem:
                 self.show_message("卡池文件已更新到最新版本。", GREEN)
             else:
                 self.show_message(f"检查更新时发生错误: {update_result}。\n将使用当前版本的卡池文件。", YELLOW)
+                print(f"{update_result}")
         elif no_update:
             self.show_message("已跳过更新检查。", GREEN)
         else:
@@ -807,11 +808,11 @@ class GachaSystem:
                 local_content = f.read()
 
             if local_content == remote_content:
-                return "current", "卡池文件已是最新版本。"
+                return "current"
             else:
                 with open(self.pool_file, 'wb') as f:
                     f.write(remote_content)
-                return "updated", "卡池文件已更新到最新版本。"
+                return "updated"
         except requests.RequestException as e:
             return "error", f"检查更新时发生错误: {e}"
 
