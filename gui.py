@@ -16,10 +16,6 @@ RESET = '#FFFFFF'
 CYAN = '#00CED1'
 YELLOW = '#FFFF00'
 BLUE = '#1E90FF'
-# DAY_BG = '#FFFFFF'
-# DAY_FG = '#000000'
-# NIGHT_BG = '#222222'
-# NIGHT_FG = '#FFFFFF'
 
 BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
@@ -166,7 +162,7 @@ class GachaSimulatorGUI:
         self.current_stats_label = ttk.Label(self.stats_frame, text="", font=self.default_font)
         self.current_stats_label.pack(fill=tk.X)
 
-        self.stats_text = tk.Text(self.stats_frame, height=9, width=30, font=self.default_font, wrap=tk.WORD)
+        self.stats_text = tk.Text(self.stats_frame, height=10, width=30, font=self.default_font, wrap=tk.WORD)
         self.stats_text.pack(fill=tk.BOTH, expand=True)
         self.stats_text.config(state=tk.DISABLED)
 
@@ -429,6 +425,8 @@ class GachaSimulatorGUI:
             stats_type = "常驻池"
             pool_pulls = self.gacha_system.standard_pulls
 
+        luck_rating = self.gacha_system.calculate_luck(pool_type)
+
         self.current_stats_label.config(text=f"当前显示的是{stats_type}的数据")
 
         stats = f"""{stats_type}的抽取次数: {pool_pulls}
@@ -439,7 +437,8 @@ class GachaSimulatorGUI:
     歪掉五星次数: {failed_featured_5star}
     抽中UP五星次数: {successful_featured_5star}
     距离上次五星: {pulls_since_last_5star}
-    大保底状态: {'是' if is_guaranteed else '否'}"""
+    大保底状态: {'是' if is_guaranteed else '否'}
+    抽卡运势: {luck_rating}"""
 
         self.stats_text.config(state=tk.NORMAL)
         self.stats_text.delete(1.0, tk.END)
@@ -755,15 +754,18 @@ class GachaSystem:
                     if result['is_up']:
                         successful_featured_5star += 1
                         summary['5星UP'] += 1
-                        messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，还好没歪!")
+                        if is_guaranteed:
+                            messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}\n这是大保底!")
+                        else:
+                            messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n是小保底，恭喜没歪!")
                     else:
                         failed_featured_5star += 1
-                        messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}，可惜歪了!")
-                else:
-                    messagebox.showinfo("恭喜!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
+                        messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次将是大保底!")
+                else: # 常驻池逻辑
+                    messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
                 self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
-                                    is_guaranteed=result['is_up'], 
+                                    is_guaranteed=not result['is_up'],  # 如果这次没有抽中UP，下次就是大保底
                                     failed_featured_5star=failed_featured_5star,
                                     successful_featured_5star=successful_featured_5star)
                 summary['5星'] += 1
@@ -902,6 +904,54 @@ class GachaSystem:
     def get_standard_banner(self):
         return next((banner_id for banner_id, banner_info in self.pools['banners'].items() if banner_info.get('name') == '群星跃迁'), None)
     
+    def calculate_luck(self, pool_type):
+        if pool_type == 'character':
+            gold_records = self.character_gold_records
+            failed_featured = self.character_failed_featured_5star
+        elif pool_type == 'weapon':
+            gold_records = self.weapon_gold_records
+            failed_featured = self.weapon_failed_featured_5star
+        else:  # standard pool
+            gold_records = self.gold_records
+            failed_featured = 0  # Not applicable for standard pool
+
+        if not gold_records:
+            return "暂无数据"
+
+        min_pulls = min(gold_records)
+        max_pulls = max(gold_records)
+        avg_pulls = sum(gold_records) / len(gold_records)
+
+        luck_score = 0
+        if min_pulls <= 30:
+            luck_score += 2
+        elif min_pulls <= 50:
+            luck_score += 1
+
+        if max_pulls <= 70:
+            luck_score += 2
+        elif max_pulls <= 80:
+            luck_score += 1
+
+        if avg_pulls <= 60:
+            luck_score += 2
+        elif avg_pulls <= 70:
+            luck_score += 1
+
+        if pool_type != 'standard':
+            if failed_featured == 0:
+                luck_score += 2
+            elif failed_featured <= 2:
+                luck_score += 1
+
+        if luck_score >= 6:
+            return "大吉"
+        elif luck_score >= 4:
+            return "小吉"
+        elif luck_score >= 2:
+            return "小凶"
+        else:
+            return "大凶"
 
     def reset_statistics(self):
         self.character_pity_5 = 0
