@@ -54,7 +54,7 @@ class GachaSimulatorGUI:
         self.current_stats_type = tk.StringVar(value="character")
 
         # 设置全局异常处理
-        self.root.report_callback_exception = self.show_error
+        # self.root.report_callback_exception = self.show_error
         # 初始化主题选择
         # self.setup_theme_selection()
 
@@ -945,12 +945,15 @@ class GachaSystem:
         if pool_type == 'character':
             gold_records = self.character_gold_records
             failed_featured = self.character_failed_featured_5star
+            total_featured = self.character_failed_featured_5star + self.character_successful_featured_5star
         elif pool_type == 'weapon':
             gold_records = self.weapon_gold_records
             failed_featured = self.weapon_failed_featured_5star
+            total_featured = self.weapon_failed_featured_5star + self.weapon_successful_featured_5star
         else:  # standard pool
             gold_records = self.gold_records
             failed_featured = 0  # Not applicable for standard pool
+            total_featured = 0
 
         if not gold_records:
             return "暂无数据"
@@ -960,31 +963,60 @@ class GachaSystem:
         avg_pulls = sum(gold_records) / len(gold_records)
 
         luck_score = 0
-        if min_pulls <= 30:
+
+        # 最少抽数评分
+        if min_pulls <= 20:
+            luck_score += 3
+        elif min_pulls <= 40:
             luck_score += 2
-        elif min_pulls <= 50:
+        elif min_pulls <= 60:
             luck_score += 1
 
-        if max_pulls <= 70:
+        # 最多抽数评分
+        if max_pulls <= 60:
+            luck_score += 3
+        elif max_pulls <= 75:
             luck_score += 2
-        elif max_pulls <= 80:
+        elif max_pulls <= 85:
             luck_score += 1
 
-        if avg_pulls <= 60:
-            luck_score += 2
-        elif avg_pulls <= 70:
-            luck_score += 1
-
-        if pool_type != 'standard':
-            if failed_featured == 0:
+        # 平均抽数评分
+        if pool_type == 'standard':
+            if avg_pulls <= 45:
+                luck_score += 4
+            elif avg_pulls <= 60:
+                luck_score += 3
+            elif avg_pulls <= 75:
                 luck_score += 2
-            elif failed_featured <= 2:
+            elif avg_pulls <= 85:
+                luck_score += 1
+        else:
+            if avg_pulls <= 50:
+                luck_score += 3
+            elif avg_pulls <= 65:
+                luck_score += 2
+            elif avg_pulls <= 75:
                 luck_score += 1
 
-        if luck_score >= 6:
+        # UP角色/武器歪卡率评分 (仅限UP池)
+        if pool_type != 'standard' and total_featured > 0:
+            fail_rate = failed_featured / total_featured
+            if fail_rate == 0:
+                luck_score += 3
+            elif fail_rate <= 0.25:
+                luck_score += 2
+            elif fail_rate <= 0.5:
+                luck_score += 1
+
+        # 根据分数判断运势
+        if luck_score >= 10:
             return "大吉"
-        elif luck_score >= 4:
+        elif luck_score >= 8:
+            return "中吉"
+        elif luck_score >= 6:
             return "小吉"
+        elif luck_score >= 4:
+            return "平"
         elif luck_score >= 2:
             return "小凶"
         else:
