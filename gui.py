@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
+# import traceback
 # from ttkthemes import ThemedTk
 
 # Colors and other constants
@@ -52,6 +53,8 @@ class GachaSimulatorGUI:
         self.check_for_updates()
         self.current_stats_type = tk.StringVar(value="character")
 
+        # 设置全局异常处理
+        self.root.report_callback_exception = self.show_error
         # 初始化主题选择
         # self.setup_theme_selection()
 
@@ -444,6 +447,40 @@ class GachaSimulatorGUI:
         self.stats_text.delete(1.0, tk.END)
         self.stats_text.insert(tk.END, stats)
         self.stats_text.config(state=tk.DISABLED)
+
+    # def show_error(self, exc, val, tb):
+    #     err = traceback.format_exception(exc, val, tb)
+    #     error_message = ''.join(err)
+        
+    #     # 创建错误消息框
+    #     error_window = Toplevel(self.root)
+    #     error_window.title("错误")
+    #     error_window.geometry("400x300")
+        
+    #     # 添加错误消息
+    #     error_label = Label(error_window, text="发生了一个错误：", font=self.default_font)
+    #     error_label.pack(pady=10)
+        
+    #     # 使用Text widget来显示错误消息，允许滚动
+    #     error_text = scrolledtext.ScrolledText(error_window, wrap=tk.WORD, width=50, height=10)
+    #     error_text.insert(tk.END, str(val))
+    #     error_text.config(state=tk.DISABLED)
+    #     error_text.pack(padx=10, pady=10)
+        
+    #     # 添加导出按钮
+        # export_button = Button(error_window, text="导出错误日志", command=lambda: self.export_error_log(error_message))
+    #     export_button.pack(pady=10)
+
+    # def export_error_log(self, error_message):
+    #     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    #     filename = f"error_log_{timestamp}.txt"
+        
+    #     try:
+    #         with open(filename, "w", encoding="utf-8") as f:
+    #             f.write(error_message)
+    #         messagebox.showinfo("导出成功", f"错误日志已导出到 {filename}")
+    #     except Exception as e:
+    #         messagebox.showerror("导出失败", f"无法导出错误日志: {str(e)}")
 
 # def setup_theme_selection(self):
 #     # 创建一个框架来容纳标签和下拉菜单
