@@ -4,17 +4,23 @@
 
 _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 
-![Language](https://img.shields.io/badge/language-python-blue?style=for-the-badge)
-![github license](https://img.shields.io/github/license/qiusyan-projects/SR-Gacha?style=for-the-badge)
+![Language](https://img.shields.io/badge/language-python-blue?style=flat-square)
+![github license](https://img.shields.io/github/license/qiusyan-projects/SR-Gacha?style=flat-square)
 
-![GitHub contributors](https://img.shields.io/github/contributors/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=for-the-badge)
-![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub Repo stars](https://img.shields.io/github/stars/qiusyan-projects/SR-Gacha?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/qiusyan-projects/SR-Gacha?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha/shell?style=flat-square)
+<!-- ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=for-the-badge) -->
+![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?filter=v1.1.1&style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/qiusyan-projects/SR-Gacha?style=flat-square)
 
 
 </div>
+
+
+*此 **命令行版本** 分支将不再维护，请使用 main 分支的 **GUI版本***
+
+
+***
 
 # Usage
 
@@ -22,22 +28,22 @@ _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 
 **如果你是 `Windows` 用户，那么可以使用我打包好的exe文件一键启动**
 
-Actions:  [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=for-the-badge)](https://nightly.link/qiusyan-projects/SR-Gacha/workflows/main/main/gacha.zip) **（推荐使用）**
+<!-- Actions:  [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=for-the-badge)](https://nightly.link/qiusyan-projects/SR-Gacha/workflows/main/main/gacha.zip) **（推荐使用）** -->
 
-Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?style=for-the-badge)](https://github.com/qiusyan-projects/SR-Gacha/releases)  
+Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?filter=v1.1.1&style=flat-square)](https://github.com/qiusyan-projects/SR-Gacha/releases/tag/v1.1.1)  
 
 ## 通过Python启动
 
 适用于 `Windows/MacOS/Linux` 
 
 1. 使用 `pip install -r requirements.txt` 安装依赖
-    - （可选）从仓库中下载 `banners.yml` 并与脚本放置于同一文件夹
+    - （可选）从 **main分支** 中下载 `banners.yml` 并与脚本放置于同一文件夹
 2. 使用 `python gacha.py` 运行脚本
 3. Have Fun!
 
-## 当前卡池版本 (banners.yml)
+<!-- ## 当前卡池版本 (banners.yml)
 
-`2.4`
+`2.4` -->
 
 ## 其他
 
