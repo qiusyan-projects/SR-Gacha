@@ -4,22 +4,52 @@
 
 _✨ 星穹铁道抽卡模拟器，使用Python编写 ✨_
 
-![Language](https://img.shields.io/badge/language-python-blue?style=for-the-badge)
-![github license](https://img.shields.io/github/license/qiusyan-projects/SR-Gacha?style=for-the-badge)
+![Language](https://img.shields.io/badge/language-python-blue?style=flat-square)
+![github license](https://img.shields.io/github/license/qiusyan-projects/SR-Gacha?style=flat-square)
 
-![GitHub contributors](https://img.shields.io/github/contributors/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=for-the-badge)
-![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?style=for-the-badge)
-![GitHub Repo stars](https://img.shields.io/github/stars/qiusyan-projects/SR-Gacha?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/qiusyan-projects/SR-Gacha?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/qiusyan-projects/SR-Gacha?style=flat-square)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=flat-square)
+![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?style=flat-square)
+![GitHub Repo stars](https://img.shields.io/github/stars/qiusyan-projects/SR-Gacha?style=flat-square)
 
 
 </div>
 
 ***
 
-## **⚠⚠⚠** 此分支正处于Dev阶段，极不稳定，请勿使用
+# Usage
 
-这是星穹铁道抽卡模拟器的GUI版本，正在开发中
+## 一键启动
 
-极不稳定，请使用main分支的命令行版本
+**如果你是 `Windows` 用户，那么可以使用我打包好的exe文件一键启动**
+
+Actions:  [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/qiusyan-projects/SR-Gacha/main.yml?style=flat-square)](https://nightly.link/qiusyan-projects/SR-Gacha/workflows/main/main/gacha.zip) **（推荐使用）**
+
+Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-projects/SR-Gacha?style=flat-square)](https://github.com/qiusyan-projects/SR-Gacha/releases)  
+
+## 通过Python启动
+
+适用于 `Windows/MacOS/Linux` 
+
+1. 使用 `pip install -r requirements.txt` 安装依赖
+    - （可选）从仓库中下载 `banners.yml` 并与脚本放置于同一文件夹
+2. 使用 `python gui.py` 运行脚本
+3. Have Fun!
+
+# 当前卡池文件版本
+
+`2.4`
+
+# 程序界面预览
+
+![image.png](https://s2.loli.net/2024/07/28/RCfD4AsZm1KVlJU.png)
+
+# 友情链接
+全新异世探险百合类GalGame正在制作中！本体完全免费，点击链接快速前往仓库：https://github.com/MewBaka/OtherSideProject
+
+# 致谢
+
+万分感谢 [Claude](https://claude.ai/)。
+
+~~Anthropic你能不能把你那限额放宽松一点，好用归好用但是限额太狠了~~
