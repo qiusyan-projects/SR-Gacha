@@ -259,7 +259,7 @@ banners: # 限时卡池
     name: 镜流专锥
     pool_type: weapon
     weapon_up_5_star:
-    - 此生为剑
+    - 此身为剑
     weapon_up_4_star:
     - 别让世界静下来
     - 记忆中的模样
