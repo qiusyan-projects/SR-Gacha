@@ -40,7 +40,7 @@ class GachaSimulatorGUI:
         self.root = root
         self.root.withdraw()  # 隐藏主窗口
 
-        self.root.title("Gacha Simulator")
+        self.root.title("崩坏：星穹铁道抽卡模拟器")
         self.root.geometry("1200x800")
         self.root.minsize(900, 600)  # 设置最小窗口大小
         
@@ -154,7 +154,7 @@ class GachaSimulatorGUI:
         gacha_frame.columnconfigure(1, weight=1)
 
         # Utility controls
-        util_frame = ttk.LabelFrame(self.left_frame, text="工具")
+        util_frame = ttk.LabelFrame(self.left_frame, text="工具箱")
         util_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.random_tip_button = ttk.Button(util_frame, text="随机Tips", command=self.show_random_tip)
@@ -556,7 +556,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.0.0"  # 根据实际版本号修改
+        version = "2.1.0"  # 根据实际版本号修改
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
