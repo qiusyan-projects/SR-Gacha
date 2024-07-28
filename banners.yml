@@ -1,0 +1,543 @@
+version: '2.4' 
+common_pools:
+  character_5_star: # 常驻的五星角色
+  - 姬子
+  - 瓦尔特
+  - 布洛妮娅
+  - 克拉拉
+  - 杰帕德
+  - 彦卿
+  - 白露
+  character_4_star: # 所有的四星角色
+  - 三月七
+  - 丹恒
+  - 阿兰
+  - 艾丝妲
+  - 黑塔
+  - 希露瓦
+  - 娜塔莎
+  - 佩拉
+  - 桑博
+  - 虎克
+  - 玲可
+  - 卢卡
+  - 青雀
+  - 停云
+  - 素裳
+  - 驭空
+  - 桂乃芬
+  - 雪衣
+  - 寒鸦
+  - 加拉赫
+  - 米沙
+  weapon_5_star: # 常驻的五星光锥/武器
+  - 银河铁道之夜
+  - 以世界之名
+  - 但战斗还未结束
+  - 无可取代的东西
+  - 制胜的瞬间
+  - 如泥酣眠
+  - 时节不居
+  weapon_4_star: # 所有可获取的四星光锥/武器
+  - 一场术后对话
+  - 晚安与睡颜
+  - 余生的第一天
+  - 唯有沉默
+  - 记忆中的模样
+  - 鼹鼠党欢迎你
+  - 「我」的诞生
+  - 同一种心情
+  - 猎物的视线
+  - 朗道的选择
+  - 论剑
+  - 与行星相会
+  - 秘密誓心
+  - 别让世界静下来
+  - 此时恰好
+  - 决心如汗珠般闪耀
+  - 宇宙市场趋势
+  - 点个关注吧！
+  - 舞！舞！舞！
+  - 在蓝天下
+  - 天才们的休憩
+  - 等价交换
+  - 延长记号
+  - 我们是地火
+  - 春水初生
+  - 过往未来
+  - 汪！散步时间！
+  - 早餐的仪式感
+  - 何物为真
+  - 美梦小镇大冒险
+  - 最后的赢家
+  - 在火的远处
+  - 织造命运之线
+  - 银河沦陷日
+  - 好戏开演
+  - 铭记于心的约定
+  - 两个人的演唱会
+  - 无边曼舞
+  - 谐乐静默之后
+  - 芳华待灼
+  weapon_3_star: # 所有的三星光锥/武器
+  - 锋镝
+  - 物穰
+  - 天倾
+  - 琥珀
+  - 幽邃
+  - 齐颂
+  - 智库
+  - 离弦
+  - 嘉果
+  - 乐圮
+  - 戍御
+  - 渊环
+  - 轮契
+  - 灵钥
+  - 相抗
+  - 蕃息
+  - 俱殁
+  - 开疆
+  - 匿影
+  - 调和
+  - 睿见
+banners: # 限时卡池
+  seele-c: # 卡池id
+    name: 蝶立锋锷 # 卡池名
+    pool_type: character # 卡池类型，character or weapon
+    character_up_5_star: # UP的五星角色
+    - 希儿 
+    character_up_4_star: # UP的四星角色
+    - 娜塔莎
+    - 虎克
+    - 佩拉
+  seele-w:
+    name: 希儿专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 于夜色中
+    weapon_up_4_star:
+    - 晚安与睡颜
+    - 鼹鼠党欢迎你
+    - 一场术后对话
+  jingyuan-c:
+    name: 天戈麾斥
+    pool_type: character
+    character_up_5_star:
+    - 景元
+    character_up_4_star:
+    - 素裳
+    - 三月七
+    - 停云
+  jingyuan-w:
+    name: 景元专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 拂晓之前
+    weapon_up_4_star:
+    - 唯有沉默
+    - 余生的第一天
+    - 与行星相会
+  silverwolf-c:
+    name: 零号协议
+    pool_type: character
+    character_up_5_star:
+    - 银狼
+    character_up_4_star:
+    - 丹恒
+    - 艾丝妲
+    - 希露瓦
+  silverwolf-w:
+    name: 银狼专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 雨一直下
+    weapon_up_4_star:
+    - 点个关注吧！
+    - 记忆中的模样
+    - 别让世界静下来
+  luocha-c:
+    name: 寻索世间
+    pool_type: character
+    character_up_5_star:
+    - 罗刹
+    character_up_4_star:
+    - 佩拉
+    - 青雀
+    - 驭空
+  luocha-w:
+    name: 罗刹专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 棺的回响
+    weapon_up_4_star:
+    - 晚安与睡颜
+    - 舞！舞！舞！
+    - 天才们的休憩
+  blade-c:
+    name: 业途游魂
+    pool_type: character
+    character_up_5_star:
+    - 刃
+    character_up_4_star:
+    - 阿兰
+    - 素裳
+    - 娜塔莎
+  blade-w:
+    name: 刃专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 到不了的彼岸
+    weapon_up_4_star:
+    - 秘密誓心
+    - 论剑
+    - 同一种心情
+  kafka-c:
+    name: 夜将不眠
+    pool_type: character
+    character_up_5_star:
+    - 卡芙卡
+    character_up_4_star:
+    - 卢卡
+    - 桑博
+    - 希露瓦
+  kafka-w:
+    name: 卡芙卡专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 只需等待
+    weapon_up_4_star:
+    - 决心如汗珠般闪耀
+    - 猎物的视线
+    - 「我」的诞生
+  yinyue-c:
+    name: 濯世垂虹
+    pool_type: character
+    character_up_5_star:
+    - 丹恒·饮月
+    character_up_4_star:
+    - 驭空
+    - 艾丝妲
+    - 三月七
+  yinyue-w:
+    name: 饮月专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 比阳光更明亮的
+    weapon_up_4_star:
+    - 与行星相会
+    - 舞！舞！舞！
+    - 朗道的选择
+  fuxuan-c:
+    name: 穷观妙算
+    pool_type: character
+    character_up_5_star:
+    - 符玄
+    character_up_4_star:
+    - 玲可
+    - 虎克
+    - 佩拉
+  fuxuan-w:
+    name: 符玄专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 她已闭上双眼
+    weapon_up_4_star:
+    - 宇宙市场趋势
+    - 此时恰好
+    - 在蓝天下
+  jingliu-c:
+    name: 月有薄蚀
+    pool_type: character
+    character_up_5_star:
+    - 镜流
+    character_up_4_star:
+    - 停云
+    - 青雀
+    - 桑博
+  jingliu-w:
+    name: 镜流专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 此生为剑
+    weapon_up_4_star:
+    - 别让世界静下来
+    - 记忆中的模样
+    - 猎物的视线
+  topaz-c:
+    name: 落日条款
+    pool_type: character
+    character_up_5_star:
+    - 托帕&账账
+    character_up_4_star:
+    - 桂乃芬
+    - 卢卡
+    - 素裳
+  topaz-w:
+    name: 托帕专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 烦恼着，幸福着
+    weapon_up_4_star:
+    - 鼹鼠党欢迎你
+    - 决心如汗珠般闪耀
+    - 唯有沉默
+  huohuo-c:
+    name: 令奉贞凶
+    pool_type: character
+    character_up_5_star:
+    - 藿藿
+    character_up_4_star:
+    - 丹恒
+    - 阿兰
+    - 希露瓦
+  huohuo-w:
+    name: 藿藿专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 惊魂夜
+    weapon_up_4_star:
+    - 同一种心情
+    - 点个关注吧！
+    - 宇宙市场趋势
+  argenti-c:
+    name: 荆冠芳勋
+    pool_type: character
+    character_up_5_star:
+    - 银枝
+    character_up_4_star:
+    - 寒鸦
+    - 玲可
+    - 艾丝妲
+  argenti-w:
+    name: 银枝专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 片刻，留在眼底
+    weapon_up_4_star:
+    - 在蓝天下
+    - 一场术后对话
+    - 「我」的诞生
+  ruanmei-c:
+    name: 疏影三迭
+    pool_type: character
+    character_up_5_star:
+    - 阮·梅
+    character_up_4_star:
+    - 雪衣
+    - 三月七
+    - 停云
+  ruanmei-w:
+    name: 阮梅专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 镜中故我
+    weapon_up_4_star:
+    - 与行星相会
+    - 余生的第一天
+    - 秘密誓心
+  radio-c:
+    name: 万物皆流
+    pool_type: character
+    character_up_5_star:
+    - 真理医生
+    character_up_4_star:
+    - 素裳
+    - 娜塔莎
+    - 虎克
+  radio-w:
+    name: 真理专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 纯粹思维的洗礼
+    weapon_up_4_star:
+    - 此时恰好
+    - 唯有沉默
+    - 朗道的选择
+  blackswan-c:
+    name: 镜映婆娑
+    pool_type: character
+    character_up_5_star:
+    - 黑天鹅
+    character_up_4_star:
+    - 米沙
+    - 桂乃芬
+    - 停云
+  blackswan-w:
+    name: 黑天鹅专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 重塑时光之忆
+    weapon_up_4_star:
+    - 决心如汗珠般闪耀
+    - 舞！舞！舞！
+    - 铭记于心的约定
+  sparkle-c:
+    name: 焰锦游鱼
+    pool_type: character
+    character_up_5_star:
+    - 花火
+    character_up_4_star:
+    - 桑博
+    - 青雀
+    - 寒鸦
+  sparkle-w:
+    name: 花火专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 游戏尘寰
+    weapon_up_4_star:
+    - 与行星相会
+    - 在蓝天下
+    - 天才们的休憩
+  acheron-c:
+    name: 远辞畴昔
+    pool_type: character
+    character_up_5_star:
+    - 黄泉
+    character_up_4_star:
+    - 加拉赫
+    - 佩拉
+    - 丹恒
+  acheron-w:
+    name: 黄泉专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 行于流逝的岸
+    weapon_up_4_star:
+    - 晚安与睡颜
+    - 一场术后对话
+    - 点个关注吧！
+  aventurine-c:
+    name: 囚石铸金
+    pool_type: character
+    character_up_5_star:
+    - 砂金
+    character_up_4_star:
+    - 玲可
+    - 卢卡
+    - 希露瓦
+  aventurine-w:
+    name: 砂金专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 命运从未公平
+    weapon_up_4_star:
+    - 两个人的演唱会
+    - 同一种心情
+    - 别让世界静下来
+  robin-c:
+    name: 翼声纯律
+    pool_type: character
+    character_up_5_star:
+    - 知更鸟
+    character_up_4_star:
+    - 三月七
+    - 寒鸦
+    - 雪衣
+  robin-w:
+    name: 知更鸟专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 夜色流光溢彩
+    weapon_up_4_star:
+    - 无边曼舞
+    - 论剑
+    - 此时恰好
+  boothill-c:
+    name: 扬尘孤星
+    pool_type: character
+    character_up_5_star:
+    - 波提欧
+    character_up_4_star:
+    - 佩拉
+    - 卢卡
+    - 虎克
+  boothill-w:
+    name: 波提欧专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 驶向第二次生命
+    weapon_up_4_star:
+    - 天才们的休憩
+    - 秘密誓心
+    - 朗道的选择
+  firefly-c:
+    name: 盈茧炽盛
+    pool_type: character
+    character_up_5_star:
+    - 流萤
+    character_up_4_star:
+    - 加拉赫
+    - 米沙
+    - 雪衣
+  firefly-w:
+    name: 流萤专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 梦应归于何处
+    weapon_up_4_star:
+    - 记忆中的模样
+    - 余生的第一天
+    - 猎物的视线
+  jade-c:
+    name: 质生契运
+    pool_type: character
+    character_up_5_star:
+    - 翡翠
+    character_up_4_star:
+    - 希露瓦
+    - 娜塔莎
+    - 艾丝妲
+  jade-w:
+    name: 翡翠专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 偏偏希望无价
+    weapon_up_4_star:
+    - 同一种心情
+    - 宇宙市场趋势
+    - 谐乐静默之后
+  yunli-c:
+    name: 掷山破云
+    pool_type: character
+    character_up_5_star:
+    - 云璃
+    character_up_4_star:
+    - 寒鸦
+    - 驭空
+    - 铃可
+  yunli-w:
+    name: 云璃专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 落日时起舞
+    weapon_up_4_star:
+    - 鼹鼠党欢迎你
+    - 此时恰好
+    - 「我」的诞生
+  jiaoqiu-c:
+    name: 鼎中捭阖
+    pool_type: character
+    character_up_5_star:
+    - 椒丘
+    character_up_4_star:
+    - 虎克
+    - 桂乃芬
+    - 阿兰
+  jiaoqiu-w:
+    name: 椒丘专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 那无数个春天
+    weapon_up_4_star:
+    - 芳华待灼
+    - 猎物的视线
+    - 秘密誓心
+  standard:
+    name: 群星跃迁
+    pool_type: standard
+    character_5_star: '@common_pools.character_5_star'
+    character_4_star: '@common_pools.character_4_star'
+    weapon_5_star: '@common_pools.weapon_5_star'
+    weapon_4_star: '@common_pools.weapon_4_star'
