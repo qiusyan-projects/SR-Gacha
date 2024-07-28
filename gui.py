@@ -120,55 +120,64 @@ class GachaSimulatorGUI:
     def setup_left_frame(self):
         # Banner controls
         banner_frame = ttk.LabelFrame(self.left_frame, text="卡池控制")
-        banner_frame.pack(pady=5, padx=10, fill=tk.X)
+        banner_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.toggle_button = ttk.Button(banner_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
-        self.toggle_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+        self.toggle_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
         self.standard_banner_button = ttk.Button(banner_frame, text="切换到常驻池", command=self.select_standard_banner)
-        self.standard_banner_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+        self.standard_banner_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
 
-        self.banner_listbox = tk.Listbox(banner_frame, height=10, font=self.default_font)
-        self.banner_listbox.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky="nsew")
+        self.banner_listbox = tk.Listbox(banner_frame, height=8, font=self.default_font)
+        self.banner_listbox.grid(row=1, column=0, columnspan=2, pady=2, padx=2, sticky="nsew")
         
         self.switch_banner_button = ttk.Button(banner_frame, text="切换到选择的卡池", command=self.on_switch_banner)
-        self.switch_banner_button.grid(row=2, column=0, columnspan=2, pady=5, padx=5, sticky="ew")
+        self.switch_banner_button.grid(row=2, column=0, columnspan=2, pady=2, padx=2, sticky="ew")
+
+        banner_frame.columnconfigure(0, weight=1)
+        banner_frame.columnconfigure(1, weight=1)
 
         # Gacha controls
         gacha_frame = ttk.LabelFrame(self.left_frame, text="抽卡控制")
-        gacha_frame.pack(pady=5, padx=10, fill=tk.X)
+        gacha_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.pull_1_button = ttk.Button(gacha_frame, text="抽一次", command=lambda: self.on_pull(1))
-        self.pull_1_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+        self.pull_1_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
         self.pull_10_button = ttk.Button(gacha_frame, text="十连抽！", command=lambda: self.on_pull(10))
-        self.pull_10_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+        self.pull_10_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
+
+        gacha_frame.columnconfigure(0, weight=1)
+        gacha_frame.columnconfigure(1, weight=1)
 
         # Utility controls
         util_frame = ttk.LabelFrame(self.left_frame, text="工具")
-        util_frame.pack(pady=5, padx=10, fill=tk.X)
+        util_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.random_tip_button = ttk.Button(util_frame, text="随机Tips", command=self.show_random_tip)
-        self.random_tip_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+        self.random_tip_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
         self.clear_data_button = ttk.Button(util_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
-        self.clear_data_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+        self.clear_data_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
 
         self.version_button = ttk.Button(util_frame, text="查看版本", command=self.show_version)
-        self.version_button.grid(row=1, column=0, pady=5, padx=5, sticky="ew")
+        self.version_button.grid(row=1, column=0, pady=2, padx=2, sticky="ew")
 
         self.update_button = ttk.Button(util_frame, text="检查卡池更新", command=self.check_pool_update)
-        self.update_button.grid(row=1, column=1, pady=5, padx=5, sticky="ew")
+        self.update_button.grid(row=1, column=1, pady=2, padx=2, sticky="ew")
+
+        util_frame.columnconfigure(0, weight=1)
+        util_frame.columnconfigure(1, weight=1)
 
         # Statistics display
         self.stats_frame = ttk.LabelFrame(self.left_frame, text="统计信息")
-        self.stats_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+        self.stats_frame.pack(pady=2, padx=5, fill=tk.BOTH, expand=True)
 
         self.current_stats_label = ttk.Label(self.stats_frame, text="当前显示的是角色池的数据", font=self.default_font)
-        self.current_stats_label.pack(pady=5)
+        self.current_stats_label.pack(pady=2)
         self.current_banner_type = StringVar(value="character")
 
-        self.stats_text = tk.Text(self.stats_frame, height=10, width=30, font=self.default_font, wrap=tk.WORD)
+        self.stats_text = tk.Text(self.stats_frame, height=8, width=25, font=self.default_font, wrap=tk.WORD)
         self.stats_text.pack(fill=tk.BOTH, expand=True)
         self.stats_text.config(state=tk.DISABLED)
 
@@ -218,7 +227,7 @@ class GachaSimulatorGUI:
         history_frame.grid_columnconfigure(0, weight=1)
 
         # Tips frame
-        tips_frame = ttk.LabelFrame(self.right_frame, text="提示")
+        tips_frame = ttk.LabelFrame(self.right_frame, text="Tips")
         tips_frame.pack(pady=10, padx=10, fill=tk.X)
 
         self.tip_label = ttk.Label(tips_frame, text="", font=self.default_font, foreground="blue", wraplength=500)
@@ -463,7 +472,8 @@ class GachaSimulatorGUI:
         version = "2.0.0"  # 根据实际版本号修改
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
-        messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}")    
+        other = "来点Star叭~💖"
+        messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}\n{other}")    
 
     def check_pool_update(self):
         status, message = self.gacha_system.check_and_update_pool_file()
@@ -714,7 +724,7 @@ class GachaSystem:
             else:
                 with open(self.pool_file, 'wb') as f:
                     f.write(remote_content)
-                return "updated", "卡池文件已自动更新到最新版本。"
+                return "updated", "卡池文件已更新到最新版本。"
         except requests.RequestException as e:
             return "error", f"检查更新时发生错误: {e}"
 
