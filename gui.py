@@ -99,17 +99,20 @@ class GachaSimulatorGUI:
             # print(f"  {name}: {id}")  # 调试信息
 
     def setup_gui(self):
-        # Create main paned window
-        self.main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
-        self.main_paned.pack(fill=tk.BOTH, expand=1)
+        # Create main frame
+        self.main_frame = ttk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=1)
 
         # Create left and right frames
-        self.left_frame = ttk.Frame(self.main_paned, width=300)
-        self.right_frame = ttk.Frame(self.main_paned)
+        self.left_frame = ttk.Frame(self.main_frame, width=250)
+        self.right_frame = ttk.Frame(self.main_frame)
 
-        # Add frames to paned window
-        self.main_paned.add(self.left_frame, weight=1)
-        self.main_paned.add(self.right_frame, weight=3)
+        # Pack frames
+        self.left_frame.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
+        self.right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Ensure the left frame maintains its width
+        self.left_frame.pack_propagate(False)
 
         # Left frame content
         self.setup_left_frame()
@@ -119,7 +122,7 @@ class GachaSimulatorGUI:
 
     def setup_left_frame(self):
         # Banner controls
-        banner_frame = ttk.LabelFrame(self.left_frame, text="卡池控制")
+        banner_frame = ttk.LabelFrame(self.left_frame, text="卡池切换")
         banner_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.toggle_button = ttk.Button(banner_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
@@ -138,7 +141,7 @@ class GachaSimulatorGUI:
         banner_frame.columnconfigure(1, weight=1)
 
         # Gacha controls
-        gacha_frame = ttk.LabelFrame(self.left_frame, text="抽卡控制")
+        gacha_frame = ttk.LabelFrame(self.left_frame, text="抽卡")
         gacha_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.pull_1_button = ttk.Button(gacha_frame, text="抽一次", command=lambda: self.on_pull(1))
@@ -171,14 +174,14 @@ class GachaSimulatorGUI:
 
         # Statistics display
         self.stats_frame = ttk.LabelFrame(self.left_frame, text="统计信息")
-        self.stats_frame.pack(pady=2, padx=5, fill=tk.BOTH, expand=True)
+        self.stats_frame.pack(pady=2, padx=5, fill=tk.X)
 
         self.current_stats_label = ttk.Label(self.stats_frame, text="当前显示的是角色池的数据", font=self.default_font)
         self.current_stats_label.pack(pady=2)
         self.current_banner_type = StringVar(value="character")
 
-        self.stats_text = tk.Text(self.stats_frame, height=8, width=25, font=self.default_font, wrap=tk.WORD)
-        self.stats_text.pack(fill=tk.BOTH, expand=True)
+        self.stats_text = tk.Text(self.stats_frame, width=25, font=self.default_font, wrap=tk.WORD)
+        self.stats_text.pack(fill=tk.X, expand=True)
         self.stats_text.config(state=tk.DISABLED)
 
         self.update_banner_list()
@@ -274,6 +277,9 @@ class GachaSimulatorGUI:
             if 'character_up_5_star' in banner_info:
                 up_character = banner_info['character_up_5_star'][0]
                 display_name = f"{banner_name} - UP: {up_character}"
+            elif 'weapon_up_5_star' in banner_info:
+                up_weapon = banner_info['weapon_up_5_star'][0]
+                display_name = f"{banner_name} - UP: {up_weapon}"
             else:
                 display_name = banner_name
             self.banner_listbox.insert(tk.END, display_name)
@@ -420,7 +426,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.character_gold_records
             purple_records = self.gacha_system.character_purple_records
             failed_featured_5star = self.gacha_system.character_failed_featured_5star
-            successful_featured_5star = self.gacha_system.character_successful_featured_5star
+            # successful_featured_5star = self.gacha_system.character_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.character_pulls_since_last_5star
             is_guaranteed = self.gacha_system.character_is_guaranteed
             stats_type = "角色池"
@@ -431,7 +437,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.weapon_gold_records
             purple_records = self.gacha_system.weapon_purple_records
             failed_featured_5star = self.gacha_system.weapon_failed_featured_5star
-            successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
+            # successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.weapon_pulls_since_last_5star
             is_guaranteed = self.gacha_system.weapon_is_guaranteed
             stats_type = "光锥池"
@@ -442,7 +448,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.gold_records
             purple_records = self.gacha_system.purple_records
             failed_featured_5star = self.gacha_system.failed_featured_5star
-            successful_featured_5star = self.gacha_system.successful_featured_5star
+            # successful_featured_5star = self.gacha_system.successful_featured_5star
             pulls_since_last_5star = self.gacha_system.pulls_since_last_5star
             is_guaranteed = self.gacha_system.is_guaranteed
             stats_type = "常驻池"
@@ -458,15 +464,21 @@ class GachaSimulatorGUI:
     获得五星次数: {len(gold_records)}
     获得四星次数: {len(purple_records)}
     歪掉五星次数: {failed_featured_5star}
-    抽中UP五星次数: {successful_featured_5star}
     距离上次五星: {pulls_since_last_5star}
     大保底状态: {'是' if is_guaranteed else '否'}
     抽卡运势: {luck_rating}"""
+        
+    # 抽中UP五星次数: {successful_featured_5star}
 
         self.stats_text.config(state=tk.NORMAL)
         self.stats_text.delete(1.0, tk.END)
         self.stats_text.insert(tk.END, stats)
         self.stats_text.config(state=tk.DISABLED)
+
+        # 动态调整高度
+        self.stats_text.update_idletasks()
+        height = self.stats_text.count('1.0', 'end', 'displaylines')
+        self.stats_text.config(height=height)
 
     def show_version(self):
         version = "2.0.0"  # 根据实际版本号修改
