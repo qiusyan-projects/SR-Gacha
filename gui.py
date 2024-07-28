@@ -426,7 +426,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.character_gold_records
             purple_records = self.gacha_system.character_purple_records
             failed_featured_5star = self.gacha_system.character_failed_featured_5star
-            # successful_featured_5star = self.gacha_system.character_successful_featured_5star
+            successful_featured_5star = self.gacha_system.character_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.character_pulls_since_last_5star
             is_guaranteed = self.gacha_system.character_is_guaranteed
             stats_type = "角色池"
@@ -437,7 +437,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.weapon_gold_records
             purple_records = self.gacha_system.weapon_purple_records
             failed_featured_5star = self.gacha_system.weapon_failed_featured_5star
-            # successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
+            successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.weapon_pulls_since_last_5star
             is_guaranteed = self.gacha_system.weapon_is_guaranteed
             stats_type = "光锥池"
@@ -448,7 +448,7 @@ class GachaSimulatorGUI:
             gold_records = self.gacha_system.gold_records
             purple_records = self.gacha_system.purple_records
             failed_featured_5star = self.gacha_system.failed_featured_5star
-            # successful_featured_5star = self.gacha_system.successful_featured_5star
+            successful_featured_5star = self.gacha_system.successful_featured_5star
             pulls_since_last_5star = self.gacha_system.pulls_since_last_5star
             is_guaranteed = self.gacha_system.is_guaranteed
             stats_type = "常驻池"
@@ -458,16 +458,91 @@ class GachaSimulatorGUI:
 
         self.current_stats_label.config(text=f"当前显示的是{stats_type}的数据")
 
-        stats = f"""{stats_type}的抽取次数: {pool_pulls}
-    距离下一个五星保底的抽数: {90 - pity_5}
-    距离下一个四星保底: {10 - pity_4}
-    获得五星次数: {len(gold_records)}
-    获得四星次数: {len(purple_records)}
-    歪掉五星次数: {failed_featured_5star}
-    距离上次五星: {pulls_since_last_5star}
-    大保底状态: {'是' if is_guaranteed else '否'}
-    抽卡运势: {luck_rating}"""
+
+        if len(gold_records) > 0: # 如果出金次数大于1，执行计算
+            avg_gold_pulls = sum(gold_records) / len(gold_records)  # 平均抽数出金
+        else: 
+            avg_gold_pulls = "暂无数据"
+
+        if gold_records: # 如果列表不为空
+            min_gold_records = min(gold_records)
+            max_gold_records = max(gold_records)
+        else:
+            min_gold_records = "暂无数据"
+            max_gold_records = "暂无数据"
         
+        total_featured_5star = successful_featured_5star + failed_featured_5star
+        if total_featured_5star > 0: # 如果总数大于0
+            success_rate = successful_featured_5star / total_featured_5star * 100
+        else:
+            success_rate = "暂无数据"
+            
+
+        pool_pulls_str = f"{stats_type}的抽取次数: {pool_pulls}"
+        next_pity_5_str = f"距离下一个五星保底的抽数: {90 - pity_5}"
+        next_pity_4_str = f"距离下一个四星保底: {10 - pity_4}"
+        get_gold_records_str = f"获得五星次数: {len(gold_records)}"
+        get_purple_records_str = f"获得四星次数: {len(purple_records)}"
+        min_gold_records_str = f"最少抽数出金: {min_gold_records}"
+        max_gold_records_str = f"最多抽数出金: {max_gold_records}"
+
+        if isinstance(avg_gold_pulls, (int, float)):  # 检查 avg_gold_pulls 是否是数字类型
+            avg_gold_pulls_str = f"平均抽数出金: {avg_gold_pulls:.2f}"
+        else:
+            avg_gold_pulls_str = f"平均抽数出金: {avg_gold_pulls}" 
+
+        if pool_type != 'standard':
+            failed_featured_5star_str = f"歪掉五星次数: {failed_featured_5star}"
+        else:
+            failed_featured_5star_str = f"歪掉五星次数: 无"
+
+        if pool_type != 'standard':
+            if isinstance(success_rate, (int, float)):  # 检查 success_rate 是否是数字类型
+                success_rate_str = f"小保底不歪概率: {success_rate:.2f}%"
+            else:
+                success_rate_str = f"小保底不歪概率: {success_rate}"
+        else:
+            success_rate_str = f"小保底不歪概率: 无"
+
+        pulls_since_last_5star_str = f"距离上次五星: {pulls_since_last_5star}"
+
+        if pool_type != 'standard': 
+            is_guaranteed_str = f"大保底状态: {'是' if is_guaranteed else '否'}"
+        else:
+            is_guaranteed_str = f"大保底状态: 无"
+
+        luck_rating_str = f"抽卡运势: {luck_rating}"
+
+        # 使用变量控制输出
+        stats = f"""{pool_pulls_str}
+    {next_pity_5_str}
+    {next_pity_4_str}
+    {get_gold_records_str}
+    {get_purple_records_str}
+    {min_gold_records_str}
+    {max_gold_records_str}
+    {avg_gold_pulls_str}
+    {failed_featured_5star_str}
+    {success_rate_str}
+    {pulls_since_last_5star_str}
+    {is_guaranteed_str}
+    {luck_rating_str}""" 
+
+        
+    #     stats = f"""{stats_type}的抽取次数: {pool_pulls}
+    # 距离下一个五星保底的抽数: {90 - pity_5}
+    # 距离下一个四星保底: {10 - pity_4}
+    # 获得五星次数: {len(gold_records)}
+    # 获得四星次数: {len(purple_records)}
+    # 最少抽数出金: {min_gold_records}
+    # 最多抽数出金: {max_gold_records}
+    # 平均抽数出金: {avg_gold_pulls}
+    # 歪掉五星次数: {failed_featured_5star}
+    # 小保底不歪概率: {success_rate}
+    # 距离上次五星: {pulls_since_last_5star}
+    # 大保底状态: {'是' if is_guaranteed else '否'}
+    # 抽卡运势: {luck_rating}"""
+
     # 抽中UP五星次数: {successful_featured_5star}
 
         self.stats_text.config(state=tk.NORMAL)
@@ -783,11 +858,11 @@ class GachaSystem:
                 pulls_for_this_5star = pulls_since_last_5star + 1
                 if self.current_banner != 'standard':
                     if result['is_up']:
-                        successful_featured_5star += 1
                         summary['5星UP'] += 1
                         if is_guaranteed:
                             messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}\n这是大保底!")
                         else:
+                            successful_featured_5star += 1 # 只有在小保底时计数器才会增加1
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n是小保底，恭喜没歪!")
                     else:
                         failed_featured_5star += 1
@@ -821,7 +896,6 @@ class GachaSystem:
 
         return pulls
         
-    
 
 
     def get_pool_stats(self, pool_type):
