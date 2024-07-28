@@ -556,7 +556,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.1.0"  # 根据实际版本号修改
+        version = "2.1.1"  # 根据实际版本号修改
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
