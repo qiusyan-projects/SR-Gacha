@@ -5,7 +5,6 @@ import requests
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
-# import traceback
 # from ttkthemes import ThemedTk
 
 # Colors and other constants
@@ -43,6 +42,7 @@ class GachaSimulatorGUI:
 
         self.root.title("Gacha Simulator")
         self.root.geometry("1200x800")
+        self.root.minsize(900, 600)  # 设置最小窗口大小
         
         # 设置默认字体为微软雅黑
         self.default_font_name = 'Microsoft YaHei'
@@ -51,7 +51,8 @@ class GachaSimulatorGUI:
 
         # 检查更新
         self.check_for_updates()
-        self.current_stats_type = tk.StringVar(value="character")
+        # self.current_stats_type = tk.StringVar(value="character")
+        
         
         # 初始化主题选择        
         # self.setup_theme_selection()
@@ -98,13 +99,17 @@ class GachaSimulatorGUI:
             # print(f"  {name}: {id}")  # 调试信息
 
     def setup_gui(self):
+        # Create main paned window
+        self.main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
+        self.main_paned.pack(fill=tk.BOTH, expand=1)
 
-        # Create main frames
-        self.left_frame = tk.Frame(self.root, width=300, bg='#f0f0f0')
-        self.right_frame = tk.Frame(self.root, bg='white')
+        # Create left and right frames
+        self.left_frame = ttk.Frame(self.main_paned, width=300)
+        self.right_frame = ttk.Frame(self.main_paned)
 
-        self.left_frame.pack(side=tk.LEFT, fill=tk.Y, expand=False)
-        self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        # Add frames to paned window
+        self.main_paned.add(self.left_frame, weight=1)
+        self.main_paned.add(self.right_frame, weight=3)
 
         # Left frame content
         self.setup_left_frame()
@@ -113,102 +118,117 @@ class GachaSimulatorGUI:
         self.setup_right_frame()
 
     def setup_left_frame(self):
-        # Banner type toggle
+        # Banner controls
+        banner_frame = ttk.LabelFrame(self.left_frame, text="卡池控制")
+        banner_frame.pack(pady=5, padx=10, fill=tk.X)
+
+        self.toggle_button = ttk.Button(banner_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
+        self.toggle_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+
+        self.standard_banner_button = ttk.Button(banner_frame, text="切换到常驻池", command=self.select_standard_banner)
+        self.standard_banner_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+
+        self.banner_listbox = tk.Listbox(banner_frame, height=10, font=self.default_font)
+        self.banner_listbox.grid(row=1, column=0, columnspan=2, pady=5, padx=5, sticky="nsew")
+        
+        self.switch_banner_button = ttk.Button(banner_frame, text="切换到选择的卡池", command=self.on_switch_banner)
+        self.switch_banner_button.grid(row=2, column=0, columnspan=2, pady=5, padx=5, sticky="ew")
+
+        # Gacha controls
+        gacha_frame = ttk.LabelFrame(self.left_frame, text="抽卡控制")
+        gacha_frame.pack(pady=5, padx=10, fill=tk.X)
+
+        self.pull_1_button = ttk.Button(gacha_frame, text="抽一次", command=lambda: self.on_pull(1))
+        self.pull_1_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+
+        self.pull_10_button = ttk.Button(gacha_frame, text="十连抽！", command=lambda: self.on_pull(10))
+        self.pull_10_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+
+        # Utility controls
+        util_frame = ttk.LabelFrame(self.left_frame, text="工具")
+        util_frame.pack(pady=5, padx=10, fill=tk.X)
+
+        self.random_tip_button = ttk.Button(util_frame, text="随机Tips", command=self.show_random_tip)
+        self.random_tip_button.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+
+        self.clear_data_button = ttk.Button(util_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
+        self.clear_data_button.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+
+        self.version_button = ttk.Button(util_frame, text="查看版本", command=self.show_version)
+        self.version_button.grid(row=1, column=0, pady=5, padx=5, sticky="ew")
+
+        self.update_button = ttk.Button(util_frame, text="检查卡池更新", command=self.check_pool_update)
+        self.update_button.grid(row=1, column=1, pady=5, padx=5, sticky="ew")
+
+        # Statistics display
+        self.stats_frame = ttk.LabelFrame(self.left_frame, text="统计信息")
+        self.stats_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+
+        self.current_stats_label = ttk.Label(self.stats_frame, text="当前显示的是角色池的数据", font=self.default_font)
+        self.current_stats_label.pack(pady=5)
         self.current_banner_type = StringVar(value="character")
-        self.toggle_button = ttk.Button(self.left_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
-        self.toggle_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # Standard banner button
-        self.standard_banner_button = ttk.Button(self.left_frame, text="切换到常驻池", command=self.select_standard_banner)
-        self.standard_banner_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # Banner listbox
-        self.banner_listbox = tk.Listbox(self.left_frame, height=10, font=self.default_font)
-        self.banner_listbox.pack(pady=10, padx=10, fill=tk.X)
-        self.update_banner_list()
-
-        # Switch banner button
-        self.switch_banner_button = ttk.Button(self.left_frame, text="切换到选择的卡池", command=self.on_switch_banner)
-        self.switch_banner_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # Pull buttons
-        self.pull_1_button = ttk.Button(self.left_frame, text="抽一次", command=lambda: self.on_pull(1))
-        self.pull_1_button.pack(pady=5, padx=10, fill=tk.X)
-
-        self.pull_10_button = ttk.Button(self.left_frame, text="抽十次", command=lambda: self.on_pull(10))
-        self.pull_10_button.pack(pady=5, padx=10, fill=tk.X)
-
-
-        # # Mode switch
-        # self.is_night_mode = BooleanVar(value=False)
-        # self.mode_button = ttk.Button(self.left_frame, text="切换到夜间模式", command=self.toggle_mode)
-        # self.mode_button.pack(pady=5, padx=10, fill=tk.X)
-
-
-        # Random tip button
-        self.random_tip_button = ttk.Button(self.left_frame, text="随机Tips", command=self.show_random_tip)
-        self.random_tip_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # Font selection
-        # self.setup_font_selection()
-
-        # Clear Data
-        self.clear_data_button = ttk.Button(self.left_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
-        self.clear_data_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # 添加统计信息切换按钮
-        # self.stats_toggle_button = ttk.Button(self.left_frame, text="切换到光锥池统计", command=self.toggle_stats_type)
-        # self.stats_toggle_button.pack(pady=5, padx=10, fill=tk.X)
-
-        # 添加统计信息显示
-        self.stats_frame = ttk.Frame(self.left_frame)
-        self.stats_frame.pack(side=tk.BOTTOM, pady=10, padx=10, fill=tk.X)
-
-        # 添加显示当前数据类型的标签
-        self.current_stats_label = ttk.Label(self.stats_frame, text="", font=self.default_font)
-        self.current_stats_label.pack(fill=tk.X)
 
         self.stats_text = tk.Text(self.stats_frame, height=10, width=30, font=self.default_font, wrap=tk.WORD)
         self.stats_text.pack(fill=tk.BOTH, expand=True)
         self.stats_text.config(state=tk.DISABLED)
 
+        self.update_banner_list()
         self.update_stats_display()
 
     def setup_right_frame(self):
-        # Banner label and clear history button frame
-        top_frame = ttk.Frame(self.right_frame)
-        top_frame.pack(fill=tk.X, pady=10)
+        # Banner info frame
+        banner_info_frame = ttk.Frame(self.right_frame)
+        banner_info_frame.pack(fill=tk.X, pady=10, padx=10)
 
-        # Banner label
         self.banner_label_var = StringVar()
-        self.banner_label = ttk.Label(top_frame, textvariable=self.banner_label_var, font=self.large_font)
-        self.banner_label.pack(side=tk.LEFT, padx=(10, 0))
-        self.update_gui_banner_name()
+        self.banner_label = ttk.Label(banner_info_frame, textvariable=self.banner_label_var, font=self.large_font)
+        self.banner_label.pack(side=tk.LEFT)
 
-        # Clear history button
-        self.clear_history_button = ttk.Button(top_frame, text="清空抽卡记录", command=self.clear_pull_history)
-        self.clear_history_button.pack(side=tk.RIGHT, padx=(0, 10))
+        self.clear_history_button = ttk.Button(banner_info_frame, text="清空抽卡记录", command=self.clear_pull_history)
+        self.clear_history_button.pack(side=tk.RIGHT)
+
+        # Pull history frame
+        history_frame = ttk.LabelFrame(self.right_frame, text="抽卡历史")
+        history_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         # Pull history table
         columns = ('时间', '星级', '类型', '名称', '卡池', '是否UP')
-        self.pull_history_tree = ttk.Treeview(self.right_frame, columns=columns, show='headings')
+        self.pull_history_tree = ttk.Treeview(history_frame, columns=columns, show='headings')
         
-        # Define column headings
+        # Define column headings and widths
+        column_widths = {'时间': 150, '星级': 50, '类型': 50, '名称': 150, '卡池': 150, '是否UP': 50}
         for col in columns:
             self.pull_history_tree.heading(col, text=col, anchor='center')
-            self.pull_history_tree.column(col, width=100, anchor='center')  # 设置列宽和文字居中
+            self.pull_history_tree.column(col, width=column_widths[col], anchor='center')
         
-        self.pull_history_tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+        # Add vertical scrollbar
+        vsb = ttk.Scrollbar(history_frame, orient="vertical", command=self.pull_history_tree.yview)
+        self.pull_history_tree.configure(yscrollcommand=vsb.set)
         
-        # Add a scrollbar
-        scrollbar = ttk.Scrollbar(self.right_frame, orient=tk.VERTICAL, command=self.pull_history_tree.yview)
-        self.pull_history_tree.configure(yscroll=scrollbar.set)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # Add horizontal scrollbar
+        hsb = ttk.Scrollbar(history_frame, orient="horizontal", command=self.pull_history_tree.xview)
+        self.pull_history_tree.configure(xscrollcommand=hsb.set)
 
-        # Tips
-        self.tip_label = ttk.Label(self.right_frame, text="", font=self.default_font, foreground="blue")
-        self.tip_label.pack(pady=10)
+        # Grid layout for Treeview and scrollbars
+        self.pull_history_tree.grid(row=0, column=0, sticky='nsew')
+        vsb.grid(row=0, column=1, sticky='ns')
+        hsb.grid(row=1, column=0, sticky='ew')
+
+        history_frame.grid_rowconfigure(0, weight=1)
+        history_frame.grid_columnconfigure(0, weight=1)
+
+        # Tips frame
+        tips_frame = ttk.LabelFrame(self.right_frame, text="提示")
+        tips_frame.pack(pady=10, padx=10, fill=tk.X)
+
+        self.tip_label = ttk.Label(tips_frame, text="", font=self.default_font, foreground="blue", wraplength=500)
+        self.tip_label.pack(pady=5, padx=5)
+
+        self.update_gui_banner_name()
         self.show_random_tip()
+
+        # Bind double click event to Treeview for item details
+        self.pull_history_tree.bind("<Double-1>", self.show_item_details)
 
 
     def toggle_banner_type(self):
@@ -315,16 +335,6 @@ class GachaSimulatorGUI:
     #                     foreground=fg_color, 
     #                     fieldbackground=bg_color)
     #     style.map('Treeview', background=[('selected', '#0078D7')])
-
-
-    # def toggle_stats_type(self):
-    #     if self.current_stats_type.get() == "character":
-    #         self.current_stats_type.set("weapon")
-    #         self.stats_toggle_button.config(text="切换到角色池统计")
-    #     else:
-    #         self.current_stats_type.set("character")
-    #         self.stats_toggle_button.config(text="切换到光锥池统计")
-    #     self.update_stats_display()
 
 
     def show_random_tip(self):
@@ -449,39 +459,28 @@ class GachaSimulatorGUI:
         self.stats_text.insert(tk.END, stats)
         self.stats_text.config(state=tk.DISABLED)
 
-    # def show_error(self, exc, val, tb):
-    #     err = traceback.format_exception(exc, val, tb)
-    #     error_message = ''.join(err)
-        
-    #     # 创建错误消息框
-    #     error_window = Toplevel(self.root)
-    #     error_window.title("错误")
-    #     error_window.geometry("400x300")
-        
-    #     # 添加错误消息
-    #     error_label = Label(error_window, text="发生了一个错误：", font=self.default_font)
-    #     error_label.pack(pady=10)
-        
-    #     # 使用Text widget来显示错误消息，允许滚动
-    #     error_text = scrolledtext.ScrolledText(error_window, wrap=tk.WORD, width=50, height=10)
-    #     error_text.insert(tk.END, str(val))
-    #     error_text.config(state=tk.DISABLED)
-    #     error_text.pack(padx=10, pady=10)
-        
-    #     # 添加导出按钮
-        # export_button = Button(error_window, text="导出错误日志", command=lambda: self.export_error_log(error_message))
-    #     export_button.pack(pady=10)
+    def show_version(self):
+        version = "2.0.0"  # 根据实际版本号修改
+        author = "QiuSYan & Claude"
+        github = "qiusyan-projects/SR-Gacha"
+        messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}")    
 
-    # def export_error_log(self, error_message):
-    #     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    #     filename = f"error_log_{timestamp}.txt"
+    def check_pool_update(self):
+        status, message = self.gacha_system.check_and_update_pool_file()
+        if status == "updated":
+            self.gacha_system.load_pools(self.gacha_system.pool_file)
+            self.update_banner_list()
+        messagebox.showinfo("检查更新", message)
+
+    def show_item_details(self, event):
+        selected_items = self.pull_history_tree.selection()
+        if not selected_items:  # 如果没有选中任何项目
+            return  # 直接返回，不执行任何操作
         
-    #     try:
-    #         with open(filename, "w", encoding="utf-8") as f:
-    #             f.write(error_message)
-    #         messagebox.showinfo("导出成功", f"错误日志已导出到 {filename}")
-    #     except Exception as e:
-    #         messagebox.showerror("导出失败", f"无法导出错误日志: {str(e)}")
+        item = selected_items[0]  # 获取选中的第一个项目
+        item_details = self.pull_history_tree.item(item, "values")
+        messagebox.showinfo("物品详情", f"名称: {item_details[3]}\n类型: {item_details[2]}\n星级: {item_details[1]}\n是否UP: {item_details[5]}")
+
 
 # def setup_theme_selection(self):
 #     # 创建一个框架来容纳标签和下拉菜单
@@ -510,6 +509,8 @@ class GachaSimulatorGUI:
 #     self.root.set_theme(theme_name)
 
 
+
+# GachaSystem部分开始
 class GachaSystem:
     def __init__(self, pool_file, no_update=False):
         self.pool_file = pool_file
@@ -520,9 +521,9 @@ class GachaSystem:
             if update_result == "current":
                 self.show_message("卡池文件已是最新版本。", CYAN)
             elif update_result == "updated":
-                self.show_message("卡池文件已自动更新到最新版本。", GREEN)
+                self.show_message("卡池文件已更新到最新版本。", GREEN)
             else:
-                self.show_message(f"检查更新时发生错误: {update_result}。使用当前版本的卡池文件。", YELLOW)
+                self.show_message(f"检查更新时发生错误: {update_result}。\n将使用当前版本的卡池文件。", YELLOW)
         elif no_update:
             self.show_message("已跳过更新检查。", GREEN)
         else:
@@ -709,13 +710,13 @@ class GachaSystem:
                 local_content = f.read()
 
             if local_content == remote_content:
-                return "current"
+                return "current", "卡池文件已是最新版本。"
             else:
                 with open(self.pool_file, 'wb') as f:
                     f.write(remote_content)
-                return "updated"
+                return "updated", "卡池文件已自动更新到最新版本。"
         except requests.RequestException as e:
-            return str(e)
+            return "error", f"检查更新时发生错误: {e}"
 
     def switch_banner(self, banner_name):
         # print(f"尝试切换到卡池: {banner_name}")  # 调试信息
