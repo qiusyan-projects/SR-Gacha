@@ -45,18 +45,21 @@ class GachaSimulatorGUI:
         self.root.geometry("1200x800")
         
         # 设置默认字体为微软雅黑
-        self.default_font_name = 'Microsoft YaHei'  # 如果这个不可用，Tkinter 会自动尝试下一个可用的系统字体
+        self.default_font_name = 'Microsoft YaHei'
         self.default_font = (self.default_font_name, 10)
         self.large_font = (self.default_font_name, 14)
 
         # 检查更新
         self.check_for_updates()
         self.current_stats_type = tk.StringVar(value="character")
-
-        # 设置全局异常处理
-        # self.root.report_callback_exception = self.show_error
-        # 初始化主题选择
+        
+        # 初始化主题选择        
         # self.setup_theme_selection()
+
+        # 确保 GachaSystem 已正确初始化
+        if not hasattr(self.gacha_system, 'pools'):
+            messagebox.showerror("错误", "无法加载卡池数据。请重新启动程序。")
+            exit(1)
 
         # 初始化其他GUI组件
         self.initialize_gui_components()
@@ -237,7 +240,6 @@ class GachaSimulatorGUI:
         character_banners, weapon_banners = self.gacha_system.categorize_banners()
         banners_to_show = character_banners if self.current_banner_type.get() == "character" else weapon_banners
         
-        # print("更新卡池列表:")  # 调试信息
         for banner_id, banner_name in banners_to_show:
             banner_info = self.gacha_system.pools['banners'][banner_id]
             if 'character_up_5_star' in banner_info:
@@ -245,9 +247,8 @@ class GachaSimulatorGUI:
                 display_name = f"{banner_name} - UP: {up_character}"
             else:
                 display_name = banner_name
-            # print(f"  添加到列表: {display_name}")  # 调试信息
             self.banner_listbox.insert(tk.END, display_name)
-            if banner_id == self.gacha_system.current_banner:
+            if self.gacha_system.current_banner is not None and banner_id == self.gacha_system.current_banner:
                 self.banner_listbox.selection_set(tk.END)
 
     def on_switch_banner(self):
@@ -527,43 +528,9 @@ class GachaSystem:
         else:
             return
         self.load_pools(pool_file)
-        self.current_banner = None
 
-        # 为角色池和光锥池分别初始化保底计数器和统计信息
-        self.character_pity_5 = 0
-        self.character_pity_4 = 0
-        self.weapon_pity_5 = 0
-        self.weapon_pity_4 = 0
-        self.character_gold_records = []
-        self.character_purple_records = []
-        self.weapon_gold_records = []
-        self.weapon_purple_records = []
-        self.character_failed_featured_5star = 0
-        self.character_successful_featured_5star = 0
-        self.weapon_failed_featured_5star = 0
-        self.weapon_successful_featured_5star = 0
-        self.character_pulls_since_last_5star = 0
-        self.weapon_pulls_since_last_5star = 0
-        self.character_is_guaranteed = False
-        self.weapon_is_guaranteed = False
-        self.total_pulls = 0
-        self.banner_pulls = {}
-        self.pull_history = []
-        self.pity_5 = 0
-        self.pity_4 = 0
-        self.gold_records = []
-        self.purple_records = []
-        self.pulls_since_last_5star = 0
-        self.is_guaranteed = False
-        self.failed_featured_5star = 0
-        self.successful_featured_5star = 0
-
-        self.character_pulls = 0
-        self.weapon_pulls = 0
-        self.standard_pulls = 0
-
-        self.TIPS = TIPS
-        self.load_state()
+        # 使用封装好的函数
+        self.inits()
 
     def load_pools(self, file_name):
         with open(file_name, 'r', encoding='utf-8') as f:
@@ -720,12 +687,16 @@ class GachaSystem:
                         f.write(response.content)
                     self.show_message("成功下载 'banners.yml'！", GREEN)
                     self.is_first_download = True
+                    self.load_pools(self.pool_file)  # 立即加载新下载的文件
+                    self.inits()
                 except requests.RequestException as e:
                     self.show_message(f"下载失败: {e}", RED)
                     exit(1)
             else:
                 self.show_message(f"请提供 '{self.pool_file}' 文件。", RED)
                 exit(1)
+        else:
+            self.load_pools(self.pool_file)  # 如果文件已存在，也要加载
 
     def check_and_update_pool_file(self):
         try:
@@ -1055,6 +1026,43 @@ class GachaSystem:
         self.standard_pulls = 0
         self.save_state()
 
+    def inits(self):
+        self.current_banner = None
+        # 为角色池和光锥池分别初始化保底计数器和统计信息
+        self.character_pity_5 = 0
+        self.character_pity_4 = 0
+        self.weapon_pity_5 = 0
+        self.weapon_pity_4 = 0
+        self.character_gold_records = []
+        self.character_purple_records = []
+        self.weapon_gold_records = []
+        self.weapon_purple_records = []
+        self.character_failed_featured_5star = 0
+        self.character_successful_featured_5star = 0
+        self.weapon_failed_featured_5star = 0
+        self.weapon_successful_featured_5star = 0
+        self.character_pulls_since_last_5star = 0
+        self.weapon_pulls_since_last_5star = 0
+        self.character_is_guaranteed = False
+        self.weapon_is_guaranteed = False
+        self.total_pulls = 0
+        self.banner_pulls = {}
+        self.pull_history = []
+        self.pity_5 = 0
+        self.pity_4 = 0
+        self.gold_records = []
+        self.purple_records = []
+        self.pulls_since_last_5star = 0
+        self.is_guaranteed = False
+        self.failed_featured_5star = 0
+        self.successful_featured_5star = 0
+
+        self.character_pulls = 0
+        self.weapon_pulls = 0
+        self.standard_pulls = 0
+
+        self.TIPS = TIPS
+        self.load_state()
 
 # GachaSystem 部分结束
 
