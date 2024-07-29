@@ -483,8 +483,8 @@ class GachaSimulatorGUI:
             
 
         pool_pulls_str = f"{stats_type}的抽取次数: {pool_pulls}"
-        next_pity_5_str = f"距离下一个五星保底的抽数: {90 - pity_5}"
-        next_pity_4_str = f"距离下一个四星保底: {10 - pity_4}"
+        next_pity_5_str = f"距离下一个五星保底的抽数: {self.gacha_system.current_prob['five_star_pity'] - pity_5}" 
+        next_pity_4_str = f"距离下一个四星保底: {self.gacha_system.current_prob['four_star_pity'] - pity_4}" 
         get_gold_records_str = f"获得五星次数: {len(gold_records)}"
         get_purple_records_str = f"获得四星次数: {len(purple_records)}"
         min_gold_records_str = f"最少抽数出金: {min_gold_records}"
@@ -979,8 +979,15 @@ class GachaSystem:
             
             pity_5, pity_4, gold_records, purple_records, failed_featured_5star, successful_featured_5star, pulls_since_last_5star, is_guaranteed = self.get_pool_stats(pool_type)
 
+            five_star_rate_up_ratio = float(74 / 90) # 从74抽开始概率随每抽提升
+            five_star_rate_up_pulls = int(five_star_rate_up_ratio * self.current_prob['five_star_pity']) # 去掉小数点
+            
             # 确定是否出五星
-            if pity_5 >= self.current_prob['five_star_pity'] - 1 or random.random() < self.current_prob['five_star_base']:
+            if (pity_5 >= self.current_prob['five_star_pity'] - 1 or
+                (pity_5 < five_star_rate_up_pulls and # 如果抽数未达到概率随抽数提升条件
+                random.random() < self.current_prob['five_star_base']) or # 
+                (pity_5 >= five_star_rate_up_pulls and  # 如果抽数达到概率随抽数提升条件
+                random.random() < self.current_prob['five_star_base'] + (pity_5 * self.current_prob['five_star_base']))):
                 result = self.pull_5_star(pool_type)
                 gold_records.append(pity_5 + 1)
                 pulls_for_this_5star = pulls_since_last_5star + 1
