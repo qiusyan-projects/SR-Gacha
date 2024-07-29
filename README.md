@@ -31,11 +31,10 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 ## 通过Python启动
 
 适用于 `Windows/MacOS/Linux` 
-
-1. 使用 `pip install -r requirements.txt` 安装依赖
-    - （可选）从仓库中下载 `banners.yml` 并与脚本放置于同一文件夹
-2. 使用 `python gui.py` 运行脚本
-3. Have Fun!
+1. `git clone https://github.com/qiusyan-projects/SR-Gacha.git` 将仓库克隆至本地
+2. `pip install -r requirements.txt` 安装依赖
+3. `python gui.py` 运行脚本
+4. Have Fun!
 
 # 当前卡池文件版本
 
