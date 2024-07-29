@@ -29,7 +29,8 @@ TIPS = [
     "这是一个小Tip，只有聪明人才能看到它的内容",
     "可以修改卡池文件来实现其他游戏的抽卡效果",
     "本来我是想整个主题的，但是好像加上之后会变得很卡我就删了",
-    "你看什么看！"
+    "你看什么看！",
+    "双击抽卡记录可以查看物品的详细信息"
 ]
 
 yaml = YAML()
@@ -528,22 +529,6 @@ class GachaSimulatorGUI:
     {is_guaranteed_str}
     {luck_rating_str}""" 
 
-        
-    #     stats = f"""{stats_type}的抽取次数: {pool_pulls}
-    # 距离下一个五星保底的抽数: {90 - pity_5}
-    # 距离下一个四星保底: {10 - pity_4}
-    # 获得五星次数: {len(gold_records)}
-    # 获得四星次数: {len(purple_records)}
-    # 最少抽数出金: {min_gold_records}
-    # 最多抽数出金: {max_gold_records}
-    # 平均抽数出金: {avg_gold_pulls}
-    # 歪掉五星次数: {failed_featured_5star}
-    # 小保底不歪概率: {success_rate}
-    # 距离上次五星: {pulls_since_last_5star}
-    # 大保底状态: {'是' if is_guaranteed else '否'}
-    # 抽卡运势: {luck_rating}"""
-
-    # 抽中UP五星次数: {successful_featured_5star}
 
         self.stats_text.config(state=tk.NORMAL)
         self.stats_text.delete(1.0, tk.END)
@@ -556,17 +541,26 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.1.1"  # 根据实际版本号修改
+        version = "2.1.1" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
         messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}\n{other}")    
 
     def check_pool_update(self):
-        status, message = self.gacha_system.check_and_update_pool_file()
-        if status == "updated":
-            self.gacha_system.load_pools(self.gacha_system.pool_file)
-            self.update_banner_list()
+        # status, message = self.gacha_system.check_and_update_pool_file()
+        status = self.gacha_system.check_and_update_pool_file()
+        try:
+            if status == "updated":
+                self.gacha_system.load_pools(self.gacha_system.pool_file)
+                self.update_banner_list()
+                message = "卡池文件已更新到最新版本。"
+            elif status == "current":
+                self.gacha_system.load_pools(self.gacha_system.pool_file)
+                self.update_banner_list()
+                message = "卡池文件已是最新版本。"
+        except requests.RequestException as e:
+            message = f"检查更新时发生错误: {e}"
         messagebox.showinfo("检查更新", message)
 
     def show_item_details(self, event):
