@@ -42,7 +42,7 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 
 # 程序界面预览
 
-![image](https://github.com/user-attachments/assets/edd5dfb2-614f-4703-9abf-af676134b211)
+![image](https://github.com/user-attachments/assets/5d563b38-88e8-48f1-a9ee-a4d8962021ca)
 
 # 友情链接
 全新异世探险百合类GalGame正在制作中！本体完全免费，点击链接快速前往仓库：https://github.com/MewBaka/OtherSideProject
