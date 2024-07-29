@@ -52,9 +52,7 @@ class GachaSimulatorGUI:
 
         # 检查更新
         self.check_for_updates()
-        # self.current_stats_type = tk.StringVar(value="character")
 
-        
         # 初始化主题选择        
         # self.setup_theme_selection()
 
@@ -161,7 +159,7 @@ class GachaSimulatorGUI:
         self.random_tip_button = ttk.Button(util_frame, text="随机Tips", command=self.show_random_tip)
         self.random_tip_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
-        self.clear_data_button = ttk.Button(util_frame, text="调整概率设置", command=self.open_probability_settings)
+        self.clear_data_button = ttk.Button(util_frame, text="抽卡概率修改", command=self.open_probability_settings)
         self.clear_data_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
 
         self.prob_settings_button = ttk.Button(util_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
@@ -334,28 +332,6 @@ class GachaSimulatorGUI:
             self.update_stats_display(current_pool_type)
 
 
-    # 夜间模式相关代码
-    # def toggle_mode(self):
-    #     self.is_night_mode.set(not self.is_night_mode.get())
-    #     self.mode_button.config(text="切换到日间模式" if self.is_night_mode.get() else "切换到夜间模式")
-    #     self.update_color_scheme()
-
-    # def update_color_scheme(self):
-    #     bg_color = '#222222' if self.is_night_mode.get() else '#FFFFFF'
-    #     fg_color = '#FFFFFF' if self.is_night_mode.get() else '#000000'
-    #     self.right_frame.config(bg=bg_color)
-    #     self.banner_label.config(background=bg_color, foreground=fg_color)
-    #     self.tip_label.config(background=bg_color, foreground='lightblue' if self.is_night_mode.get() else 'blue')
-        
-    #     # Update Treeview colors
-    #     style = ttk.Style()
-    #     style.configure("Treeview", 
-    #                     background=bg_color, 
-    #                     foreground=fg_color, 
-    #                     fieldbackground=bg_color)
-    #     style.map('Treeview', background=[('selected', '#0078D7')])
-
-
     def show_random_tip(self):
         self.tip_label.config(text=random.choice(self.gacha_system.TIPS))
 
@@ -491,9 +467,9 @@ class GachaSimulatorGUI:
         max_gold_records_str = f"最多抽数出金: {max_gold_records}"
 
         if isinstance(avg_gold_pulls, (int, float)):  # 检查 avg_gold_pulls 是否是数字类型
-            avg_gold_pulls_str = f"平均抽数出金: {avg_gold_pulls:.2f}"
+            avg_gold_pulls_str = f"平均出金抽数: {avg_gold_pulls:.2f}"
         else:
-            avg_gold_pulls_str = f"平均抽数出金: {avg_gold_pulls}" 
+            avg_gold_pulls_str = f"平均出金抽数: {avg_gold_pulls}" 
 
         if pool_type != 'standard':
             failed_featured_5star_str = f"歪掉五星次数: {failed_featured_5star}"
@@ -510,10 +486,13 @@ class GachaSimulatorGUI:
 
         pulls_since_last_5star_str = f"距离上次五星: {pulls_since_last_5star}"
 
-        if pool_type != 'standard': 
-            is_guaranteed_str = f"大保底状态: {'是' if is_guaranteed else '否'}"
+        if self.gacha_system.current_prob['big_pity_enabled']:
+            if pool_type != 'standard': 
+                is_guaranteed_str = f"大保底状态: {'是' if is_guaranteed else '否'}"
+            else:
+                is_guaranteed_str = f"大保底状态: 无"
         else:
-            is_guaranteed_str = f"大保底状态: 无"
+            is_guaranteed_str = f"大保底状态: 你没有启用大保底机制"
 
         luck_rating_str = f"抽卡运势: {luck_rating}"
 
@@ -544,7 +523,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.2.0" 
+        version = "2.2.1" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
@@ -603,7 +582,7 @@ class GachaSimulatorGUI:
         ttk.Label(settings_window, text="(默认: 10)").grid(row=3, column=2, sticky="w", padx=5, pady=5)
 
         self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
-        ttk.Checkbutton(settings_window, text="启用大保底", variable=self.big_pity_enabled).grid(row=4, column=0, columnspan=3, padx=5, pady=5)
+        ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled).grid(row=4, column=0, columnspan=3, padx=5, pady=5)
 
         ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window)).grid(row=5, column=0, columnspan=2, padx=5, pady=5)
         
@@ -617,6 +596,8 @@ class GachaSimulatorGUI:
             self.gacha_system.update_probability('five_star_pity', int(self.five_star_pity.get()))
             self.gacha_system.update_probability('four_star_pity', int(self.four_star_pity.get()))
             self.gacha_system.update_probability('big_pity_enabled', self.big_pity_enabled.get())
+            # 更新抽卡统计信息展示
+            self.update_stats_display()
             messagebox.showinfo("成功", "概率设置已保存")
             window.destroy()
         except ValueError:
@@ -642,6 +623,9 @@ class GachaSimulatorGUI:
         # 更新系统中的值
         for key, value in default_settings.items():
             self.gacha_system.update_probability(key, value)
+
+        # 更新抽卡统计信息展示
+        self.update_stats_display()
         
         messagebox.showinfo("成功", "已恢复默认设置")
 
@@ -985,7 +969,7 @@ class GachaSystem:
             # 确定是否出五星
             if (pity_5 >= self.current_prob['five_star_pity'] - 1 or
                 (pity_5 < five_star_rate_up_pulls and # 如果抽数未达到概率随抽数提升条件
-                random.random() < self.current_prob['five_star_base']) or # 
+                random.random() < self.current_prob['five_star_base']) or  
                 (pity_5 >= five_star_rate_up_pulls and  # 如果抽数达到概率随抽数提升条件
                 random.random() < self.current_prob['five_star_base'] + (pity_5 * self.current_prob['five_star_base']))):
                 result = self.pull_5_star(pool_type)
@@ -1001,14 +985,22 @@ class GachaSystem:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n是小保底，恭喜没歪!")
                     else:
                         failed_featured_5star += 1
-                        messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次将是大保底!")
+                        if self.current_prob['big_pity_enabled']:
+                            messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次将是大保底!")
+                        else:
+                            messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次...下次还是小保底啦哈哈哈！\n如果想启用大保底机制记得去改一下抽卡概率")
                 else: # 常驻池逻辑
                     messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
-                self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
-                                    is_guaranteed=not result['is_up'],  # 如果这次没有抽中UP，下次就是大保底
-                                    failed_featured_5star=failed_featured_5star,
-                                    successful_featured_5star=successful_featured_5star)
+                if self.current_prob['big_pity_enabled']:
+                    self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
+                                        is_guaranteed=not result['is_up'],  # 如果这次没有抽中UP，下次就是大保底
+                                        failed_featured_5star=failed_featured_5star,
+                                        successful_featured_5star=successful_featured_5star)
+                else:
+                    self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
+                    failed_featured_5star=failed_featured_5star,
+                    successful_featured_5star=successful_featured_5star)
                 summary['5星'] += 1
                 guaranteed_4_star = False
             # 确定是否出四星
@@ -1064,20 +1056,26 @@ class GachaSystem:
     def pull_5_star(self, pool_type):
         is_up = random.random() < 0.5 or (self.current_prob['big_pity_enabled'] and self.is_guaranteed)
         if pool_type == 'character':
-            if is_up:
+            if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
                 self.is_guaranteed = False
-            else:
+            else: # 歪了
                 item = random.choice(self.pools['common_pools']['character_5_star'])
-                self.is_guaranteed = True
+                if self.current_prob['big_pity_enabled']:
+                    self.is_guaranteed = True
+                else:
+                    self.is_guaranteed = False
             return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': is_up}
         elif pool_type == 'weapon':
-            if is_up:
+            if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['weapon_up_5_star'])
                 self.is_guaranteed = False
-            else:
+            else: # 歪了
                 item = random.choice(self.pools['common_pools']['weapon_5_star'])
-                self.is_guaranteed = True
+                if self.current_prob['big_pity_enabled']:
+                    self.is_guaranteed = True
+                else:
+                    self.is_guaranteed = False
             return {'rarity': '5_star', 'type': '光锥', 'item': item, 'is_up': is_up}
         else:  # standard pool
             if random.random() < 0.5:
@@ -1297,7 +1295,6 @@ class GachaSystem:
         self.load_state()
 
 # GachaSystem 部分结束
-
 
 # 主程序
 if __name__ == "__main__":
