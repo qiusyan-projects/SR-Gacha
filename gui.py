@@ -53,7 +53,7 @@ class GachaSimulatorGUI:
         # 检查更新
         self.check_for_updates()
         # self.current_stats_type = tk.StringVar(value="character")
-        
+
         
         # 初始化主题选择        
         # self.setup_theme_selection()
@@ -544,7 +544,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.2.1" 
+        version = "2.2.0" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
