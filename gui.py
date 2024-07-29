@@ -161,10 +161,13 @@ class GachaSimulatorGUI:
         self.random_tip_button = ttk.Button(util_frame, text="随机Tips", command=self.show_random_tip)
         self.random_tip_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
-        self.clear_data_button = ttk.Button(util_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
+        self.clear_data_button = ttk.Button(util_frame, text="调整概率设置", command=self.open_probability_settings)
         self.clear_data_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
 
-        self.version_button = ttk.Button(util_frame, text="查看版本", command=self.show_version)
+        self.prob_settings_button = ttk.Button(util_frame, text="重置抽卡统计数据", command=self.clear_gacha_data)
+        self.prob_settings_button.grid(row=2, column=0, columnspan=2, pady=2, padx=2, sticky="ew")
+
+        self.version_button = ttk.Button(util_frame, text="查看当前版本", command=self.show_version)
         self.version_button.grid(row=1, column=0, pady=2, padx=2, sticky="ew")
 
         self.update_button = ttk.Button(util_frame, text="检查卡池更新", command=self.check_pool_update)
@@ -541,7 +544,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.1.1" 
+        version = "2.2.1" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
@@ -571,6 +574,77 @@ class GachaSimulatorGUI:
         item = selected_items[0]  # 获取选中的第一个项目
         item_details = self.pull_history_tree.item(item, "values")
         messagebox.showinfo("物品详情", f"名称: {item_details[3]}\n类型: {item_details[2]}\n星级: {item_details[1]}\n是否UP: {item_details[5]}")
+
+
+    def open_probability_settings(self):
+        # 创建一个新的顶级窗口
+        settings_window = tk.Toplevel(self.root)
+        settings_window.title("概率设置")
+        settings_window.geometry("350x250")  # 增加窗口宽度以容纳提示语
+
+        ttk.Label(settings_window, text="5星基础概率:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
+        self.five_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['five_star_base']))
+        ttk.Entry(settings_window, textvariable=self.five_star_prob, width=10).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.006 = 0.6%)").grid(row=0, column=2, sticky="w", padx=5, pady=5)
+
+        ttk.Label(settings_window, text="4星基础概率:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        self.four_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['four_star_base']))
+        ttk.Entry(settings_window, textvariable=self.four_star_prob, width=10).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.051 = 5.1%)").grid(row=1, column=2, sticky="w", padx=5, pady=5)
+
+        ttk.Label(settings_window, text="5星保底抽数:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+        self.five_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['five_star_pity']))
+        ttk.Entry(settings_window, textvariable=self.five_star_pity, width=10).grid(row=2, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(默认: 90)").grid(row=2, column=2, sticky="w", padx=5, pady=5)
+
+        ttk.Label(settings_window, text="4星保底抽数:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+        self.four_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['four_star_pity']))
+        ttk.Entry(settings_window, textvariable=self.four_star_pity, width=10).grid(row=3, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(默认: 10)").grid(row=3, column=2, sticky="w", padx=5, pady=5)
+
+        self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
+        ttk.Checkbutton(settings_window, text="启用大保底", variable=self.big_pity_enabled).grid(row=4, column=0, columnspan=3, padx=5, pady=5)
+
+        ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window)).grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        
+        # 添加恢复默认设置按钮
+        ttk.Button(settings_window, text="恢复默认设置", command=lambda: self.restore_default_settings(settings_window)).grid(row=5, column=2, padx=5, pady=5)
+
+    def save_probability_settings(self, window):
+        try:
+            self.gacha_system.update_probability('five_star_base', float(self.five_star_prob.get()))
+            self.gacha_system.update_probability('four_star_base', float(self.four_star_prob.get()))
+            self.gacha_system.update_probability('five_star_pity', int(self.five_star_pity.get()))
+            self.gacha_system.update_probability('four_star_pity', int(self.four_star_pity.get()))
+            self.gacha_system.update_probability('big_pity_enabled', self.big_pity_enabled.get())
+            messagebox.showinfo("成功", "概率设置已保存")
+            window.destroy()
+        except ValueError:
+            messagebox.showerror("错误", "请输入有效的数值")
+
+    def restore_default_settings(self, window):
+        # 恢复默认设置
+        default_settings = {
+            'five_star_base': 0.006,
+            'four_star_base': 0.051,
+            'five_star_pity': 90,
+            'four_star_pity': 10,
+            'big_pity_enabled': True
+        }
+        
+        # 更新界面上的值
+        self.five_star_prob.set(str(default_settings['five_star_base']))
+        self.four_star_prob.set(str(default_settings['four_star_base']))
+        self.five_star_pity.set(str(default_settings['five_star_pity']))
+        self.four_star_pity.set(str(default_settings['four_star_pity']))
+        self.big_pity_enabled.set(default_settings['big_pity_enabled'])
+        
+        # 更新系统中的值
+        for key, value in default_settings.items():
+            self.gacha_system.update_probability(key, value)
+        
+        messagebox.showinfo("成功", "已恢复默认设置")
+
 
 
 # def setup_theme_selection(self):
@@ -603,8 +677,9 @@ class GachaSimulatorGUI:
 
 # GachaSystem部分开始
 class GachaSystem:
-    def __init__(self, pool_file, no_update=False):
+    def __init__(self, pool_file, prob_file='custom_probabilities.yaml',no_update=False):
         self.pool_file = pool_file
+        self.prob_file = prob_file
         self.is_first_download = not os.path.exists(self.pool_file)
         self.ensure_pool_file_exists()
         if not self.is_first_download and not no_update:
@@ -621,7 +696,7 @@ class GachaSystem:
         else:
             return
         self.load_pools(pool_file)
-
+        self.load_probabilities(prob_file) # 加载自定义概率文件
         # 使用封装好的函数
         self.inits()
 
@@ -768,6 +843,63 @@ class GachaSystem:
         except Exception as e:
             self.show_message(f"加载数据时出错: {e}", RED)
 
+    # 自定义概率相关
+    def load_probabilities(self, prob_file):
+        if not os.path.exists(prob_file):
+            self.create_default_probabilities()
+        with open(prob_file, 'r', encoding='utf-8') as f:
+            self.probabilities = yaml.load(f)
+        self.current_prob = self.probabilities['custom']
+
+    def save_probabilities(self, prob_file='custom_probabilities.yaml'):
+        with open(prob_file, 'w', encoding='utf-8') as f:
+            yaml.dump(self.probabilities, f)
+
+    def update_probability(self, key, value):
+        self.current_prob[key] = value
+        self.probabilities['custom'][key] = value
+        self.save_probabilities()
+
+    def create_default_probabilities(self):
+        # 生成的默认配置
+        default_probabilities = {
+            'custom': {
+                'five_star_base': 0.006,
+                'four_star_base': 0.051,
+                'five_star_pity': 90,
+                'four_star_pity': 10,
+                'big_pity_enabled': True
+            }
+        }
+
+        yaml_str = "# 自定义概率设置文件\n"
+        yaml_str += "# 请勿手动修改，除非你知道自己在做什么\n\n"
+        
+        yaml.default_flow_style = False
+        yaml.width = 4096
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        
+        from io import StringIO
+        string_stream = StringIO()
+        yaml.dump(default_probabilities, string_stream)
+        data_str = string_stream.getvalue()
+        
+        # 添加注释
+        data_str = data_str.replace('custom:', '# 自定义概率设置\ncustom:')
+        data_str = data_str.replace('five_star_base:', '  # 5星基础概率\n  five_star_base:')
+        data_str = data_str.replace('four_star_base:', '  # 4星基础概率\n  four_star_base:')
+        data_str = data_str.replace('five_star_pity:', '  # 5星保底抽数\n  five_star_pity:')
+        data_str = data_str.replace('four_star_pity:', '  # 4星保底抽数\n  four_star_pity:')
+        data_str = data_str.replace('big_pity_enabled:', '  # 是否启用大保底\n  big_pity_enabled:')
+        
+        yaml_str += data_str
+
+        with open(self.prob_file, 'w', encoding='utf-8') as f:
+            f.write(yaml_str)
+
+        self.probabilities = default_probabilities
+        self.current_prob = self.probabilities['custom']
+        
     def ensure_pool_file_exists(self):
         if not os.path.exists(self.pool_file):
             download = messagebox.askyesno("错误", f"'{self.pool_file}' 文件不存在。是否从GitHub下载最新的banners.yml?")
@@ -847,7 +979,7 @@ class GachaSystem:
             pity_5, pity_4, gold_records, purple_records, failed_featured_5star, successful_featured_5star, pulls_since_last_5star, is_guaranteed = self.get_pool_stats(pool_type)
 
             # 确定是否出五星
-            if pity_5 >= 89 or random.randint(1, 10000) <= 60 + min(pity_5 * 600 // 73, 7300):
+            if pity_5 >= self.current_prob['five_star_pity'] - 1 or random.random() < self.current_prob['five_star_base']:
                 result = self.pull_5_star(pool_type)
                 gold_records.append(pity_5 + 1)
                 pulls_for_this_5star = pulls_since_last_5star + 1
@@ -872,7 +1004,7 @@ class GachaSystem:
                 summary['5星'] += 1
                 guaranteed_4_star = False
             # 确定是否出四星
-            elif pity_4 >= 9 or random.randint(1, 10000) <= 510 + min(pity_4 * 790 // 8, 7390) or (i + 1) % 10 == 0 and not guaranteed_4_star:
+            elif pity_4 >= self.current_prob['four_star_pity'] - 1 or random.random() < self.current_prob['four_star_base']:
                 result = self.pull_4_star(pool_type)
                 purple_records.append(pity_4 + 1)
                 self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=0, pulls_since_last_5star=pulls_since_last_5star+1)
@@ -922,7 +1054,7 @@ class GachaSystem:
                 setattr(self, key, value)
 
     def pull_5_star(self, pool_type):
-        is_up = random.random() < 0.5 or self.is_guaranteed
+        is_up = random.random() < 0.5 or (self.current_prob['big_pity_enabled'] and self.is_guaranteed)
         if pool_type == 'character':
             if is_up:
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
@@ -1152,7 +1284,7 @@ class GachaSystem:
         self.character_pulls = 0
         self.weapon_pulls = 0
         self.standard_pulls = 0
-
+        
         self.TIPS = TIPS
         self.load_state()
 
