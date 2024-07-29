@@ -913,6 +913,7 @@ class GachaSystem:
                     self.show_message("成功下载 'banners.yml'！", GREEN)
                     self.is_first_download = True
                     self.load_pools(self.pool_file)  # 立即加载新下载的文件
+                    self.load_probabilities(self.prob_file) # 加载自定义概率文件
                     self.inits()
                 except requests.RequestException as e:
                     self.show_message(f"下载失败: {e}", RED)
