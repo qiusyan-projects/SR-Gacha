@@ -1012,7 +1012,7 @@ class GachaSystem:
 
             five_star_rate_up_ratio = float(74 / 90) # 从74抽开始概率随每抽提升
             five_star_rate_up_pulls = int(five_star_rate_up_ratio * self.current_prob['five_star_pity']) # 去掉小数点
-            print(f"当前小保底必歪情况：{self.current_prob['small_pity_must_waist']}")
+            print(f"当前小保底必歪情况：{self.current_prob['small_pity_must_waist']}") # Debug
             
             # 确定是否出五星
             if (pity_5 >= self.current_prob['five_star_pity'] - 1 or
@@ -1102,8 +1102,7 @@ class GachaSystem:
                 setattr(self, key, value)
 
     def pull_5_star(self, pool_type):
-        is_up = (random.random() < 0.5 or 
-        (self.current_prob['big_pity_enabled'] and self.is_guaranteed)) and not self.current_prob.get('small_pity_must_waist', False)
+        is_up = self.is_guaranteed or (random.random() < 0.5 and not self.current_prob.get('small_pity_must_waist', False))
         if pool_type == 'character':
             if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
