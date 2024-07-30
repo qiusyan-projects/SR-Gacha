@@ -186,6 +186,9 @@ class GachaSimulatorGUI:
         self.stats_text.pack(fill=tk.X, expand=True)
         self.stats_text.config(state=tk.DISABLED)
 
+        # 将双击指令绑定到Listbox
+        self.banner_listbox.bind("<Double-1>", self.show_banner_details)
+
         self.update_banner_list()
         self.update_stats_display()
 
@@ -289,9 +292,9 @@ class GachaSimulatorGUI:
                 self.banner_listbox.selection_set(tk.END)
 
     def on_switch_banner(self):
-        print("开始切换卡池...")  # 调试信息
+        # print("开始切换卡池...")  # 调试信息
         selected_indices = self.banner_listbox.curselection()
-        print(f"选中的索引: {selected_indices}")  # 调试信息
+        # print(f"选中的索引: {selected_indices}")  # 调试信息
         
         if not selected_indices:
             messagebox.showinfo("提示", "你还没有选择一个卡池")
@@ -300,7 +303,7 @@ class GachaSimulatorGUI:
         selected_banner_display_name = self.banner_listbox.get(selected_indices[0])
         selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
         selected_banner_id = self.banner_id_map.get(selected_banner_name)
-        print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
+        # print(f"选中的卡池ID: {selected_banner_id}")  # 调试信息
         
         if selected_banner_id:
             if self.gacha_system.switch_banner(selected_banner_id):
@@ -320,6 +323,42 @@ class GachaSimulatorGUI:
             messagebox.showerror("错误", f"未找到卡池 {selected_banner_name} 的ID")
 
         self.update_stats_display()
+
+    def show_banner_details(self, event):
+        # 获取双击事件中的选中项
+        selected_index = event.widget.nearest(event.y)
+        selected_banner_display_name = self.banner_listbox.get(selected_index)
+        
+        # 从显示名称中提取卡池名称（去除UP信息）
+        selected_banner_name = selected_banner_display_name.split(" - UP:")[0]
+        
+        # 通过卡池名称获取卡池ID
+        selected_banner_id = self.banner_id_map.get(selected_banner_name)
+        
+        # 使用卡池ID获取卡池详细信息
+        if selected_banner_id:
+            banner_info = self.gacha_system.pools['banners'].get(selected_banner_id, {})
+        else:
+            banner_info = {}
+        
+        # 根据卡池类型确定显示的文本
+        pool_type = banner_info.get('pool_type', 'standard')  # 默认为'standard'，如果未指定类型
+        pool_type_display = '光锥' if pool_type == 'weapon' else '角色'
+        
+        # 获取UP的五星和四星项目信息
+        up_5_star_key = f'{pool_type}_up_5_star'
+        up_4_star_key = f'{pool_type}_up_4_star'
+        up_5_star_info = banner_info.get(up_5_star_key, [])
+        up_4_star_info = banner_info.get(up_4_star_key, [])
+
+        # 构造详细信息字符串
+        details = f"卡池名称: {banner_info.get('name', '未知')}\n" \
+                f"卡池类型: {pool_type_display}\n" \
+                f"UP的五星{pool_type_display}: {' | '.join(up_5_star_info) if up_5_star_info else '无'}\n" \
+                f"UP的四星{pool_type_display}: {' | '.join(up_4_star_info) if up_4_star_info else '无'}"
+        
+        # 显示详细信息
+        messagebox.showinfo("卡池详情", details)
 
     def on_pull(self, num_pulls):
         pulls = self.gacha_system.perform_pull(num_pulls)
@@ -674,7 +713,7 @@ class GachaSystem:
                 self.show_message("卡池文件已更新到最新版本。", GREEN)
             else:
                 self.show_message(f"检查更新时发生错误: {update_result}。\n将使用当前版本的卡池文件。", YELLOW)
-                print(f"{update_result}")
+            # print(f"{update_result}")
         elif no_update:
             self.show_message("已跳过更新检查。", GREEN)
         else:
