@@ -602,7 +602,7 @@ class GachaSimulatorGUI:
         # 创建一个新的顶级窗口
         settings_window = tk.Toplevel(self.root)
         settings_window.title("概率设置")
-        settings_window.geometry("300x250")  # 窗口大小
+        settings_window.geometry("300x270")  # 窗口大小
 
         ttk.Label(settings_window, text="5星基础概率:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.five_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['five_star_base']))
@@ -625,7 +625,8 @@ class GachaSimulatorGUI:
         ttk.Label(settings_window, text="(默认: 10)").grid(row=3, column=2, sticky="w", padx=5, pady=5)
 
         self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
-        ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled).grid(row=4, column=0, columnspan=3, padx=5, pady=5)
+        big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled)
+        big_pity_checkbox.grid(row=6, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
 
         # 小保底机制设置
         small_pity_frame = ttk.LabelFrame(settings_window, text="小保底机制")
@@ -666,10 +667,10 @@ class GachaSimulatorGUI:
 
         # 保存设置和恢复默认设置按钮
         save_button = ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window))
-        save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
-        
+        save_button.grid(row=7, column=0, columnspan=2, padx=(20, 10), pady=5)
+
         default_button = ttk.Button(settings_window, text="恢复默认设置", command=lambda: self.restore_default_settings(settings_window))
-        default_button.grid(row=5, column=2, padx=5, pady=5)
+        default_button.grid(row=7, column=2, padx=10, pady=5)  
     def save_probability_settings(self, window):
         try:
             # 更新小保底机制
@@ -708,6 +709,10 @@ class GachaSimulatorGUI:
         self.five_star_pity.set(str(default_settings['five_star_pity']))
         self.four_star_pity.set(str(default_settings['four_star_pity']))
         self.big_pity_enabled.set(default_settings['big_pity_enabled'])
+        # 更新小保底机制单选框的状态
+        self.small_pity_var_random.set(default_settings['small_pity_mechanism'] == 'random')
+        self.small_pity_var_must_waist.set(default_settings['small_pity_mechanism'] == 'must_waist')
+        self.small_pity_var_must_not_waist.set(default_settings['small_pity_mechanism'] == 'must_not_waist')
         
         # 更新系统中的值
         for key, value in default_settings.items():
@@ -717,6 +722,7 @@ class GachaSimulatorGUI:
         self.update_stats_display()
         
         messagebox.showinfo("成功", "已恢复默认设置")
+        window.destroy()
 
 
 
