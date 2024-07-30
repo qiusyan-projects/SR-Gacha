@@ -44,6 +44,12 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 
 ![image](https://github.com/user-attachments/assets/5d563b38-88e8-48f1-a9ee-a4d8962021ca)
 
+## 特性
+
+- 支持修改卡池来实现其他游戏的抽卡效果
+- 支持修改抽卡概率
+- 支持双击 抽卡结果内容 / 卡池 来查看其具体信息
+
 # 友情链接
 全新异世探险百合类GalGame正在制作中！本体完全免费，点击链接快速前往仓库：https://github.com/MewBaka/OtherSideProject
 
