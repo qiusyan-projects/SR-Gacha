@@ -623,6 +623,9 @@ class GachaSimulatorGUI:
         self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
         ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled).grid(row=4, column=0, columnspan=3, padx=5, pady=5)
 
+        self.small_pity_must_waist = tk.BooleanVar(value=self.gacha_system.current_prob.get('small_pity_must_waist', False))
+        ttk.Checkbutton(settings_window, text="小保底必歪", variable=self.small_pity_must_waist).grid(row=6, column=0, columnspan=3, padx=5, pady=5)
+
         ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window)).grid(row=5, column=0, columnspan=2, padx=5, pady=5)
         
         # 添加恢复默认设置按钮
@@ -635,6 +638,7 @@ class GachaSimulatorGUI:
             self.gacha_system.update_probability('five_star_pity', int(self.five_star_pity.get()))
             self.gacha_system.update_probability('four_star_pity', int(self.four_star_pity.get()))
             self.gacha_system.update_probability('big_pity_enabled', self.big_pity_enabled.get())
+            self.gacha_system.update_probability('small_pity_must_waist', self.small_pity_must_waist.get())
             # 更新抽卡统计信息展示
             self.update_stats_display()
             messagebox.showinfo("成功", "概率设置已保存")
@@ -649,7 +653,8 @@ class GachaSimulatorGUI:
             'four_star_base': 0.051,
             'five_star_pity': 90,
             'four_star_pity': 10,
-            'big_pity_enabled': True
+            'big_pity_enabled': True,
+            'small_pity_must_waist': False
         }
         
         # 更新界面上的值
@@ -658,6 +663,7 @@ class GachaSimulatorGUI:
         self.five_star_pity.set(str(default_settings['five_star_pity']))
         self.four_star_pity.set(str(default_settings['four_star_pity']))
         self.big_pity_enabled.set(default_settings['big_pity_enabled'])
+        self.small_pity_must_waist.set(default_settings['small_pity_must_waist'])
         
         # 更新系统中的值
         for key, value in default_settings.items():
@@ -891,7 +897,8 @@ class GachaSystem:
                 'four_star_base': 0.051,
                 'five_star_pity': 90,
                 'four_star_pity': 10,
-                'big_pity_enabled': True
+                'big_pity_enabled': True,
+                'small_pity_must_waist': False
             }
         }
 
@@ -914,6 +921,7 @@ class GachaSystem:
         data_str = data_str.replace('five_star_pity:', '  # 5星保底抽数\n  five_star_pity:')
         data_str = data_str.replace('four_star_pity:', '  # 4星保底抽数\n  four_star_pity:')
         data_str = data_str.replace('big_pity_enabled:', '  # 是否启用大保底\n  big_pity_enabled:')
+        data_str = data_str.replace('small_pity_must_waist:', '  # 是否启用小保底必歪\n  small_pity_must_waist:')
         
         yaml_str += data_str
 
@@ -1004,6 +1012,7 @@ class GachaSystem:
 
             five_star_rate_up_ratio = float(74 / 90) # 从74抽开始概率随每抽提升
             five_star_rate_up_pulls = int(five_star_rate_up_ratio * self.current_prob['five_star_pity']) # 去掉小数点
+            print(f"当前小保底必歪情况：{self.current_prob['small_pity_must_waist']}")
             
             # 确定是否出五星
             if (pity_5 >= self.current_prob['five_star_pity'] - 1 or
@@ -1093,7 +1102,8 @@ class GachaSystem:
                 setattr(self, key, value)
 
     def pull_5_star(self, pool_type):
-        is_up = random.random() < 0.5 or (self.current_prob['big_pity_enabled'] and self.is_guaranteed)
+        is_up = (random.random() < 0.5 or 
+        (self.current_prob['big_pity_enabled'] and self.is_guaranteed)) and not self.current_prob.get('small_pity_must_waist', False)
         if pool_type == 'character':
             if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
