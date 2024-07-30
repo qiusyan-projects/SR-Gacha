@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
+import re
 # from ttkthemes import ThemedTk
 
 # Colors and other constants
@@ -572,11 +573,42 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.2.3" 
+        version = "2.2.4" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
-        messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}\n{other}")    
+        messagebox.showinfo("版本信息", f"当前版本: {version}\n作者：{author}\nGithub：{github}\n{other}")   
+        try:
+            response = requests.get(f"https://api.github.com/repos/{github}/releases/latest")
+            response.raise_for_status()
+        except requests.exceptions.SSLError:
+            print("发生SSL错误，尝试不验证证书进行请求...")
+            response = requests.get(f"https://api.github.com/repos/{github}/releases/latest", verify=False)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            messagebox.showerror("错误", f"检查更新时发生错误: {e}")
+
+        latest_release = response.json()
+        latest_version = latest_release['tag_name']
+            
+        # 版本号比较
+        if self.compare_versions(latest_version, version):
+            messagebox.showinfo("更新提示", f"检测到新版本 {latest_version}，请及时更新！")
+        else:
+            messagebox.showinfo("已是最新版本", "你的程序已是最新版本。")
+
+
+    def compare_versions(self, version1, version2):
+        # 使用正则表达式去除版本号前的非数字字符（如 'v'）
+        version1 = re.sub(r'^[^0-9]+', '', version1)
+        version2 = re.sub(r'^[^0-9]+', '', version2)
+
+        # 将版本号字符串分割并转换为整数元组
+        v1 = tuple(map(int, version1.split('.')))
+        v2 = tuple(map(int, version2.split('.')))
+
+        # 比较两个版本号
+        return v1 > v2
 
     def check_pool_update(self):
         # status, message = self.gacha_system.check_and_update_pool_file()
