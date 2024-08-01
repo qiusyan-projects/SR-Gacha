@@ -57,9 +57,9 @@ class GachaSimulatorGUI:
         # 检查更新
         self.check_for_updates()
 
-        self.small_pity_var_random = BooleanVar()
-        self.small_pity_var_must_waste = BooleanVar()
-        self.small_pity_var_must_not_waste = BooleanVar()
+        self.five_star_small_pity_var_random = BooleanVar()
+        self.five_star_small_pity_var_must_waste = BooleanVar()
+        self.five_star_small_pity_var_must_not_waste = BooleanVar()
 
         # 初始化主题选择        
         # self.setup_theme_selection()
@@ -459,6 +459,7 @@ class GachaSimulatorGUI:
             stats_type = "角色池"
             pool_pulls = self.gacha_system.character_pulls
             five_star_pity = self.gacha_system.current_prob['character_five_star_pity']
+            four_star_guaranteed = self.gacha_system.character_four_star_guaranteed
         elif pool_type == 'weapon':
             pity_5 = self.gacha_system.weapon_pity_5
             pity_4 = self.gacha_system.weapon_pity_4
@@ -471,6 +472,7 @@ class GachaSimulatorGUI:
             stats_type = "光锥池"
             pool_pulls = self.gacha_system.weapon_pulls
             five_star_pity = self.gacha_system.current_prob['weapon_five_star_pity']
+            four_star_guaranteed = self.gacha_system.weapon_four_star_guaranteed
         else:
             pity_5 = self.gacha_system.pity_5
             pity_4 = self.gacha_system.pity_4
@@ -483,6 +485,7 @@ class GachaSimulatorGUI:
             stats_type = "常驻池"
             pool_pulls = self.gacha_system.standard_pulls
             five_star_pity = self.gacha_system.current_prob['character_five_star_pity']
+            four_star_guaranteed = self.gacha_system.four_star_guaranteed
 
         luck_rating = self.gacha_system.calculate_luck(pool_type)
 
@@ -509,10 +512,10 @@ class GachaSimulatorGUI:
             
 
         pool_pulls_str = f"{stats_type}的抽取次数: {pool_pulls}"
-        next_pity_5_str = f"距离下一个五星保底的抽数: {five_star_pity - pity_5}" 
-        next_pity_4_str = f"距离下一个四星保底: {self.gacha_system.current_prob['four_star_pity'] - pity_4}" 
-        get_gold_records_str = f"获得五星次数: {len(gold_records)}"
-        get_purple_records_str = f"获得四星次数: {len(purple_records)}"
+        next_pity_5_str = f"距离下一个5星保底的抽数: {five_star_pity - pity_5}" 
+        next_pity_4_str = f"距离下一个4星保底: {self.gacha_system.current_prob['four_star_pity'] - pity_4}" 
+        get_gold_records_str = f"获得5星次数: {len(gold_records)}"
+        get_purple_records_str = f"获得4星次数: {len(purple_records)}"
         min_gold_records_str = f"最少抽数出金: {min_gold_records}"
         max_gold_records_str = f"最多抽数出金: {max_gold_records}"
 
@@ -522,9 +525,9 @@ class GachaSimulatorGUI:
             avg_gold_pulls_str = f"平均出金抽数: {avg_gold_pulls}" 
 
         if pool_type != 'standard':
-            failed_featured_5star_str = f"歪掉五星次数: {failed_featured_5star}"
+            failed_featured_5star_str = f"歪掉5星次数: {failed_featured_5star}"
         else:
-            failed_featured_5star_str = f"歪掉五星次数: 无"
+            failed_featured_5star_str = f"歪掉5星次数: 无"
 
         if pool_type != 'standard':
             if isinstance(success_rate, (int, float)):  # 检查 success_rate 是否是数字类型
@@ -534,46 +537,67 @@ class GachaSimulatorGUI:
         else:
             success_rate_str = f"小保底不歪概率: 无"
 
-        pulls_since_last_5star_str = f"距离上次五星: {pulls_since_last_5star}"
+        pulls_since_last_5star_str = f"距离上次5星: {pulls_since_last_5star}"
 
-        if self.gacha_system.current_prob['big_pity_enabled']:
+        if self.gacha_system.current_prob['five_star_big_pity_enabled']:
             if pool_type != 'standard': 
-                is_guaranteed_str = f"大保底状态: {'是' if is_guaranteed else '否'}"
+                five_star_is_guaranteed_str = f"5星大保底状态: {'是' if is_guaranteed else '否'}"
             else:
-                is_guaranteed_str = f"大保底状态: 无"
+                five_star_is_guaranteed_str = f"5星大保底状态: 无"
         else:
-            is_guaranteed_str = f"大保底状态: 你没有启用大保底机制"
+            five_star_is_guaranteed_str = f"5星大保底状态: 你没有启用大保底机制"
 
-        luck_rating_str = f"抽卡运势: {luck_rating}"
+
+        if self.gacha_system.current_prob['four_star_big_pity_enabled']:
+            if pool_type != 'standard': 
+                four_star_guaranteed_str = f"4星大保底状态: {'是' if four_star_guaranteed else '否'}"
+            else:
+                four_star_guaranteed_str = f"4星大保底状态: 无"
+        else:
+            four_star_guaranteed_str = f"4星大保底状态: 你没有启用大保底机制"
+
+
 
         if pool_type != 'standard': 
-            if self.gacha_system.current_prob.get('small_pity_mechanism') == 'random':
-                small_pity_mechanism_str = f"小保底机制: 默认"
-            elif self.gacha_system.current_prob.get('small_pity_mechanism') == 'must_not_waste':
-                small_pity_mechanism_str = f"小保底机制: 必不歪"
+            if self.gacha_system.current_prob.get('five_star_small_pity_mechanism') == 'random':
+                five_star_small_pity_mechanism_str = f"5星小保底机制: 默认"
+            elif self.gacha_system.current_prob.get('five_star_small_pity_mechanism') == 'must_not_waste':
+                five_star_small_pity_mechanism_str = f"5星小保底机制: 必不歪"
             else:
-                small_pity_mechanism_str = f"小保底机制: 必歪"
+                five_star_small_pity_mechanism_str = f"5星小保底机制: 必歪"
         else:
-            small_pity_mechanism_str = f"小保底机制: 无"
+            five_star_small_pity_mechanism_str = f"5星小保底机制: 无"
+
+        if pool_type != 'standard': 
+            if self.gacha_system.current_prob.get('four_star_small_pity_mechanism') == 'random':
+                four_star_small_pity_mechanism_str = f"4星小保底机制: 默认"
+            elif self.gacha_system.current_prob.get('four_star_small_pity_mechanism') == 'must_not_waste':
+                four_star_small_pity_mechanism_str = f"4星小保底机制: 必不歪"
+            else:
+                four_star_small_pity_mechanism_str = f"4星小保底机制: 必歪"
+        else:
+            four_star_small_pity_mechanism_str = f"4星小保底机制: 无"
 
         luck_rating_str = f"抽卡运势: {luck_rating}"
 
         # 使用变量控制输出
-        stats = f"""{pool_pulls_str}
-    {next_pity_5_str}
-    {next_pity_4_str}
-    {get_gold_records_str}
-    {get_purple_records_str}
-    {min_gold_records_str}
-    {max_gold_records_str}
-    {avg_gold_pulls_str}
-    {success_rate_str}
-    {pulls_since_last_5star_str}
-    {small_pity_mechanism_str}
-    {is_guaranteed_str}
-    {luck_rating_str}""" 
-#  {failed_featured_5star_str}
-
+        stats = (
+            f"{pool_pulls_str}\n"
+            f"{next_pity_5_str}\n"
+            f"{next_pity_4_str}\n"
+            f"{get_gold_records_str}\n"
+            f"{get_purple_records_str}\n"
+            f"{min_gold_records_str}\n"
+            f"{max_gold_records_str}\n"
+            f"{avg_gold_pulls_str}\n"
+            f"{success_rate_str}\n"
+            f"{pulls_since_last_5star_str}\n"
+            f"{five_star_small_pity_mechanism_str}\n"
+            f"{four_star_small_pity_mechanism_str}\n"
+            f"{five_star_is_guaranteed_str}\n"
+            f"{four_star_guaranteed_str}\n"
+            f"{luck_rating_str}"
+        )
 
         self.stats_text.config(state=tk.NORMAL)
         self.stats_text.delete(1.0, tk.END)
@@ -586,7 +610,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.2.5" 
+        version = "2.2.6" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
@@ -653,7 +677,7 @@ class GachaSimulatorGUI:
         # 创建一个新的顶级窗口
         settings_window = tk.Toplevel(self.root)
         settings_window.title("概率设置")
-        settings_window.geometry("430x500")  # 窗口大小，宽x长
+        settings_window.geometry("430x600")  # 窗口大小，宽x长
 
         # 角色池概率
         ttk.Label(settings_window, text="角色池5星基础概率:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
@@ -707,68 +731,118 @@ class GachaSimulatorGUI:
         ttk.Label(settings_window, text="光锥池4星不歪概率:").grid(row=9, column=0, sticky="w", padx=5, pady=5)
         self.weapon_four_star_success_prob = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_four_star_success_prob']))
         ttk.Entry(settings_window, textvariable=self.weapon_four_star_success_prob, width=10).grid(row=9, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=9, column=2, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.75 = 75%)").grid(row=9, column=2, sticky="w", padx=5, pady=5)
 
         ttk.Label(settings_window, text="4星保底抽数:").grid(row=10, column=0, sticky="w", padx=5, pady=5)
         self.four_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['four_star_pity']))
         ttk.Entry(settings_window, textvariable=self.four_star_pity, width=10).grid(row=10, column=1, padx=5, pady=5)
         ttk.Label(settings_window, text="(默认: 10)").grid(row=10, column=2, sticky="w", padx=5, pady=5)  
-        # 小保底机制设置
-        small_pity_frame = ttk.LabelFrame(settings_window, text="小保底机制")
-        small_pity_frame.grid(row=11, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
 
+        # 5星小保底机制设置 开始
+        five_star_small_pity_frame = ttk.LabelFrame(settings_window, text="5星小保底机制")
+        five_star_small_pity_frame.grid(row=11, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
         # 使用不同的变量来控制每个RadioButton
-        self.small_pity_var_random = BooleanVar(value=False)  
-        self.small_pity_var_must_waste = BooleanVar(value=False)
-        self.small_pity_var_must_not_waste = BooleanVar(value=False)
+        self.five_star_small_pity_var_random = BooleanVar(value=False)  
+        self.five_star_small_pity_var_must_waste = BooleanVar(value=False)
+        self.five_star_small_pity_var_must_not_waste = BooleanVar(value=False)
 
-        def command_random():
-            self.small_pity_var_must_waste.set(False)
-            self.small_pity_var_must_not_waste.set(False)
+        def command_five_star_random():
+            self.five_star_small_pity_var_must_waste.set(False)
+            self.five_star_small_pity_var_must_not_waste.set(False)
 
-        def command_must_waste():
-            self.small_pity_var_random.set(False)
-            self.small_pity_var_must_not_waste.set(False)
+        def command_five_star_must_waste():
+            self.five_star_small_pity_var_random.set(False)
+            self.five_star_small_pity_var_must_not_waste.set(False)
 
-        def command_must_not_waste():
-            self.small_pity_var_random.set(False)
-            self.small_pity_var_must_waste.set(False)
+        def command_five_star_must_not_waste():
+            self.five_star_small_pity_var_random.set(False)
+            self.five_star_small_pity_var_must_waste.set(False)
 
-        # 随机歪
-        ttk.Radiobutton(small_pity_frame, text="随机", variable=self.small_pity_var_random, command=command_random).grid(row=0, column=0, sticky="w", padx=5)
-        # 必歪
-        ttk.Radiobutton(small_pity_frame, text="必歪", variable=self.small_pity_var_must_waste, command=command_must_waste).grid(row=0, column=1, sticky="w", padx=5)
-        # 必不歪
-        ttk.Radiobutton(small_pity_frame, text="必不歪", variable=self.small_pity_var_must_not_waste, command=command_must_not_waste).grid(row=0, column=2, sticky="w", padx=5)
+        ttk.Radiobutton(five_star_small_pity_frame, text="随机", variable=self.five_star_small_pity_var_random, command=command_five_star_random).grid(row=0, column=0, sticky="w", padx=5)
+        ttk.Radiobutton(five_star_small_pity_frame, text="必歪", variable=self.five_star_small_pity_var_must_waste, command=command_five_star_must_waste).grid(row=0, column=1, sticky="w", padx=5)
+        ttk.Radiobutton(five_star_small_pity_frame, text="必不歪", variable=self.five_star_small_pity_var_must_not_waste, command=command_five_star_must_not_waste).grid(row=0, column=2, sticky="w", padx=5)
 
         # 根据当前设置初始化RadioButton状态
-        current_mechanism = self.gacha_system.current_prob.get('small_pity_mechanism', 'random')
+        current_mechanism = self.gacha_system.current_prob.get('five_star_small_pity_mechanism', 'random')
         if current_mechanism == 'random':
-            self.small_pity_var_random.set(True)
+            self.five_star_small_pity_var_random.set(True)
         elif current_mechanism == 'must_waste':
-            self.small_pity_var_must_waste.set(True)
+            self.five_star_small_pity_var_must_waste.set(True)
         else:
-            self.small_pity_var_must_not_waste.set(True)
+            self.five_star_small_pity_var_must_not_waste.set(True)
 
-        self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
-        big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled)
-        big_pity_checkbox.grid(row=12, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        # 5星小保底机制设置 结束
+
+        # 4星小保底机制设置 开始
+        four_star_small_pity_frame = ttk.LabelFrame(settings_window, text="4星小保底机制")
+        four_star_small_pity_frame.grid(row=12, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
+        # 使用不同的变量来控制每个RadioButton
+        self.four_star_small_pity_var_random = BooleanVar(value=False)  
+        self.four_star_small_pity_var_must_waste = BooleanVar(value=False)
+        self.four_star_small_pity_var_must_not_waste = BooleanVar(value=False)
+
+        def command_four_star_random():
+            self.four_star_small_pity_var_must_waste.set(False)
+            self.four_star_small_pity_var_must_not_waste.set(False)
+
+        def command_four_star_must_waste():
+            self.four_star_small_pity_var_random.set(False)
+            self.four_star_small_pity_var_must_not_waste.set(False)
+
+        def command_four_star_must_not_waste():
+            self.four_star_small_pity_var_random.set(False)
+            self.four_star_small_pity_var_must_waste.set(False)
+
+        ttk.Radiobutton(four_star_small_pity_frame, text="随机", variable=self.four_star_small_pity_var_random, command=command_four_star_random).grid(row=0, column=0, sticky="w", padx=5)
+        ttk.Radiobutton(four_star_small_pity_frame, text="必歪", variable=self.four_star_small_pity_var_must_waste, command=command_four_star_must_waste).grid(row=0, column=1, sticky="w", padx=5)
+        ttk.Radiobutton(four_star_small_pity_frame, text="必不歪", variable=self.four_star_small_pity_var_must_not_waste, command=command_four_star_must_not_waste).grid(row=0, column=2, sticky="w", padx=5)
+
+        # 根据当前设置初始化RadioButton状态
+        current_mechanism = self.gacha_system.current_prob.get('four_star_small_pity_mechanism', 'random')
+        if current_mechanism == 'random':
+            self.four_star_small_pity_var_random.set(True)
+        elif current_mechanism == 'must_waste':
+            self.four_star_small_pity_var_must_waste.set(True)
+        else:
+            self.four_star_small_pity_var_must_not_waste.set(True)
+
+        # 4星小保底机制设置 结束
+
+        # 五星大保底机制设置
+        self.five_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['five_star_big_pity_enabled'])
+        five_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用5星大保底机制", variable=self.five_star_big_pity_enabled)
+        five_star_big_pity_checkbox.grid(row=13, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+
+        # 四星大保底机制设置
+        self.four_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['four_star_big_pity_enabled'])
+        four_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用4星大保底机制", variable=self.four_star_big_pity_enabled)
+        # four_star_big_pity_checkbox.grid(row=13, column=2, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        four_star_big_pity_checkbox.grid(row=13, column=2, columnspan=3, padx=(20, 0), pady=5)
+
+
 
         # 保存设置和恢复默认设置按钮
         save_button = ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window))
-        save_button.grid(row=13, column=0, columnspan=2, padx=(20, 10), pady=5)
+        save_button.grid(row=14, column=0, columnspan=2, padx=(20, 10), pady=5)
 
         default_button = ttk.Button(settings_window, text="恢复默认设置", command=lambda: self.restore_default_settings(settings_window))
-        default_button.grid(row=13, column=2, padx=10, pady=5)  
+        default_button.grid(row=14, column=2, padx=10, pady=5)  
     def save_probability_settings(self, window):
         try:
-            # 更新小保底机制
-            if self.small_pity_var_random.get():
-                self.gacha_system.update_probability('small_pity_mechanism', 'random')
-            elif self.small_pity_var_must_waste.get():
-                self.gacha_system.update_probability('small_pity_mechanism', 'must_waste')
-            elif self.small_pity_var_must_not_waste.get():
-                self.gacha_system.update_probability('small_pity_mechanism', 'must_not_waste')
+            # 更新5星小保底机制
+            if self.five_star_small_pity_var_random.get():
+                self.gacha_system.update_probability('five_star_small_pity_mechanism', 'random')
+            elif self.five_star_small_pity_var_must_waste.get():
+                self.gacha_system.update_probability('five_star_small_pity_mechanism', 'must_waste')
+            elif self.five_star_small_pity_var_must_not_waste.get():
+                self.gacha_system.update_probability('five_star_small_pity_mechanism', 'must_not_waste')
+            # 更新4星小保底机制
+            if self.four_star_small_pity_var_random.get():
+                self.gacha_system.update_probability('four_star_small_pity_mechanism', 'random')
+            elif self.four_star_small_pity_var_must_waste.get():
+                self.gacha_system.update_probability('four_star_small_pity_mechanism', 'must_waste')
+            elif self.four_star_small_pity_var_must_not_waste.get():
+                self.gacha_system.update_probability('four_star_small_pity_mechanism', 'must_not_waste')
             self.gacha_system.update_probability('character_five_star_base', float(self.five_star_prob.get()))
             self.gacha_system.update_probability('weapon_five_star_base', float(self.weapon_five_star_prob.get()))
             self.gacha_system.update_probability('character_four_star_base', float(self.character_four_star_prob.get()))
@@ -780,7 +854,8 @@ class GachaSimulatorGUI:
             self.gacha_system.update_probability('character_four_star_success_prob', float(self.character_four_star_success_prob.get()))
             self.gacha_system.update_probability('weapon_four_star_success_prob', float(self.weapon_four_star_success_prob.get()))
             self.gacha_system.update_probability('four_star_pity', int(self.four_star_pity.get()))
-            self.gacha_system.update_probability('big_pity_enabled', self.big_pity_enabled.get())
+            self.gacha_system.update_probability('five_star_big_pity_enabled', self.five_star_big_pity_enabled.get())
+            self.gacha_system.update_probability('four_star_big_pity_enabled', self.four_star_big_pity_enabled.get())
             # 更新抽卡统计信息展示
             self.update_stats_display()
             messagebox.showinfo("成功", "概率设置已保存")
@@ -802,8 +877,10 @@ class GachaSimulatorGUI:
             'character_four_star_success_prob': 0.5,
             'weapon_four_star_success_prob': 0.75,
             'four_star_pity': 10,
-            'big_pity_enabled': True,
-            'small_pity_mechanism': 'random'
+            'five_star_big_pity_enabled': True,
+            'four_star_big_pity_enabled': True,
+            'five_star_small_pity_mechanism': 'random',
+            'four_star_small_pity_mechanism': 'random'
         }
         
         # 更新界面上的值
@@ -818,11 +895,16 @@ class GachaSimulatorGUI:
         self.character_four_star_success_prob.set(str(default_settings['character_four_star_success_prob']))
         self.weapon_four_star_success_prob.set(str(default_settings['weapon_four_star_success_prob']))
         self.four_star_pity.set(str(default_settings['four_star_pity']))
-        self.big_pity_enabled.set(default_settings['big_pity_enabled'])
-        # 更新小保底机制单选框的状态
-        self.small_pity_var_random.set(default_settings['small_pity_mechanism'] == 'random')
-        self.small_pity_var_must_waste.set(default_settings['small_pity_mechanism'] == 'must_waste')
-        self.small_pity_var_must_not_waste.set(default_settings['small_pity_mechanism'] == 'must_not_waste')
+        self.five_star_big_pity_enabled.set(default_settings['five_star_big_pity_enabled'])
+        self.four_star_big_pity_enabled.set(default_settings['four_star_big_pity_enabled'])
+        # 更新5星小保底机制单选框的状态
+        self.five_star_small_pity_var_random.set(default_settings['five_star_small_pity_mechanism'] == 'random')
+        self.five_star_small_pity_var_must_waste.set(default_settings['five_star_small_pity_mechanism'] == 'must_waste')
+        self.five_star_small_pity_var_must_not_waste.set(default_settings['five_star_small_pity_mechanism'] == 'must_not_waste')
+        # 更新4星小保底机制单选框的状态
+        self.four_star_small_pity_var_random.set(default_settings['four_star_small_pity_mechanism'] == 'random')
+        self.four_star_small_pity_var_must_waste.set(default_settings['four_star_small_pity_mechanism'] == 'must_waste')
+        self.four_star_small_pity_var_must_not_waste.set(default_settings['four_star_small_pity_mechanism'] == 'must_not_waste')
         
         # 更新系统中的值
         for key, value in default_settings.items():
@@ -833,34 +915,6 @@ class GachaSimulatorGUI:
         
         messagebox.showinfo("成功", "已恢复默认设置")
         window.destroy()
-
-
-
-# def setup_theme_selection(self):
-#     # 创建一个框架来容纳标签和下拉菜单
-#     theme_frame = ttk.Frame(self.root)
-#     theme_frame.pack(side=tk.TOP, anchor=tk.NE, padx=10, pady=10)
-
-#     # 添加提示标签
-#     theme_label = ttk.Label(theme_frame, text="选择主题：", font=self.default_font)
-#     theme_label.pack(side=tk.LEFT, padx=(0, 5))
-
-#     # 获取可用主题
-#     self.themes = self.root.get_themes()
-#     self.current_theme = tk.StringVar(value="arc")  # 设置默认主题
-
-#     # 创建主题选择下拉菜单
-#     self.theme_menu = ttk.OptionMenu(
-#         theme_frame,
-#         self.current_theme,
-#         "arc",
-#         *self.themes,
-#         command=self.change_theme
-#     )
-#     self.theme_menu.pack(side=tk.LEFT)
-
-# def change_theme(self, theme_name):
-#     self.root.set_theme(theme_name)
 
 
 
@@ -931,6 +985,9 @@ class GachaSystem:
                 'standard_purple_records': self.purple_records,
                 'standard_pulls_since_last_5star': self.pulls_since_last_5star,
                 'standard_pulls': self.standard_pulls,
+
+                'character_four_star_guaranteed': self.character_four_star_guaranteed,
+                'weapon_four_star_guaranteed': self.weapon_four_star_guaranteed,
             }
 
             yaml.default_flow_style = False
@@ -1020,6 +1077,9 @@ class GachaSystem:
                 self.purple_records = state.get('standard_purple_records', [])
                 self.pulls_since_last_5star = state.get('standard_pulls_since_last_5star', 0)
                 self.standard_pulls = state.get('standard_pulls', 0)
+
+                self.character_four_star_guaranteed = state.get('character_four_star_guaranteed', False)
+                self.weapon_four_star_guaranteed = state.get('weapon_four_star_guaranteed', False)
                 
                 # 处理pull_history中的item_type
                 for pull in self.pull_history:
@@ -1064,8 +1124,10 @@ class GachaSystem:
                 'character_four_star_success_prob': 0.5,
                 'weapon_four_star_success_prob': 0.75,
                 'four_star_pity': 10,
-                'big_pity_enabled': True,
-                'small_pity_mechanism': 'random'
+                'five_star_big_pity_enabled': True,
+                'four_star_big_pity_enabled': True,
+                'five_star_small_pity_mechanism': 'random',
+                'four_star_small_pity_mechanism': 'random'
             }
         }
 
@@ -1094,8 +1156,10 @@ class GachaSystem:
         data_str = data_str.replace('character_four_star_success_prob:', '  # 角色池4星不歪概率\n  character_four_star_success_prob:')
         data_str = data_str.replace('weapon_four_star_success_prob:', '  # 光锥池4星不歪概率\n  weapon_four_star_success_prob:')
         data_str = data_str.replace('four_star_pity:', '  # 4星保底抽数\n  four_star_pity:')
-        data_str = data_str.replace('big_pity_enabled:', '  # 是否启用大保底\n  big_pity_enabled:')
-        data_str = data_str.replace('small_pity_mechanism:', '  # 小保底歪的机制\n  small_pity_mechanism:')
+        data_str = data_str.replace('five_star_big_pity_enabled:', '  # 是否启用5星大保底\n  five_star_big_pity_enabled:')
+        data_str = data_str.replace('four_star_big_pity_enabled:', '  # 是否启用4星大保底\n  four_star_big_pity_enabled:')
+        data_str = data_str.replace('five_star_small_pity_mechanism:', '  # 5星小保底歪的机制\n  five_star_small_pity_mechanism:')
+        data_str = data_str.replace('four_star_small_pity_mechanism:', '  # 4星小保底歪的机制\n  four_star_small_pity_mechanism:')
         
         yaml_str += data_str
 
@@ -1105,13 +1169,14 @@ class GachaSystem:
         self.probabilities = default_probabilities
         self.current_prob = self.probabilities['custom']
 
-    def update_small_pity_mechanism(self, mechanism):
-        self.small_pity_mechanism = mechanism
+    def update_five_star_small_pity_mechanism(self, five_star_mechanism, four_star_mechanism):
+        self.five_star_small_pity_mechanism = five_star_mechanism
+        self.four_star_small_pity_mechanism = four_star_mechanism
         self.save_probabilities()
         
     def ensure_pool_file_exists(self):
         if not os.path.exists(self.pool_file):
-            download = messagebox.askyesno("错误", f"'{self.pool_file}' 文件不存在。是否从GitHub下载最新的banners.yml?")
+            download = messagebox.askyesno("错误", f"卡池文件不存在。是否从GitHub下载最新的卡池文件？")
             if download:
                 try:
                     proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
@@ -1119,7 +1184,7 @@ class GachaSystem:
                     response.raise_for_status()
                     with open(self.pool_file, 'wb') as f:
                         f.write(response.content)
-                    self.show_message("成功下载 'banners.yml'！", GREEN)
+                    self.show_message("卡池文件下载成功！", GREEN)
                     self.is_first_download = True
                     self.load_pools(self.pool_file)  # 立即加载新下载的文件
                     self.load_probabilities(self.prob_file) # 加载自定义概率文件
@@ -1128,7 +1193,7 @@ class GachaSystem:
                     self.show_message(f"下载失败: {e}", RED)
                     exit(1)
             else:
-                self.show_message(f"请提供 '{self.pool_file}' 文件。", RED)
+                self.show_message(f"请提供卡池文件。", RED)
                 exit(1)
         else:
             self.load_pools(self.pool_file)  # 如果文件已存在，也要加载
@@ -1173,7 +1238,7 @@ class GachaSystem:
 
         pulls = []
         summary = {'5星': 0, '5星UP': 0, '4星': 0, '4星UP': 0, '3星': 0}
-        guaranteed_4_star = False
+        # guaranteed_4_star = False
 
         if pool_type == 'weapon':
             five_star_pity = self.current_prob['weapon_five_star_pity']
@@ -1197,7 +1262,7 @@ class GachaSystem:
             else:
                 self.standard_pulls += 1
             
-            pity_5, pity_4, gold_records, purple_records, failed_featured_5star, successful_featured_5star, pulls_since_last_5star, is_guaranteed = self.get_pool_stats(pool_type)
+            pity_5, pity_4, gold_records, purple_records, failed_featured_5star, successful_featured_5star, pulls_since_last_5star, is_guaranteed, four_star_guaranteed = self.get_pool_stats(pool_type)
 
             five_star_rate_up_ratio = float(74 / 90) # 从74抽开始概率随每抽提升
             five_star_rate_up_pulls = int(five_star_rate_up_ratio * five_star_pity) # 去掉小数点
@@ -1221,14 +1286,14 @@ class GachaSystem:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n是小保底，恭喜没歪!")
                     else:
                         failed_featured_5star += 1
-                        if self.current_prob['big_pity_enabled']:
+                        if self.current_prob['five_star_big_pity_enabled']:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次将是大保底!")
                         else:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次...下次还是小保底啦哈哈哈！\n如果想启用大保底机制记得去改一下抽卡概率")
                 else: # 常驻池逻辑
                     messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
-                if self.current_prob['big_pity_enabled']:
+                if self.current_prob['five_star_big_pity_enabled']:
                     self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
                                         is_guaranteed=not result['is_up'],  # 如果这次没有抽中UP，下次就是大保底
                                         failed_featured_5star=failed_featured_5star,
@@ -1238,17 +1303,27 @@ class GachaSystem:
                     failed_featured_5star=failed_featured_5star,
                     successful_featured_5star=successful_featured_5star)
                 summary['5星'] += 1
-                guaranteed_4_star = False
+                # guaranteed_4_star = False
                 # print(f"当前保底抽数为{five_star_pity}\n当前抽卡概率为{five_star_base}") # Debug
             # 确定是否出四星
             elif pity_4 >= four_star_pity - 1 or random.random() < four_star_base:
                 result = self.pull_4_star(pool_type)
                 purple_records.append(pity_4 + 1)
-                self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=0, pulls_since_last_5star=pulls_since_last_5star+1)
-                summary['4星'] += 1
+                self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=0, 
+                                       four_star_guaranteed=not result['is_up'],
+                                       pulls_since_last_5star=pulls_since_last_5star+1)
+                summary['4星'] += 1 # 不知道有什么用的summary
+
+                if pool_type != 'standard':
+                    four_star_guaranteed = not result['is_up']
+                else:
+                    four_star_guaranteed = False
+
+
                 if self.current_banner != 'standard' and result['is_up']:
-                    summary['4星UP'] += 1
-                guaranteed_4_star = True
+                    summary['4星UP'] += 1 # 不知道有什么用的summary
+
+                # guaranteed_4_star = True
                 # print(f"当前保底抽数为{four_star_pity}\n当前抽卡概率为{four_star_base}") # Debug
             else:
                 result = self.pull_3_star()
@@ -1268,16 +1343,16 @@ class GachaSystem:
             return (self.character_pity_5, self.character_pity_4, self.character_gold_records, 
                     self.character_purple_records, self.character_failed_featured_5star, 
                     self.character_successful_featured_5star, self.character_pulls_since_last_5star, 
-                    self.character_is_guaranteed)
+                    self.character_is_guaranteed, self.character_four_star_guaranteed)
         elif pool_type == 'weapon':
             return (self.weapon_pity_5, self.weapon_pity_4, self.weapon_gold_records, 
                     self.weapon_purple_records, self.weapon_failed_featured_5star, 
                     self.weapon_successful_featured_5star, self.weapon_pulls_since_last_5star, 
-                    self.weapon_is_guaranteed)
+                    self.weapon_is_guaranteed, self.weapon_four_star_guaranteed)
         else:
             return (self.pity_5, self.pity_4, self.gold_records, self.purple_records, 
                     self.failed_featured_5star, self.successful_featured_5star, 
-                    self.pulls_since_last_5star, self.is_guaranteed)
+                    self.pulls_since_last_5star, self.is_guaranteed, self.four_star_guaranteed)
         
 
     def update_pool_stats(self, pool_type, **kwargs):
@@ -1293,21 +1368,22 @@ class GachaSystem:
 
     def pull_5_star(self, pool_type):
 
-        if pool_type == 'character':
-            success_prob = self.current_prob['character_five_star_success_prob']
-        elif pool_type == 'weapon':
+
+        if pool_type == 'weapon':
             success_prob = self.current_prob['weapon_five_star_success_prob']
+        else:
+            success_prob = self.current_prob['character_five_star_success_prob']
 
         is_up = self.is_guaranteed or ( 
-    (self.current_prob.get('small_pity_mechanism') == 'random' and random.random() < success_prob) or
-    (self.current_prob.get('small_pity_mechanism') == 'must_not_waste'))
+    (self.current_prob.get('five_star_small_pity_mechanism') == 'random' and random.random() < success_prob) or
+    (self.current_prob.get('five_star_small_pity_mechanism') == 'must_not_waste'))
         if pool_type == 'character':
             if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
                 self.is_guaranteed = False
             else: # 歪了
                 item = random.choice(self.pools['common_pools']['character_5_star'])
-                if self.current_prob['big_pity_enabled']:
+                if self.current_prob['five_star_big_pity_enabled']:
                     self.is_guaranteed = True
                 else:
                     self.is_guaranteed = False
@@ -1319,7 +1395,7 @@ class GachaSystem:
                 self.is_guaranteed = False
             else: # 歪了
                 item = random.choice(self.pools['common_pools']['weapon_5_star'])
-                if self.current_prob['big_pity_enabled']:
+                if self.current_prob['five_star_big_pity_enabled']:
                     self.is_guaranteed = True
                 else:
                     self.is_guaranteed = False
@@ -1335,27 +1411,37 @@ class GachaSystem:
 
     def pull_4_star(self, pool_type):
 
-        if pool_type == 'character':
-            success_prob = self.current_prob['character_four_star_success_prob']
-        elif pool_type == 'weapon':
+        if pool_type == 'weapon':
             success_prob = self.current_prob['weapon_four_star_success_prob']
+        else:
+            success_prob = self.current_prob['character_four_star_success_prob']
 
-        is_up = random.random() < success_prob
+        is_up = self.four_star_guaranteed or ( 
+    (self.current_prob.get('four_star_small_pity_mechanism') == 'random' and random.random() < success_prob) or
+    (self.current_prob.get('four_star_small_pity_mechanism') == 'must_not_waste')) # 四星大保底以及必歪必不歪时的up情况
         if is_up and pool_type != 'standard':
+            self.four_star_guaranteed = False
             if pool_type == 'character':
                 item = random.choice(self.pools['banners'][self.current_banner].get('character_up_4_star', []))
-                print(f"当前四星不歪概率为{success_prob}") # Debug
                 return {'rarity': '4_star', 'type': '角色', 'item': item, 'is_up': True}
             else:  # weapon pool
                 item = random.choice(self.pools['banners'][self.current_banner].get('weapon_up_4_star', []))
-                print(f"当前四星不歪概率为{success_prob}") # Debug
+                self.four_star_guaranteed = False
                 return {'rarity': '4_star', 'type': '光锥', 'item': item, 'is_up': True}
         else:
             if random.random() < 0.5:
                 item = random.choice(self.pools['common_pools']['character_4_star'])
+                if self.current_prob['four_star_big_pity_enabled']:
+                    self.four_star_guaranteed = True
+                else:
+                    self.four_star_guaranteed = False
                 return {'rarity': '4_star', 'type': '角色', 'item': item, 'is_up': False}
             else:
                 item = random.choice(self.pools['common_pools']['weapon_4_star'])
+                if self.current_prob['four_star_big_pity_enabled']:
+                    self.four_star_guaranteed = True
+                else:
+                    self.four_star_guaranteed = False
                 return {'rarity': '4_star', 'type': '光锥', 'item': item, 'is_up': False}
 
     def pull_3_star(self):
@@ -1510,6 +1596,7 @@ class GachaSystem:
         self.character_pulls = 0
         self.weapon_pulls = 0
         self.standard_pulls = 0
+        self.four_star_guaranteed = False
         self.save_state()
 
     def inits(self):
@@ -1542,11 +1629,12 @@ class GachaSystem:
         self.is_guaranteed = False
         self.failed_featured_5star = 0
         self.successful_featured_5star = 0
-
         self.character_pulls = 0
         self.weapon_pulls = 0
         self.standard_pulls = 0
-        
+        self.four_star_guaranteed = False
+        self.character_four_star_guaranteed = False
+        self.weapon_four_star_guaranteed = False
         self.TIPS = TIPS
         self.load_state()
 
