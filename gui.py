@@ -653,7 +653,7 @@ class GachaSimulatorGUI:
         # 创建一个新的顶级窗口
         settings_window = tk.Toplevel(self.root)
         settings_window.title("概率设置")
-        settings_window.geometry("500x500")  # 窗口大小
+        settings_window.geometry("430x500")  # 窗口大小，宽x长
 
         # 角色池概率
         ttk.Label(settings_window, text="角色池5星基础概率:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
@@ -661,61 +661,61 @@ class GachaSimulatorGUI:
         ttk.Entry(settings_window, textvariable=self.five_star_prob, width=10).grid(row=0, column=1, padx=5, pady=5)
         ttk.Label(settings_window, text="(0.006 = 0.6%)").grid(row=0, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="角色池5星不歪概率:").grid(row=10, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="角色池5星不歪概率:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
         self.character_five_star_success_prob = tk.StringVar(value=str(self.gacha_system.current_prob['character_five_star_success_prob']))
-        ttk.Entry(settings_window, textvariable=self.character_five_star_success_prob, width=10).grid(row=10, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=10, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.character_five_star_success_prob, width=10).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=1, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="角色池5星保底抽数:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="角色池5星保底抽数:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self.character_five_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['character_five_star_pity']))
-        ttk.Entry(settings_window, textvariable=self.character_five_star_pity, width=10).grid(row=1, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(默认: 90)").grid(row=1, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.character_five_star_pity, width=10).grid(row=2, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(默认: 90)").grid(row=2, column=2, sticky="w", padx=5, pady=5)
         
         # 光锥池概率
-        ttk.Label(settings_window, text="光锥池5星基础概率:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="光锥池5星基础概率:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         self.weapon_five_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_five_star_base']))
-        ttk.Entry(settings_window, textvariable=self.weapon_five_star_prob, width=10).grid(row=2, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.008 = 0.8%)").grid(row=2, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.weapon_five_star_prob, width=10).grid(row=3, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.008 = 0.8%)").grid(row=3, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="光锥池5星不歪概率:").grid(row=11, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="光锥池5星不歪概率:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
         self.weapon_five_star_success_prob = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_five_star_success_prob']))
-        ttk.Entry(settings_window, textvariable=self.weapon_five_star_success_prob, width=10).grid(row=11, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.75 = 75%)").grid(row=11, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.weapon_five_star_success_prob, width=10).grid(row=4, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.75 = 75%)").grid(row=4, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="光锥池5星保底抽数:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="光锥池5星保底抽数:").grid(row=5, column=0, sticky="w", padx=5, pady=5)
         self.weapon_five_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_five_star_pity']))
-        ttk.Entry(settings_window, textvariable=self.weapon_five_star_pity, width=10).grid(row=3, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(默认: 80)").grid(row=3, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.weapon_five_star_pity, width=10).grid(row=5, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(默认: 80)").grid(row=5, column=2, sticky="w", padx=5, pady=5)
 
         # 角色池四星概率
-        ttk.Label(settings_window, text="角色池4星基础概率:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="角色池4星基础概率:").grid(row=6, column=0, sticky="w", padx=5, pady=5)
         self.character_four_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['character_four_star_base']))
-        ttk.Entry(settings_window, textvariable=self.character_four_star_prob, width=10).grid(row=4, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.051 = 5.1%)").grid(row=4, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.character_four_star_prob, width=10).grid(row=6, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.051 = 5.1%)").grid(row=6, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="角色池4星不歪概率:").grid(row=12, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="角色池4星不歪概率:").grid(row=7, column=0, sticky="w", padx=5, pady=5)
         self.character_four_star_success_prob = tk.StringVar(value=str(self.gacha_system.current_prob['character_four_star_success_prob']))
-        ttk.Entry(settings_window, textvariable=self.character_four_star_success_prob, width=10).grid(row=12, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=12, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.character_four_star_success_prob, width=10).grid(row=7, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=7, column=2, sticky="w", padx=5, pady=5)
 
         # 光锥池四星概率
-        ttk.Label(settings_window, text="光锥池4星基础概率:").grid(row=5, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="光锥池4星基础概率:").grid(row=8, column=0, sticky="w", padx=5, pady=5)
         self.weapon_four_star_prob = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_four_star_base']))
-        ttk.Entry(settings_window, textvariable=self.weapon_four_star_prob, width=10).grid(row=5, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.066 = 6.6%)").grid(row=5, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.weapon_four_star_prob, width=10).grid(row=8, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.066 = 6.6%)").grid(row=8, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="光锥池4星不歪概率:").grid(row=13, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="光锥池4星不歪概率:").grid(row=9, column=0, sticky="w", padx=5, pady=5)
         self.weapon_four_star_success_prob = tk.StringVar(value=str(self.gacha_system.current_prob['weapon_four_star_success_prob']))
-        ttk.Entry(settings_window, textvariable=self.weapon_four_star_success_prob, width=10).grid(row=13, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=13, column=2, sticky="w", padx=5, pady=5)
+        ttk.Entry(settings_window, textvariable=self.weapon_four_star_success_prob, width=10).grid(row=9, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(0.5 = 50%)").grid(row=9, column=2, sticky="w", padx=5, pady=5)
 
-        ttk.Label(settings_window, text="4星保底抽数:").grid(row=6, column=0, sticky="w", padx=5, pady=5)
+        ttk.Label(settings_window, text="4星保底抽数:").grid(row=10, column=0, sticky="w", padx=5, pady=5)
         self.four_star_pity = tk.StringVar(value=str(self.gacha_system.current_prob['four_star_pity']))
-        ttk.Entry(settings_window, textvariable=self.four_star_pity, width=10).grid(row=6, column=1, padx=5, pady=5)
-        ttk.Label(settings_window, text="(默认: 10)").grid(row=6, column=2, sticky="w", padx=5, pady=5)  
+        ttk.Entry(settings_window, textvariable=self.four_star_pity, width=10).grid(row=10, column=1, padx=5, pady=5)
+        ttk.Label(settings_window, text="(默认: 10)").grid(row=10, column=2, sticky="w", padx=5, pady=5)  
         # 小保底机制设置
         small_pity_frame = ttk.LabelFrame(settings_window, text="小保底机制")
-        small_pity_frame.grid(row=7, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
+        small_pity_frame.grid(row=11, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
 
         # 使用不同的变量来控制每个RadioButton
         self.small_pity_var_random = BooleanVar(value=False)  
@@ -752,14 +752,14 @@ class GachaSimulatorGUI:
 
         self.big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['big_pity_enabled'])
         big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用大保底机制", variable=self.big_pity_enabled)
-        big_pity_checkbox.grid(row=8, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        big_pity_checkbox.grid(row=12, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
 
         # 保存设置和恢复默认设置按钮
         save_button = ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window))
-        save_button.grid(row=9, column=0, columnspan=2, padx=(20, 10), pady=5)
+        save_button.grid(row=13, column=0, columnspan=2, padx=(20, 10), pady=5)
 
         default_button = ttk.Button(settings_window, text="恢复默认设置", command=lambda: self.restore_default_settings(settings_window))
-        default_button.grid(row=9, column=2, padx=10, pady=5)  
+        default_button.grid(row=13, column=2, padx=10, pady=5)  
     def save_probability_settings(self, window):
         try:
             # 更新小保底机制
