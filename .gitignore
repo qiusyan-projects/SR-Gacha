@@ -1,2 +1,5 @@
 *.yaml
 .venv/
+build/
+dist/
+*.spec
