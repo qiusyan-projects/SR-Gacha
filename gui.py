@@ -6,6 +6,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
 import re
+import sys
 # from ttkthemes import ThemedTk
 
 # Colors and other constants
@@ -71,7 +72,7 @@ class GachaSimulatorGUI:
         # 确保 GachaSystem 已正确初始化
         if not hasattr(self.gacha_system, 'pools'):
             messagebox.showerror("错误", "无法加载卡池数据。请重新启动程序。")
-            exit(1)
+            sys.exit(1)
 
         # 初始化其他GUI组件
         self.initialize_gui_components()
@@ -500,6 +501,8 @@ class GachaSimulatorGUI:
             pool_pulls = self.gacha_system.standard_pulls
             five_star_pity = self.gacha_system.current_prob['standard_five_star_pity']
             four_star_pity = self.gacha_system.current_prob['standard_four_star_pity']
+            five_star_big_pity_enabled = True
+            four_star_big_pity_enabled = True
             four_star_guaranteed = self.gacha_system.four_star_guaranteed
 
         luck_rating = self.gacha_system.calculate_luck(pool_type)
@@ -1388,10 +1391,10 @@ class GachaSystem:
                     self.inits()
                 except requests.RequestException as e:
                     self.show_message(f"下载失败: {e}", RED)
-                    exit(1)
+                    sys.exit(1)
             else:
                 self.show_message(f"请提供卡池文件。", RED)
-                exit(1)
+                sys.exit(1)
         else:
             self.load_pools(self.pool_file)  # 如果文件已存在，也要加载
 
@@ -1588,6 +1591,9 @@ class GachaSystem:
             success_prob = self.current_prob['character_five_star_success_prob']
             five_star_small_pity_mechanism = self.current_prob['character_five_star_small_pity_mechanism']
             five_star_big_pity_enabled = self.current_prob['character_five_star_big_pity_enabled']
+        else:
+            success_prob = 0
+            five_star_small_pity_mechanism = random
 
         is_up = self.is_guaranteed or ( 
             (five_star_small_pity_mechanism == 'random' and random.random() < success_prob) or
@@ -1635,6 +1641,10 @@ class GachaSystem:
             success_prob = self.current_prob['character_four_star_success_prob']
             four_star_small_pity_mechanism = self.current_prob['character_four_star_small_pity_mechanism']
             four_star_big_pity_enabled = self.current_prob['character_four_star_big_pity_enabled']
+        else: # 常驻
+            success_prob = 0 # 随便写个值
+            four_star_big_pity_enabled = True
+            four_star_small_pity_mechanism = 'random'
 
         is_up = self.four_star_guaranteed or ( 
     (four_star_small_pity_mechanism == 'random' and random.random() < success_prob) or
@@ -1825,6 +1835,8 @@ class GachaSystem:
         self.weapon_pulls = 0
         self.standard_pulls = 0
         self.four_star_guaranteed = False
+        self.character_four_star_guaranteed = False
+        self.weapon_four_star_guaranteed = False
         self.save_state()
 
     def inits(self):
