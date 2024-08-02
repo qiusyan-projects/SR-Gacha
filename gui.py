@@ -466,6 +466,8 @@ class GachaSimulatorGUI:
             four_star_pity = self.gacha_system.current_prob['character_four_star_pity']
             five_star_small_pity_mechanism = self.gacha_system.current_prob['character_five_star_small_pity_mechanism']
             four_star_small_pity_mechanism = self.gacha_system.current_prob['character_four_star_small_pity_mechanism']
+            five_star_big_pity_enabled = self.gacha_system.current_prob['character_five_star_big_pity_enabled']
+            four_star_big_pity_enabled = self.gacha_system.current_prob['character_four_star_big_pity_enabled']
             four_star_guaranteed = self.gacha_system.character_four_star_guaranteed
         elif pool_type == 'weapon':
             pity_5 = self.gacha_system.weapon_pity_5
@@ -482,6 +484,8 @@ class GachaSimulatorGUI:
             four_star_pity = self.gacha_system.current_prob['weapon_four_star_pity']
             five_star_small_pity_mechanism = self.gacha_system.current_prob['weapon_five_star_small_pity_mechanism']
             four_star_small_pity_mechanism = self.gacha_system.current_prob['weapon_four_star_small_pity_mechanism']
+            five_star_big_pity_enabled = self.gacha_system.current_prob['weapon_five_star_big_pity_enabled']
+            four_star_big_pity_enabled = self.gacha_system.current_prob['weapon_four_star_big_pity_enabled']
             four_star_guaranteed = self.gacha_system.weapon_four_star_guaranteed
         else:
             pity_5 = self.gacha_system.pity_5
@@ -550,7 +554,7 @@ class GachaSimulatorGUI:
 
         pulls_since_last_5star_str = f"距离上次5星: {pulls_since_last_5star}"
 
-        if self.gacha_system.current_prob['five_star_big_pity_enabled']:
+        if five_star_big_pity_enabled:
             if pool_type != 'standard': 
                 five_star_is_guaranteed_str = f"5星大保底状态: {'是' if is_guaranteed else '否'}"
             else:
@@ -559,7 +563,7 @@ class GachaSimulatorGUI:
             five_star_is_guaranteed_str = f"5星大保底状态: 你没有启用大保底机制"
 
 
-        if self.gacha_system.current_prob['four_star_big_pity_enabled']:
+        if four_star_big_pity_enabled:
             if pool_type != 'standard': 
                 four_star_guaranteed_str = f"4星大保底状态: {'是' if four_star_guaranteed else '否'}"
             else:
@@ -621,7 +625,7 @@ class GachaSimulatorGUI:
         self.stats_text.config(height=height)
 
     def show_version(self):
-        version = "2.2.8" 
+        version = "2.2.9" 
         author = "QiuSYan & Claude"
         github = "qiusyan-projects/SR-Gacha"
         other = "来点Star叭~💖"
@@ -783,25 +787,35 @@ class GachaSimulatorGUI:
         self.setup_weapon_5_star_small_pity(settings_window)
         self.setup_weapon_4_star_small_pity(settings_window)
 
-        # 五星大保底机制设置
-        self.five_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['five_star_big_pity_enabled'])
-        five_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用5星大保底机制", variable=self.five_star_big_pity_enabled)
-        five_star_big_pity_checkbox.grid(row=20, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        # 角色池五星大保底机制设置
+        self.character_five_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['character_five_star_big_pity_enabled'])
+        character_five_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用角色池5星大保底机制", variable=self.character_five_star_big_pity_enabled)
+        character_five_star_big_pity_checkbox.grid(row=20, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
 
-        # 四星大保底机制设置
-        self.four_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['four_star_big_pity_enabled'])
-        four_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用4星大保底机制", variable=self.four_star_big_pity_enabled)
-        # four_star_big_pity_checkbox.grid(row=13, column=2, columnspan=3, sticky="w", padx=(20, 0), pady=5)
-        four_star_big_pity_checkbox.grid(row=20, column=2, columnspan=3, padx=(20, 0), pady=5)
+        # 角色池四星大保底机制设置
+        self.character_four_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['character_four_star_big_pity_enabled'])
+        character_four_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用角色池4星大保底机制", variable=self.character_four_star_big_pity_enabled)
+        # character_four_star_big_pity_checkbox.grid(row=13, column=2, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        character_four_star_big_pity_checkbox.grid(row=20, column=2, columnspan=3, padx=(20, 0), pady=5)
 
+        # 光锥池五星大保底机制设置
+        self.weapon_five_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['weapon_five_star_big_pity_enabled'])
+        weapon_five_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用光锥池5星大保底机制", variable=self.weapon_five_star_big_pity_enabled)
+        weapon_five_star_big_pity_checkbox.grid(row=21, column=0, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+
+        # 光锥池四星大保底机制设置
+        self.weapon_four_star_big_pity_enabled = tk.BooleanVar(value=self.gacha_system.current_prob['weapon_four_star_big_pity_enabled'])
+        weapon_four_star_big_pity_checkbox = ttk.Checkbutton(settings_window, text="启用光锥池4星大保底机制", variable=self.weapon_four_star_big_pity_enabled)
+        # character_four_star_big_pity_checkbox.grid(row=13, column=2, columnspan=3, sticky="w", padx=(20, 0), pady=5)
+        weapon_four_star_big_pity_checkbox.grid(row=21, column=2, columnspan=3, padx=(20, 0), pady=5)
 
 
         # 保存设置和恢复默认设置按钮
         save_button = ttk.Button(settings_window, text="保存设置", command=lambda: self.save_probability_settings(settings_window))
-        save_button.grid(row=21, column=0, columnspan=2, padx=(20, 10), pady=5)
+        save_button.grid(row=22, column=0, columnspan=2, padx=(20, 10), pady=5)
 
         default_button = ttk.Button(settings_window, text="恢复默认设置", command=lambda: self.restore_default_settings(settings_window))
-        default_button.grid(row=21, column=2, padx=10, pady=5)  
+        default_button.grid(row=22, column=2, padx=10, pady=5)  
     def save_probability_settings(self, window):
         try:
             # 更新角色池5星小保底机制
@@ -845,8 +859,10 @@ class GachaSimulatorGUI:
             self.gacha_system.update_probability('weapon_four_star_success_prob', float(self.weapon_four_star_success_prob.get()))
             self.gacha_system.update_probability('character_four_star_pity', int(self.character_four_star_pity.get()))
             self.gacha_system.update_probability('weapon_four_star_pity', int(self.weapon_four_star_pity.get()))
-            self.gacha_system.update_probability('five_star_big_pity_enabled', self.five_star_big_pity_enabled.get())
-            self.gacha_system.update_probability('four_star_big_pity_enabled', self.four_star_big_pity_enabled.get())
+            self.gacha_system.update_probability('character_five_star_big_pity_enabled', self.character_five_star_big_pity_enabled.get())
+            self.gacha_system.update_probability('character_four_star_big_pity_enabled', self.character_four_star_big_pity_enabled.get())
+            self.gacha_system.update_probability('weapon_five_star_big_pity_enabled', self.weapon_five_star_big_pity_enabled.get())
+            self.gacha_system.update_probability('weapon_four_star_big_pity_enabled', self.weapon_four_star_big_pity_enabled.get())
             self.gacha_system.update_probability('standard_five_star_base', float(self.standard_five_star_prob.get()))
             self.gacha_system.update_probability('standard_five_star_pity', int(self.standard_five_star_pity.get()))
             self.gacha_system.update_probability('standard_four_star_base', float(self.standard_four_star_prob.get()))
@@ -873,8 +889,10 @@ class GachaSimulatorGUI:
             'weapon_four_star_success_prob': 0.75,
             'character_four_star_pity': 10,
             'weapon_four_star_pity': 10,
-            'five_star_big_pity_enabled': True,
-            'four_star_big_pity_enabled': True,
+            'character_five_star_big_pity_enabled': True,
+            'character_four_star_big_pity_enabled': True,
+            'weapon_five_star_big_pity_enabled': True,
+            'weapon_four_star_big_pity_enabled': True,
             'standard_five_star_base': 0.006,
             'standard_five_star_pity': 90,
             'standard_four_star_base': 0.051,
@@ -898,8 +916,10 @@ class GachaSimulatorGUI:
         self.weapon_four_star_success_prob.set(str(default_settings['weapon_four_star_success_prob']))
         self.character_four_star_pity.set(str(default_settings['character_four_star_pity']))
         self.weapon_four_star_pity.set(str(default_settings['weapon_four_star_pity']))
-        self.five_star_big_pity_enabled.set(default_settings['five_star_big_pity_enabled'])
-        self.four_star_big_pity_enabled.set(default_settings['four_star_big_pity_enabled'])
+        self.character_five_star_big_pity_enabled.set(default_settings['character_five_star_big_pity_enabled'])
+        self.character_four_star_big_pity_enabled.set(default_settings['character_four_star_big_pity_enabled'])
+        self.weapon_five_star_big_pity_enabled.set(default_settings['weapon_five_star_big_pity_enabled'])
+        self.weapon_four_star_big_pity_enabled.set(default_settings['weapon_four_star_big_pity_enabled'])
         self.standard_five_star_prob.set(str(default_settings['standard_five_star_base']))
         self.standard_five_star_pity.set(str(default_settings['standard_five_star_pity']))
         self.standard_four_star_prob.set(str(default_settings['standard_four_star_base']))
@@ -1284,8 +1304,10 @@ class GachaSystem:
                 'weapon_four_star_success_prob': 0.75,
                 'character_four_star_pity': 10,
                 'weapon_four_star_pity': 10,
-                'five_star_big_pity_enabled': True,
-                'four_star_big_pity_enabled': True,
+                'character_five_star_big_pity_enabled': True,
+                'character_four_star_big_pity_enabled': True,
+                'weapon_five_star_big_pity_enabled': True,
+                'weapon_four_star_big_pity_enabled': True,
                 'standard_five_star_base': 0.006,
                 'standard_five_star_pity': 90,
                 'standard_four_star_base': 0.051,
@@ -1323,8 +1345,10 @@ class GachaSystem:
         data_str = data_str.replace('weapon_four_star_success_prob:', '  # 光锥池4星不歪概率\n  weapon_four_star_success_prob:')
         data_str = data_str.replace('character_four_star_pity:', '  # 角色池4星保底抽数\n  character_four_star_pity:')
         data_str = data_str.replace('weapon_four_star_pity:', '  # 光锥池4星保底抽数\n  weapon_four_star_pity:')
-        data_str = data_str.replace('five_star_big_pity_enabled:', '  # 是否启用5星大保底\n  five_star_big_pity_enabled:')
-        data_str = data_str.replace('four_star_big_pity_enabled:', '  # 是否启用4星大保底\n  four_star_big_pity_enabled:')
+        data_str = data_str.replace('character_five_star_big_pity_enabled:', '  # 是否启用角色池5星大保底\n  character_five_star_big_pity_enabled:')
+        data_str = data_str.replace('character_four_star_big_pity_enabled:', '  # 是否启用角色池4星大保底\n  character_four_star_big_pity_enabled:')
+        data_str = data_str.replace('weapon_five_star_big_pity_enabled:', '  # 是否启用光锥池5星大保底\n  weapon_five_star_big_pity_enabled:')
+        data_str = data_str.replace('weapon_four_star_big_pity_enabled:', '  # 是否启用光锥池4星大保底\n  weapon_four_star_big_pity_enabled:')
         data_str = data_str.replace('standard_five_star_base:', '  # 常驻池5星基础概率\n  standard_five_star_base:')
         data_str = data_str.replace('standard_five_star_pity:', '  # 常驻池5星保底抽数\n  standard_five_star_pity:')
         data_str = data_str.replace('standard_four_star_base:', '  # 常驻池4星基础概率\n  standard_four_star_base:')
@@ -1418,16 +1442,22 @@ class GachaSystem:
             five_star_base = self.current_prob['weapon_five_star_base']
             four_star_base = self.current_prob['weapon_four_star_base']
             four_star_pity = self.current_prob['weapon_four_star_pity']
+            five_star_big_pity_enabled = self.current_prob['weapon_five_star_big_pity_enabled']
+            four_star_big_pity_enabled = self.current_prob['weapon_four_star_big_pity_enabled']
         elif pool_type == 'character':
             five_star_pity = self.current_prob['character_five_star_pity']
             five_star_base = self.current_prob['character_five_star_base']
             four_star_base = self.current_prob['character_four_star_base']
             four_star_pity = self.current_prob['character_four_star_pity']
+            five_star_big_pity_enabled = self.current_prob['character_five_star_big_pity_enabled']
+            four_star_big_pity_enabled = self.current_prob['character_four_star_big_pity_enabled']
         else:
             five_star_pity = self.current_prob['standard_five_star_pity']
             five_star_base = self.current_prob['standard_five_star_base']
             four_star_base = self.current_prob['standard_four_star_base']
             four_star_pity = self.current_prob['standard_four_star_pity']
+            five_star_big_pity_enabled = False
+            four_star_big_pity_enabled = False
 
         for i in range(num_pulls):
             self.total_pulls += 1
@@ -1464,14 +1494,14 @@ class GachaSystem:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n是小保底，恭喜没歪!")
                     else:
                         failed_featured_5star += 1
-                        if self.current_prob['five_star_big_pity_enabled']:
+                        if five_star_big_pity_enabled:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次将是大保底!")
                         else:
                             messagebox.showinfo("出货了!", f"你用了{pulls_for_this_5star}抽获得了{result['item']}\n可惜歪了，下次...下次还是小保底啦哈哈哈！\n如果想启用大保底机制记得去改一下抽卡概率")
                 else: # 常驻池逻辑
                     messagebox.showinfo("出货了!", f"恭喜，你用了{pulls_for_this_5star}抽获得了{result['item']}!")
                 
-                if self.current_prob['five_star_big_pity_enabled']:
+                if five_star_big_pity_enabled:
                     self.update_pool_stats(pool_type, pity_5=0, pity_4=0, pulls_since_last_5star=0, 
                                         is_guaranteed=not result['is_up'],  # 如果这次没有抽中UP，下次就是大保底
                                         failed_featured_5star=failed_featured_5star,
@@ -1487,7 +1517,7 @@ class GachaSystem:
             elif pity_4 >= four_star_pity - 1 or random.random() < four_star_base:
                 result = self.pull_4_star(pool_type)
                 purple_records.append(pity_4 + 1)
-                if self.current_prob['four_star_big_pity_enabled']:
+                if four_star_big_pity_enabled:
                     self.update_pool_stats(pool_type, pity_5=pity_5+1, pity_4=0, 
                                         four_star_guaranteed=not result['is_up'],
                                         pulls_since_last_5star=pulls_since_last_5star+1)
@@ -1553,24 +1583,27 @@ class GachaSystem:
         if pool_type == 'weapon':
             success_prob = self.current_prob['weapon_five_star_success_prob']
             five_star_small_pity_mechanism = self.current_prob['weapon_five_star_small_pity_mechanism']
+            five_star_big_pity_enabled = self.current_prob['weapon_five_star_big_pity_enabled']
         elif pool_type == 'character':
             success_prob = self.current_prob['character_five_star_success_prob']
             five_star_small_pity_mechanism = self.current_prob['character_five_star_small_pity_mechanism']
+            five_star_big_pity_enabled = self.current_prob['character_five_star_big_pity_enabled']
 
         is_up = self.is_guaranteed or ( 
             (five_star_small_pity_mechanism == 'random' and random.random() < success_prob) or
             (five_star_small_pity_mechanism == 'must_not_waste'))
+        
         if pool_type == 'character':
             if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['character_up_5_star'])
                 self.is_guaranteed = False
             else: # 歪了
                 item = random.choice(self.pools['common_pools']['character_5_star'])
-                if self.current_prob['five_star_big_pity_enabled']:
+                if five_star_big_pity_enabled:
                     self.is_guaranteed = True
                 else:
                     self.is_guaranteed = False
-            print(f"当前五星不歪概率为{success_prob}") # Debug
+            # print(f"当前五星不歪概率为{success_prob}") # Debug
             return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': is_up}
         elif pool_type == 'weapon':
             if is_up: # 没歪
@@ -1578,7 +1611,7 @@ class GachaSystem:
                 self.is_guaranteed = False
             else: # 歪了
                 item = random.choice(self.pools['common_pools']['weapon_5_star'])
-                if self.current_prob['five_star_big_pity_enabled']:
+                if five_star_big_pity_enabled:
                     self.is_guaranteed = True
                 else:
                     self.is_guaranteed = False
@@ -1597,9 +1630,11 @@ class GachaSystem:
         if pool_type == 'weapon':
             success_prob = self.current_prob['weapon_four_star_success_prob']
             four_star_small_pity_mechanism = self.current_prob['weapon_four_star_small_pity_mechanism']
+            four_star_big_pity_enabled = self.current_prob['weapon_four_star_big_pity_enabled']
         elif pool_type == 'character':
             success_prob = self.current_prob['character_four_star_success_prob']
             four_star_small_pity_mechanism = self.current_prob['character_four_star_small_pity_mechanism']
+            four_star_big_pity_enabled = self.current_prob['character_four_star_big_pity_enabled']
 
         is_up = self.four_star_guaranteed or ( 
     (four_star_small_pity_mechanism == 'random' and random.random() < success_prob) or
@@ -1623,7 +1658,7 @@ class GachaSystem:
             # 随便抽一个
             item = random.choice(non_up_items)
             # 更新四星大保底状态
-            if self.current_prob['four_star_big_pity_enabled']:
+            if four_star_big_pity_enabled:
                 self.four_star_guaranteed = True
             else:
                 self.four_star_guaranteed = False
