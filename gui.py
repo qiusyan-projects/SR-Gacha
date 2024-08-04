@@ -169,6 +169,9 @@ class GachaSimulatorGUI:
         self.pull_10_button = ttk.Button(gacha_frame, text="十连抽！", command=lambda: self.on_pull(10))
         self.pull_10_button.grid(row=0, column=1, pady=2, padx=2, sticky="ew")
 
+        self.pull_pity_button = ttk.Button(gacha_frame, text="抽一个小保底", command=lambda: self.on_pull(self.get_current_pity()))
+        self.pull_pity_button.grid(row=1, column=0, columnspan=2, pady=2, padx=2, sticky="ew")
+
         gacha_frame.columnconfigure(0, weight=1)
         gacha_frame.columnconfigure(1, weight=1)
 
@@ -1157,6 +1160,20 @@ class GachaSimulatorGUI:
             self.weapon_four_star_small_pity_var_must_not_waste.set(True)
 
         # 光锥池4星小保底机制设置 结束
+
+    def get_current_pity(self):
+        # 根据当前选择的卡池类型获取对应的保底数值
+        if self.gacha_system.current_banner:
+            pool_type = self.gacha_system.pools['banners'][self.gacha_system.current_banner].get('pool_type', 'standard')
+            if pool_type == 'character':
+                return self.gacha_system.current_prob['character_five_star_pity']
+            elif pool_type == 'weapon':
+                return self.gacha_system.current_prob['weapon_five_star_pity']
+            else:
+                return self.gacha_system.current_prob['standard_five_star_pity']
+        else:
+            # 如果没有选择卡池，返回一个默认值或者提示用户选择卡池
+            return self.gacha_system.current_prob['standard_five_star_pity']
 
 # GachaSystem部分开始
 class GachaSystem:
