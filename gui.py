@@ -1804,14 +1804,17 @@ class GachaSystem:
             gold_records = self.character_gold_records
             failed_featured = self.character_failed_featured_5star
             total_featured = self.character_failed_featured_5star + self.character_successful_featured_5star
+            five_star_pity = self.current_prob['character_five_star_pity']
         elif pool_type == 'weapon':
             gold_records = self.weapon_gold_records
             failed_featured = self.weapon_failed_featured_5star
             total_featured = self.weapon_failed_featured_5star + self.weapon_successful_featured_5star
+            five_star_pity = self.current_prob['weapon_five_star_pity']
         else:  # standard pool
             gold_records = self.gold_records
             failed_featured = 0  # Not applicable for standard pool
             total_featured = 0
+            five_star_pity = self.current_prob['standard_five_star_pity']
 
         if not gold_records:
             return "暂无数据"
@@ -1819,64 +1822,95 @@ class GachaSystem:
         min_pulls = min(gold_records)
         max_pulls = max(gold_records)
         avg_pulls = sum(gold_records) / len(gold_records)
-
         luck_score = 0
 
+        # 由具体数值更改为一个比例
+
+        # 最少抽数
+        min_judged_1 = int(five_star_pity * (15 / 90)) # 15
+        min_judged_2 = int(five_star_pity * (25 / 90)) # 25
+        min_judged_3 = int(five_star_pity * (35 / 90)) # 35
+        min_judged_4 = int(five_star_pity * (45 / 90)) # 45
+        # 最多抽数
+        max_judged_1 = int(five_star_pity * (55 / 90)) # 55
+        max_judged_2 = int(five_star_pity * (65 / 90)) # 65
+        max_judged_3 = int(five_star_pity * (80 / 90)) # 80
+        # 平均抽数
+        avg_judged_1 = int(five_star_pity * (30 / 90)) # 30
+        avg_judged_2 = int(five_star_pity * (40 / 90)) # 40
+        avg_judged_3 = int(five_star_pity * (50 / 90)) # 50
+        avg_judged_4 = int(five_star_pity * (60 / 90)) # 60
+        avg_judged_5 = int(five_star_pity * (70 / 90)) # 70
+
         # 最少抽数评分
-        if min_pulls <= 20:
+        if min_pulls <= min_judged_1:
+            luck_score += 5  
+        elif min_pulls <= min_judged_2:
+            luck_score += 4
+        elif min_pulls <= min_judged_3:
             luck_score += 3
-        elif min_pulls <= 40:
+        elif min_pulls <= min_judged_4:
             luck_score += 2
-        elif min_pulls <= 60:
-            luck_score += 1
+        else:
+            luck_score += 1  
 
         # 最多抽数评分
-        if max_pulls <= 60:
-            luck_score += 3
-        elif max_pulls <= 75:
+        if max_pulls <= max_judged_1:
+            luck_score += 3 
+        elif max_pulls <= max_judged_2:
             luck_score += 2
-        elif max_pulls <= 85:
+        elif max_pulls <= max_judged_3:
             luck_score += 1
+        else:
+            luck_score += 0 
 
         # 平均抽数评分
-        if pool_type == 'standard':
-            if avg_pulls <= 45:
-                luck_score += 4
-            elif avg_pulls <= 60:
-                luck_score += 3
-            elif avg_pulls <= 75:
-                luck_score += 2
-            elif avg_pulls <= 85:
-                luck_score += 1
+        if avg_pulls <= avg_judged_1:
+            luck_score += 5  
+        elif avg_pulls <= avg_judged_2:
+            luck_score += 4
+        elif avg_pulls <= avg_judged_3:
+            luck_score += 3
+        elif avg_pulls <= avg_judged_4:
+            luck_score += 2
+        elif avg_pulls <= avg_judged_5:
+            luck_score += 1
         else:
-            if avg_pulls <= 50:
-                luck_score += 3
-            elif avg_pulls <= 65:
-                luck_score += 2
-            elif avg_pulls <= 75:
-                luck_score += 1
+            luck_score += 0  
 
         # UP角色/武器歪卡率评分 (仅限UP池)
         if pool_type != 'standard' and total_featured > 0:
             fail_rate = failed_featured / total_featured
             if fail_rate == 0:
-                luck_score += 3
+                luck_score += 5 
+            elif fail_rate <= 0.1:
+                luck_score += 4
             elif fail_rate <= 0.25:
+                luck_score += 3
+            elif fail_rate <= 0.4:
                 luck_score += 2
-            elif fail_rate <= 0.5:
+            elif fail_rate <= 0.75:
                 luck_score += 1
+            else:
+                luck_score += 0  
 
         # 根据分数判断运势
-        if luck_score >= 10:
+        if luck_score >= 20:
+            return "极佳"
+        elif luck_score >= 18:
             return "大吉"
-        elif luck_score >= 8:
+        elif luck_score >= 15:
+            return "上吉"
+        elif luck_score >= 12:
             return "中吉"
-        elif luck_score >= 6:
+        elif luck_score >= 9:
             return "小吉"
-        elif luck_score >= 4:
+        elif luck_score >= 6:
             return "平"
-        elif luck_score >= 2:
+        elif luck_score >= 3:
             return "小凶"
+        elif luck_score >= 1:
+            return "中凶"
         else:
             return "大凶"
 
