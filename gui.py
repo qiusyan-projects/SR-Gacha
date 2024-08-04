@@ -4,7 +4,7 @@ import os
 import requests
 from datetime import datetime
 import tkinter as tk
-from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk
+from tkinter import messagebox, scrolledtext, StringVar, Toplevel, Label, Button, Entry, Listbox, END, BooleanVar, font, ttk, simpledialog
 import re
 import sys
 # from ttkthemes import ThemedTk
@@ -18,6 +18,8 @@ RESET = '#FFFFFF'
 CYAN = '#00CED1'
 YELLOW = '#FFFF00'
 BLUE = '#1E90FF'
+CHARACTER_DISPLAY_NAME = '角色'
+WEAPON_DISPLAY_NAME = '光锥'
 
 BANNER_FILE = 'banners.yml'
 GITHUB_PROXY = 'https://mirror.ghproxy.com'
@@ -142,7 +144,7 @@ class GachaSimulatorGUI:
         banner_frame = ttk.LabelFrame(self.left_frame, text="卡池切换")
         banner_frame.pack(pady=2, padx=5, fill=tk.X)
 
-        self.toggle_button = ttk.Button(banner_frame, text="切换到光锥池列表", command=self.toggle_banner_type)
+        self.toggle_button = ttk.Button(banner_frame, text=f"切换到{WEAPON_DISPLAY_NAME}池列表", command=self.toggle_banner_type)
         self.toggle_button.grid(row=0, column=0, pady=2, padx=2, sticky="ew")
 
         self.standard_banner_button = ttk.Button(banner_frame, text="切换到常驻池", command=self.select_standard_banner)
@@ -269,10 +271,10 @@ class GachaSimulatorGUI:
     def toggle_banner_type(self):
         if self.current_banner_type.get() == "character":
             self.current_banner_type.set("weapon")
-            self.toggle_button.config(text="切换到角色池列表")
+            self.toggle_button.config(text=f"切换到{CHARACTER_DISPLAY_NAME}池列表")
         else:
             self.current_banner_type.set("character")
-            self.toggle_button.config(text="切换到光锥池列表")
+            self.toggle_button.config(text=f"切换到{WEAPON_DISPLAY_NAME}池列表")
         self.update_banner_list()
 
     def select_standard_banner(self):
@@ -361,7 +363,7 @@ class GachaSimulatorGUI:
         
         # 根据卡池类型确定显示的文本
         pool_type = banner_info.get('pool_type', 'standard')  # 默认为'standard'，如果未指定类型
-        pool_type_display = '光锥' if pool_type == 'weapon' else '角色'
+        pool_type_display = WEAPON_DISPLAY_NAME if pool_type == 'weapon' else CHARACTER_DISPLAY_NAME
         
         # 获取UP的五星和四星项目信息
         up_5_star_key = f'{pool_type}_up_5_star'
@@ -415,9 +417,9 @@ class GachaSimulatorGUI:
             is_up = "否"
             if not is_standard_banner and rarity in ['4_star', '5_star']:
                 up_items = current_banner_info.get(f"{item_type}_up_{rarity}", [])
-                if not up_items and item_type == '角色':
+                if not up_items and item_type == CHARACTER_DISPLAY_NAME:
                     up_items = current_banner_info.get(f"character_up_{rarity}", [])
-                elif not up_items and item_type == '光锥':
+                elif not up_items and item_type == WEAPON_DISPLAY_NAME:
                     up_items = current_banner_info.get(f"weapon_up_{rarity}", [])
                 
                 is_up = "是" if item in up_items else "否"
@@ -466,7 +468,7 @@ class GachaSimulatorGUI:
             successful_featured_5star = self.gacha_system.character_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.character_pulls_since_last_5star
             is_guaranteed = self.gacha_system.character_is_guaranteed
-            stats_type = "角色池"
+            stats_type = f"{CHARACTER_DISPLAY_NAME}池"
             pool_pulls = self.gacha_system.character_pulls
             five_star_pity = self.gacha_system.current_prob['character_five_star_pity']
             four_star_pity = self.gacha_system.current_prob['character_four_star_pity']
@@ -484,7 +486,7 @@ class GachaSimulatorGUI:
             successful_featured_5star = self.gacha_system.weapon_successful_featured_5star
             pulls_since_last_5star = self.gacha_system.weapon_pulls_since_last_5star
             is_guaranteed = self.gacha_system.weapon_is_guaranteed
-            stats_type = "光锥池"
+            stats_type = f"{WEAPON_DISPLAY_NAME}池"
             pool_pulls = self.gacha_system.weapon_pulls
             five_star_pity = self.gacha_system.current_prob['weapon_five_star_pity']
             four_star_pity = self.gacha_system.current_prob['weapon_four_star_pity']
@@ -712,8 +714,8 @@ class GachaSimulatorGUI:
         tab_standard = ttk.Frame(notebook, padding="30")
 
         # 添加标签页到 Notebook
-        notebook.add(tab_character, text="角色池")
-        notebook.add(tab_weapon, text="光锥池")
+        notebook.add(tab_character, text=f"{CHARACTER_DISPLAY_NAME}池")
+        notebook.add(tab_weapon, text=f"{WEAPON_DISPLAY_NAME}池")
         notebook.add(tab_standard, text="常驻池")
 
         if pool_type is None:
@@ -1014,7 +1016,7 @@ class GachaSimulatorGUI:
 
     def setup_character_5_star_small_pity(self, tab):
         # 角色池5星小保底机制设置 开始
-        character_five_star_small_pity_frame = ttk.LabelFrame(tab, text="角色池5星小保底机制")
+        character_five_star_small_pity_frame = ttk.LabelFrame(tab, text="5星小保底机制")
         character_five_star_small_pity_frame.grid(row=6, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
         # 使用不同的变量来控制每个RadioButton
         self.character_five_star_small_pity_var_random = BooleanVar(value=False)  
@@ -1050,7 +1052,7 @@ class GachaSimulatorGUI:
 
     def setup_character_4_star_small_pity(self, tab):
         # 角色池4星小保底机制设置 开始
-        character_four_star_small_pity_frame = ttk.LabelFrame(tab, text="角色池4星小保底机制")
+        character_four_star_small_pity_frame = ttk.LabelFrame(tab, text="4星小保底机制")
         character_four_star_small_pity_frame.grid(row=7, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
         # 使用不同的变量来控制每个RadioButton
         self.character_four_star_small_pity_var_random = BooleanVar(value=False)  
@@ -1086,7 +1088,7 @@ class GachaSimulatorGUI:
 
     def setup_weapon_5_star_small_pity(self, tab):
         # 光锥池5星小保底机制设置 开始
-        weapon_five_star_small_pity_frame = ttk.LabelFrame(tab, text="光锥池5星小保底机制")
+        weapon_five_star_small_pity_frame = ttk.LabelFrame(tab, text="5星小保底机制")
         weapon_five_star_small_pity_frame.grid(row=6, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
         # 使用不同的变量来控制每个RadioButton
         self.weapon_five_star_small_pity_var_random = BooleanVar(value=False)  
@@ -1122,7 +1124,7 @@ class GachaSimulatorGUI:
 
     def setup_weapon_4_star_small_pity(self, tab):
         # 光锥池4星小保底机制设置 开始
-        weapon_four_star_small_pity_frame = ttk.LabelFrame(tab, text="光锥池4星小保底机制")
+        weapon_four_star_small_pity_frame = ttk.LabelFrame(tab, text="4星小保底机制")
         weapon_four_star_small_pity_frame.grid(row=7, column=0, columnspan=3, sticky="ew", pady=5, padx=5)
         # 使用不同的变量来控制每个RadioButton
         self.weapon_four_star_small_pity_var_random = BooleanVar(value=False)  
@@ -1322,9 +1324,9 @@ class GachaSystem:
                 # 处理pull_history中的item_type
                 for pull in self.pull_history:
                     if pull['item_type'] == 'character':
-                        pull['item_type'] = '角色'
+                        pull['item_type'] = CHARACTER_DISPLAY_NAME
                     elif pull['item_type'] == 'weapon':
-                        pull['item_type'] = '光锥'
+                        pull['item_type'] = WEAPON_DISPLAY_NAME
         except FileNotFoundError:
             self.show_message("未找到保存的数据，使用默认值初始化。", YELLOW)
         except Exception as e:
@@ -1668,7 +1670,7 @@ class GachaSystem:
                 else:
                     self.is_guaranteed = False
             # print(f"当前五星不歪概率为{success_prob}") # Debug
-            return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': is_up}
+            return {'rarity': '5_star', 'type': CHARACTER_DISPLAY_NAME, 'item': item, 'is_up': is_up}
         elif pool_type == 'weapon':
             if is_up: # 没歪
                 item = random.choice(self.pools['banners'][self.current_banner]['weapon_up_5_star'])
@@ -1680,14 +1682,14 @@ class GachaSystem:
                 else:
                     self.is_guaranteed = False
             # print(f"当前五星不歪概率为{success_prob}") # Debug
-            return {'rarity': '5_star', 'type': '光锥', 'item': item, 'is_up': is_up}
+            return {'rarity': '5_star', 'type': WEAPON_DISPLAY_NAME, 'item': item, 'is_up': is_up}
         else:  # standard pool
             if random.random() < 0.5:
                 item = random.choice(self.pools['common_pools']['character_5_star'])
-                return {'rarity': '5_star', 'type': '角色', 'item': item, 'is_up': False}
+                return {'rarity': '5_star', 'type': CHARACTER_DISPLAY_NAME, 'item': item, 'is_up': False}
             else:
                 item = random.choice(self.pools['common_pools']['weapon_5_star'])
-                return {'rarity': '5_star', 'type': '光锥', 'item': item, 'is_up': False}
+                return {'rarity': '5_star', 'type': CHARACTER_DISPLAY_NAME, 'item': item, 'is_up': False}
 
     def pull_4_star(self, pool_type):
 
@@ -1711,11 +1713,11 @@ class GachaSystem:
             if pool_type == 'character':
                 item = random.choice(self.pools['banners'][self.current_banner].get('character_up_4_star', []))
                 self.four_star_guaranteed = False
-                return {'rarity': '4_star', 'type': '角色', 'item': item, 'is_up': True}
+                return {'rarity': '4_star', 'type': CHARACTER_DISPLAY_NAME, 'item': item, 'is_up': True}
             else:  # weapon pool
                 item = random.choice(self.pools['banners'][self.current_banner].get('weapon_up_4_star', []))
                 self.four_star_guaranteed = False
-                return {'rarity': '4_star', 'type': '光锥', 'item': item, 'is_up': True}
+                return {'rarity': '4_star', 'type': WEAPON_DISPLAY_NAME, 'item': item, 'is_up': True}
         else: # 非up 或者 为常驻
             # 50%的概率从四星角色中抽取，50%的概率从四星光锥中抽取
             four_star_item_pool = self.pools['common_pools']['character_4_star'] if random.random() < 0.5 else self.pools['common_pools']['weapon_4_star']
@@ -1732,9 +1734,9 @@ class GachaSystem:
                 self.four_star_guaranteed = False
             # 判断物品类型
             if item in self.pools['common_pools']['character_4_star']:
-                type = '角色'
+                type = CHARACTER_DISPLAY_NAME
             elif item in self.pools['common_pools']['weapon_4_star']:
-                type = '光锥'
+                type = WEAPON_DISPLAY_NAME
             else:
                 # 如果不确定物品类型，可以选择默认为一种或记录日志等
                 type = '未知'
@@ -1742,7 +1744,7 @@ class GachaSystem:
 
     def pull_3_star(self):
         item = random.choice(self.pools['common_pools']['weapon_3_star'])
-        return {'rarity': '3_star', 'type': '光锥', 'item': item, 'is_up': False}
+        return {'rarity': '3_star', 'type': WEAPON_DISPLAY_NAME, 'item': item, 'is_up': False}
 
     def show_message(self, message, color=RESET):
         if color == RED:
