@@ -1991,6 +1991,7 @@ class GachaSystem:
 
 # GachaSystem 部分结束
 
+
 # 主程序
 if __name__ == "__main__":
     # root = ThemedTk(theme="adapta")  # 不使用主题
