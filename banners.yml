@@ -30,6 +30,7 @@ common_pools:
   - 寒鸦
   - 加拉赫
   - 米沙
+  - 貊泽
   weapon_5_star: # 常驻的五星光锥/武器
   - 银河铁道之夜
   - 以世界之名
@@ -65,6 +66,7 @@ common_pools:
   - 无边曼舞
   - 谐乐静默之后
   - 芳华待灼
+  - 黑夜如影随行
   weapon_3_star: # 所有的三星光锥/武器
   - 锋镝
   - 物穰
@@ -520,6 +522,42 @@ banners: # 限时卡池
     - 芳华待灼
     - 猎物的视线
     - 秘密誓心
+  feixiao-c:
+    name: 飙驭霆击
+    pool_type: character
+    character_up_5_star:
+    - 飞霄
+    character_up_4_star:
+    - 貊泽
+    - 艾丝妲
+    - 卢卡
+  feixiao-w:
+    name: 飞霄专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 我将，巡征追猎
+    weapon_up_4_star:
+    - 论剑
+    - 决心如汗珠般闪耀
+    - 『我』的诞生
+  lingsha-c:
+    name: 卧香沉水
+    pool_type: character
+    character_up_5_star:
+    - 灵砂
+    character_up_4_star:
+    - 米沙
+    - 娜塔莎
+    - 桂乃芬
+  lingsha-w:
+    name: 灵砂专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 唯有香如故
+    weapon_up_4_star:
+    - 黑夜如影随行
+    - 同一种心情
+    - 与行星相会
   standard:
     name: 群星跃迁
     pool_type: standard
