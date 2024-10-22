@@ -1,4 +1,4 @@
-version: '2.4' 
+version: '2.6' 
 common_pools:
   character_5_star: # 常驻的五星角色
   - 姬子
@@ -67,6 +67,7 @@ common_pools:
   - 谐乐静默之后
   - 芳华待灼
   - 黑夜如影随行
+  - 梦的蒙太奇
   weapon_3_star: # 所有的三星光锥/武器
   - 锋镝
   - 物穰
@@ -558,6 +559,24 @@ banners: # 限时卡池
     - 黑夜如影随行
     - 同一种心情
     - 与行星相会
+  rappa-c:
+    name: 忍视眈眈
+    pool_type: character
+    character_up_5_star:
+    - 乱破
+    character_up_4_star:
+    - 玲可
+    - 雪衣
+    - 驭空
+  rappa-w:
+    name: 乱破专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 忍法帖•缭乱破魔
+    weapon_up_4_star:
+    - 梦的蒙太奇
+    - 谐乐静默之后
+    - 在蓝天下
   standard:
     name: 群星跃迁
     pool_type: standard
