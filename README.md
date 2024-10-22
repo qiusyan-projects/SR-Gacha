@@ -38,7 +38,7 @@ Release:  [![GitHub Release](https://img.shields.io/github/v/release/qiusyan-pro
 
 # 当前卡池文件版本
 
-`2.5`
+`2.6`
 
 # 程序界面预览
 
