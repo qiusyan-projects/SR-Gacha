@@ -1,4 +1,4 @@
-version: '2.6' 
+version: '2.7' 
 common_pools:
   character_5_star: # 常驻的五星角色
   - 姬子
@@ -577,6 +577,42 @@ banners: # 限时卡池
     - 梦的蒙太奇
     - 谐乐静默之后
     - 在蓝天下
+  sunday-c:
+    name: 向星举目
+    pool_type: character
+    character_up_5_star:
+    - 星期日
+    character_up_4_star:
+    - 青雀
+    - 阿兰
+    - 停云
+  sunday-w:
+    name: 星期日专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 回到大地的飞行
+    weapon_up_4_star:
+    - 芳华待灼
+    - 『我』的诞生
+    - 论剑
+  fugue-c:
+    name: 归路迢迢
+    pool_type: character
+    character_up_5_star:
+    - 忘归人
+    character_up_4_star:
+    - 加拉赫
+    - 驭空
+    - 米沙
+  fugue-w:
+    name: 忘归人专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 长路终有归途
+    weapon_up_4_star:
+    - 铭记于心的约定
+    - 决心如汗珠般闪耀
+    - 两个人的演唱会
   standard:
     name: 群星跃迁
     pool_type: standard
