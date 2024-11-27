@@ -2007,4 +2007,3 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAABBVBMVEVHcE
     root.iconphoto(True, photo)
     gui = GachaSimulatorGUI(root)
     root.mainloop()
-    
