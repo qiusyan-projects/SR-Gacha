@@ -11,6 +11,7 @@ on:
     paths:
       - '**.py'
       - 'main.yml'
+  workflow_dispatch:
 
 jobs:
   build:
