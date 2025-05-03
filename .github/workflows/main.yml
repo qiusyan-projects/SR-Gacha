@@ -34,7 +34,7 @@ jobs:
       run: pyinstaller -F -w gui.py 
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gui
         path: dist/
