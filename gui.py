@@ -1457,7 +1457,7 @@ class GachaSystem:
             download = messagebox.askyesno("错误", f"卡池文件不存在。是否从GitHub下载最新的卡池文件？")
             if download:
                 try:
-                    proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
+                    proxy_url = f"{GITHUB_PROXY}{BANNER_DOWNLOAD_URL}"
                     response = requests.get(proxy_url)
                     response.raise_for_status()
                     with open(self.pool_file, 'wb') as f:
@@ -1478,7 +1478,7 @@ class GachaSystem:
 
     def check_and_update_pool_file(self):
         try:
-            proxy_url = f"{GITHUB_PROXY}/{BANNER_DOWNLOAD_URL}"
+            proxy_url = f"{GITHUB_PROXY}{BANNER_DOWNLOAD_URL}"
             response = requests.get(proxy_url)
             response.raise_for_status()
             remote_content = response.content
