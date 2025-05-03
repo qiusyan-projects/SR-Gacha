@@ -1,4 +1,4 @@
-version: '2.7' 
+version: '3.2' 
 common_pools:
   character_5_star: # 常驻的五星角色
   - 姬子
@@ -68,6 +68,7 @@ common_pools:
   - 芳华待灼
   - 黑夜如影随行
   - 梦的蒙太奇
+  - 天才们的问候
   weapon_3_star: # 所有的三星光锥/武器
   - 锋镝
   - 物穰
@@ -613,6 +614,114 @@ banners: # 限时卡池
     - 铭记于心的约定
     - 决心如汗珠般闪耀
     - 两个人的演唱会
+  theherta-c:
+    name: 视界来信
+    pool_type: character
+    character_up_5_star:
+    - 大黑塔
+    character_up_4_star:
+    - 娜塔莎
+    - 艾丝妲
+    - 貊泽
+  theherta-w:
+    name: 大黑塔专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 向着不可追问处
+    weapon_up_4_star:
+    - 唯有沉默
+    - 朗道的选择
+    - 天才们的休憩
+  aglaea-c:
+    name: 裁酌天命
+    pool_type: character
+    character_up_5_star:
+    - 阿格莱雅
+    character_up_4_star:
+    - 停云
+    - 寒鸦
+    - 素裳
+  aglaea-w:
+    name: 阿格莱雅专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 将光阴织成黄金
+    weapon_up_4_star:
+    - 天才们的问候
+    - 点个关注吧！
+    - 舞！舞！舞！
+  tribble-c:
+    name: 径复原初
+    pool_type: character
+    character_up_5_star:
+    - 缇宝
+    character_up_4_star:
+    - 玲可
+    - 虎克
+    - 桂乃芬
+  tribble-w:
+    name: 缇宝专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 如果时间是一朵花
+    weapon_up_4_star:
+    - 与行星相会
+    - 一场术后对话
+    - 宇宙市场趋势
+  mydei-c:
+    name: 血炬狮心
+    pool_type: character
+    character_up_5_star:
+    - 万敌
+    character_up_4_star:
+    - 阿兰
+    - 雪衣
+    - 娜塔莎
+  mydei-w:
+    name: 万敌专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 血火啊，燃烧前路
+    weapon_up_4_star:
+    - 此时恰好
+    - 秘密誓心
+    - 记忆中的模样
+  castorice-c:
+    name: 冥途生花
+    pool_type: character
+    character_up_5_star:
+    - 遐蝶
+    character_up_4_star:
+    - 佩拉
+    - 加拉赫
+    - 玲可
+  castorice-w:
+    name: 遐蝶专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 让告别，更美一些
+    weapon_up_4_star:
+    - 晚安与睡颜
+    - 一场术后对话
+    - 无边曼舞
+  anaxa-c:
+    name: 胚中万物
+    pool_type: character
+    character_up_5_star:
+    - 那刻夏
+    character_up_4_star:
+    - 丹恒
+    - 希露瓦
+    - 貊泽
+  anaxa-w:
+    name: 那刻夏专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 生命当付之一炬
+    weapon_up_4_star:
+    - 宇宙市场趋势
+    - 谐乐静默之后
+    - 鼹鼠党欢迎你
   standard:
     name: 群星跃迁
     pool_type: standard
