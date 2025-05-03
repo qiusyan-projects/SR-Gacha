@@ -25,8 +25,8 @@ CHARACTER_DISPLAY_NAME = '角色'
 WEAPON_DISPLAY_NAME = '光锥'
 
 BANNER_FILE = 'banners.yml'
-GITHUB_PROXY = 'https://mirror.ghproxy.com'
-BANNER_DOWNLOAD_URL = "https://raw.githubusercontent.com/qiusyan-projects/SR-Gacha/main/banners.yml"
+GITHUB_PROXY = ''
+BANNER_DOWNLOAD_URL = "https://raw.gh.qiusyan.top/qiusyan-projects/SR-Gacha/main/banners.yml"
 TIPS = [
     "大保底时，下一个5星角色必定是UP角色。",
     "每10次抽卡必定至少有一个4星或以上角色/光锥。",
