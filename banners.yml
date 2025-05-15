@@ -722,6 +722,42 @@ banners: # 限时卡池
     - 宇宙市场趋势
     - 谐乐静默之后
     - 鼹鼠党欢迎你
+  hyacine-c:
+    name: 虹隽晨昏
+    pool_type: character
+    character_up_5_star:
+    - 风堇
+    character_up_4_star:
+    - 米沙
+    - 希露瓦
+    - 娜塔莎
+  hyacine-w:
+    name: 风堇专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 愿虹光永驻天空
+    weapon_up_4_star:
+    - 别让世界静下来
+    - 黑夜如影随形
+    - 余生的第一天
+  cipher-c:
+    name: 捷足盗天
+    pool_type: character
+    character_up_5_star:
+    - 赛飞儿
+    character_up_4_star:
+    - 青雀
+    - 雪衣
+    - 素裳
+  cipher-w:
+    name: 赛飞儿专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 谎言在风中飘扬
+    weapon_up_4_star:
+    - 天才们的问候
+    - 猎物的视线
+    - 同一种心情
   standard:
     name: 群星跃迁
     pool_type: standard
