@@ -1,15 +1,19 @@
-name: Build Actions (GUI)
+name: Build Executable (GUI)
 
 on:
   push:
     branches: [ main ]
     paths:
       - '**.py'
+      - 'banners.yml'
+      - 'requirements.txt'
       - 'main.yml'
   pull_request:
     branches: [ main ]
     paths:
       - '**.py'
+      - 'banners.yml'
+      - 'requirements.txt'
       - 'main.yml'
   workflow_dispatch:
 
@@ -18,10 +22,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
@@ -32,10 +36,14 @@ jobs:
         pip install pyinstaller
 
     - name: Build executable
-      run: pyinstaller -F -w gui.py 
+      run: |
+        pyinstaller -F -w `
+          --add-data "banners.yml;." `
+          --name "SR-Gacha" `
+          main.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: gui
+        name: SR-Gacha
         path: dist/

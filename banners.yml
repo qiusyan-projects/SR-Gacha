@@ -1,4 +1,4 @@
-version: '3.2' 
+version: '4.3' 
 common_pools:
   character_5_star: # 常驻的五星角色
   - 姬子
@@ -758,6 +758,240 @@ banners: # 限时卡池
     - 天才们的问候
     - 猎物的视线
     - 同一种心情
+  phainon-c:
+    name: 永劫燔阳
+    pool_type: character
+    character_up_5_star:
+    - 白厄
+    character_up_4_star:
+    - 停云
+    - 三月七
+    - 驭空
+  phainon-w:
+    name: 白厄专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 黎明恰如此燃烧
+    weapon_up_4_star:
+    - 故事的下一页
+    - 与行星相会
+    - 在蓝天下
+  hysilens-c:
+    name: 绀碧绝音
+    pool_type: character
+    character_up_5_star:
+    - 海瑟音
+    character_up_4_star:
+    - 艾丝妲
+    - 阿兰
+    - 虎克
+  hysilens-w:
+    name: 海瑟音专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 海洋为何而歌
+    weapon_up_4_star:
+    - 猎物的视线
+    - 芳华待灼
+    - 铭记于心的约定
+  cerydra-c:
+    name: 弄潮铁血
+    pool_type: character
+    character_up_5_star:
+    - 刻律德菈
+    character_up_4_star:
+    - 桑博
+    - 青雀
+    - 丹恒
+  cerydra-w:
+    name: 刻律专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 金血铭刻的时代
+    weapon_up_4_star:
+    - 「我」的诞生
+    - 论剑
+    - 晚安与睡颜
+  evernight-c:
+    name: 无我所忆
+    pool_type: character
+    character_up_5_star:
+    - 长夜月
+    character_up_4_star:
+    - 米沙
+    - 桂乃芬
+    - 雪衣
+  evernight-w:
+    name: 长夜月专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 致长夜的星光
+    weapon_up_4_star:
+    - 梦的蒙太奇
+    - 谐乐静默之后
+    - 舞！舞！舞！
+  dundan-c:
+    name: 八荒诛邪
+    pool_type: character
+    character_up_5_star:
+    - 丹恒·腾荒
+    character_up_4_star:
+    - 素裳
+    - 寒鸦
+    - 希露瓦
+  dundan-w:
+    name: 盾丹专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 纵然山河万程
+    weapon_up_4_star:
+    - 朗道的选择
+    - 唯有沉默
+    - 此时恰好
+  cyrene-c:
+    name: 涟漪回环
+    pool_type: character
+    character_up_5_star:
+    - 昔涟
+    character_up_4_star:
+    - 貊泽
+    - 玲可
+    - 佩拉
+  cyrene-w:
+    name: 昔涟专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 爱如此刻永恒
+    weapon_up_4_star:
+    - 故事的下一页
+    - 两个人的演唱会
+    - 无边曼舞
+  dahlia-c:
+    name: 烛中翩影
+    pool_type: character
+    character_up_5_star:
+    - 大丽花
+    character_up_4_star:
+    - 加拉赫
+    - 卢卡
+    - 三月七
+  dahlia-w:
+    name: 大丽花专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 勿忘她的火焰
+    weapon_up_4_star:
+    - 两个人的演唱会
+    - 记忆中的模样
+    - 晚安与睡颜
+  yaoguang-c:
+    name: 关映千翎
+    pool_type: character
+    character_up_5_star:
+    - 爻光
+    character_up_4_star:
+    - 佩拉
+    - 寒鸦
+    - 青雀
+  yaoguang-w:
+    name: 爻光专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 当她决定看见
+    weapon_up_4_star:
+    - 与行星相会
+    - 决心如汗珠般闪耀
+    - 故事的下一页
+  sparxie-c:
+    name: 狂欢企划
+    pool_type: character
+    character_up_5_star:
+    - 火花
+    character_up_4_star:
+    - 佩拉
+    - 寒鸦
+    - 青雀
+  sparxie-w:
+    name: 火花专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 花花世界迷人眼
+    weapon_up_4_star:
+    - 与行星相会
+    - 决心如汗珠般闪耀
+    - 故事的下一页
+  ashveil-c:
+    name: 长夜狩影
+    pool_type: character
+    character_up_5_star:
+    - 不死途
+    character_up_4_star:
+    - 艾丝妲
+    - 貊泽
+    - 米沙
+  ashveil-w:
+    name: 不死途专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 一场谎言的终幕
+    weapon_up_4_star:
+    - 别让世界静下来
+    - 黑夜如影随形
+    - 梦的蒙太奇
+  yl999-c:
+    name: 无敌玩家
+    pool_type: character
+    character_up_5_star:
+    - 银狼LV.999
+    character_up_4_star:
+    - 加拉赫
+    - 雪衣
+    - 虎克
+  yl999-w:
+    name: 狼尊专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 欢迎来到银河城
+    weapon_up_4_star:
+    - 芳华待灼
+    - 铭记于心的约定
+    - 猎物的视线
+  evanescia-c:
+    name: 韶艾裁英
+    pool_type: character
+    character_up_5_star:
+    - 绯英
+    character_up_4_star:
+    - 桂乃芬
+    - 玲可
+    - 素裳
+  evanescia-w:
+    name: 绯英专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 邂逅于下一个花季
+    weapon_up_4_star:
+    - 论剑
+    - 记忆中的模样
+    - 同一种心情
+  spblade-c:
+    name: 我身即刃
+    pool_type: character
+    character_up_5_star:
+    - 千冶·刃
+    character_up_4_star:
+    - 桑博
+    - 卢卡
+    - 停云
+  spblade-w:
+    name: 千冶·刃专锥
+    pool_type: weapon
+    weapon_up_5_star:
+    - 灼尽炼狱的新骸
+    weapon_up_4_star:
+    - 晚安与睡颜
+    - 余生的第一天
+    - 鼹鼠党欢迎你
   standard:
     name: 群星跃迁
     pool_type: standard
